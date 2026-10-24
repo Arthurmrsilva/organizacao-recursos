@@ -2,7 +2,7 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from sqlalchemy import create_engine, insert, update
+from sqlalchemy import create_engine, insert, select, update
 from werkzeug.security import generate_password_hash
 
 import app as aplicativo
@@ -237,5 +237,148 @@ class TestSistema(unittest.TestCase):
                 resposta = self.cliente.get("/recursos/novo")
 
                 self.assertEqual(resposta.status_code, 403)
+
+    def preparar_admin(self):
+        with self.engine.begin() as conexao:
+            conexao.execute(
+                update(usuarios)
+                .where(usuarios.c.id == 1)
+                .values(perfil="ADMIN")
+            )
+
+        self.entrar()
+
+    def dados_cadastro(self):
+        return {
+            "nome": "Novo Recurso",
+            "tipo": "SALA",
+            "localizacao": "Bloco B",
+            "capacidade": "40",
+            "competencia": "",
+            "csrf_token": self.obter_token(),
+        }
+
+    def buscar_recurso(self, nome):
+        with self.engine.connect() as conexao:
+            return conexao.execute(
+                select(recursos).where(recursos.c.nome == nome)
+            ).mappings().first()
+
+    def test_admin_cadastra_os_tres_tipos(self):
+        self.preparar_admin()
+
+        casos = [
+            ("SALA", "Sala Nova", "40", "", False),
+            ("PROFESSOR", "Professora Ana", "", "Python", False),
+            ("MATERIAL", "Notebook Novo", "", "", True),
+        ]
+
+        for tipo, nome, capacidade, competencia, restrito in casos:
+            with self.subTest(tipo=tipo):
+                dados = self.dados_cadastro()
+                dados.update(
+                    tipo=tipo,
+                    nome=nome,
+                    capacidade=capacidade,
+                    competencia=competencia,
+                )
+
+                if restrito:
+                    dados["restrito"] = "sim"
+
+                resposta = self.cliente.post(
+                    "/recursos/novo", data=dados
+                )
+
+                self.assertEqual(resposta.status_code, 302)
+                self.assertEqual(resposta.headers["Location"], "/")
+
+                salvo = self.buscar_recurso(nome)
+
+                self.assertIsNotNone(salvo)
+                self.assertEqual(salvo["tipo"], tipo)
+                self.assertEqual(salvo["localizacao"], "Bloco B")
+                self.assertEqual(salvo["restrito"], restrito)
+                self.assertTrue(salvo["ativo"])
+                self.assertEqual(
+                    salvo["capacidade"],
+                    40 if tipo == "SALA" else None,
+                )
+                self.assertEqual(
+                    salvo["competencia"],
+                    "Python" if tipo == "PROFESSOR" else None,
+                )
+
+    def test_cadastro_invalido_nao_grava(self):
+        self.preparar_admin()
+
+        casos = [
+            {"nome": "   "},
+            {"nome": "A" * 121},
+            {"tipo": "INVALIDO"},
+            {"localizacao": ""},
+            {"capacidade": "0"},
+            {"capacidade": "-1"},
+            {"capacidade": "10001"},
+            {"capacidade": "2.5"},
+            {"capacidade": "abc"},
+            {"tipo": "PROFESSOR", "competencia": ""},
+            {"tipo": "PROFESSOR", "competencia": "A" * 151},
+        ]
+
+        for numero, alteracoes in enumerate(casos):
+            with self.subTest(caso=numero):
+                dados = self.dados_cadastro()
+                dados["nome"] = f"Invalido {numero}"
+                dados.update(alteracoes)
+
+                resposta = self.cliente.post(
+                    "/recursos/novo", data=dados
+                )
+
+                self.assertEqual(resposta.status_code, 400)
+                self.assertIn(
+                    "Confira os campos abaixo:",
+                    resposta.get_data(as_text=True),
+                )
+                self.assertIsNone(
+                    self.buscar_recurso(dados["nome"].strip())
+                )
+
+    def test_outros_perfis_nao_podem_gravar_recurso(self):
+        for perfil in ("SOLICITANTE", "RESPONSAVEL"):
+            with self.subTest(perfil=perfil):
+                with self.engine.begin() as conexao:
+                    conexao.execute(
+                        update(usuarios)
+                        .where(usuarios.c.id == 1)
+                        .values(perfil=perfil)
+                    )
+
+                self.cliente = aplicativo.app.test_client()
+                self.entrar()
+                dados = self.dados_cadastro()
+
+                resposta = self.cliente.post(
+                    "/recursos/novo", data=dados
+                )
+
+                self.assertEqual(resposta.status_code, 403)
+                self.assertIsNone(
+                    self.buscar_recurso(dados["nome"])
+                )
+
+    def test_cadastro_sem_token_nao_grava(self):
+        self.preparar_admin()
+        dados = self.dados_cadastro()
+        dados.pop("csrf_token")
+
+        resposta = self.cliente.post(
+            "/recursos/novo", data=dados
+        )
+
+        self.assertEqual(resposta.status_code, 400)
+        self.assertIsNone(self.buscar_recurso(dados["nome"]))     
+
 if __name__ == "__main__":
     unittest.main()
