@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cadastrar recurso — Organização de Recursos</title>
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='style.css') }}"
+    >
+</head>
+<body>
+    <header>
+        <h1>Organização de Recursos</h1>
+        <p>Cadastro de salas, professores e materiais</p>
+    </header>
+
+    <main>
+        <section class="recurso">
+            <h2>Cadastrar recurso</h2>
+
+            {% if erros %}
+            <div role="alert">
+                <p>Confira os campos abaixo:</p>
+                <ul>
+                    {% for erro in erros %}
+                    <li>{{ erro }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+            {% endif %}
+
+            <form method="post"
+                  action="{{ url_for('novo_recurso') }}"
+                  class="formulario-login">
+
+                <input type="hidden" name="csrf_token"
+                       value="{{ session['csrf_token'] }}">
+
+                <label for="nome">Nome</label>
+                <input id="nome" name="nome" type="text"
+                       maxlength="120" required
+                       value="{{ dados.get('nome', '') }}">
+
+                <label for="tipo">Tipo</label>
+                <select id="tipo" name="tipo" required>
+                    <option value="">Selecione</option>
+                    {% for valor, rotulo in [
+                        ('SALA', 'Sala'),
+                        ('PROFESSOR', 'Professor'),
+                        ('MATERIAL', 'Material')
+                    ] %}
+                    <option value="{{ valor }}"
+                        {% if dados.get('tipo') == valor %}selected{% endif %}>
+                        {{ rotulo }}
+                    </option>
+                    {% endfor %}
+                </select>
+
+                <label for="localizacao">Localização</label>
+                <input id="localizacao" name="localizacao" type="text"
+                       maxlength="120" required
+                       value="{{ dados.get('localizacao', '') }}">
+
+                <label for="capacidade">Capacidade — preencher para salas</label>
+                <input id="capacidade" name="capacidade" type="number"
+                       min="1" max="10000" step="1"
+                       value="{{ dados.get('capacidade', '') }}">
+
+                <label for="competencia">
+                    Competência — preencher para professores
+                </label>
+                <input id="competencia" name="competencia" type="text"
+                       maxlength="150"
+                       value="{{ dados.get('competencia', '') }}">
+
+                <label>
+                    <input type="checkbox" name="restrito" value="sim"
+                           {% if dados.get('restrito') %}checked{% endif %}>
+                    A reserva exige aprovação do responsável
+                </label>
+
+                <button type="submit">Salvar recurso</button>
+            </form>
+
+            <p><a href="{{ url_for('inicio') }}">Voltar para o início</a></p>
+        </section>
+    </main>
+</body>
+</html>

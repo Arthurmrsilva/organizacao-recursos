@@ -10,7 +10,7 @@ from flask import (
     session,
     url_for,
 )
-from sqlalchemy import select
+from sqlalchemy import insert, select
 from werkzeug.security import check_password_hash
 
 from banco import criar_tabelas, engine, recursos, usuarios
@@ -127,6 +127,81 @@ def sair():
     session.clear()
     return redirect(url_for("login"))
 
+@app.route("/recursos/novo", methods=["GET", "POST"])
+def novo_recurso():
+    if g.usuario is None:
+        return redirect(url_for("login"))
+
+    if g.usuario["perfil"] != "ADMIN":
+        return "Acesso negado. Somente administradores podem cadastrar recursos.", 403
+
+    erros = []
+    dados = {}
+    status = 200
+
+    if request.method == "POST":
+        dados = {
+            "nome": request.form.get("nome", "").strip(),
+            "tipo": request.form.get("tipo", "").strip(),
+            "localizacao": request.form.get("localizacao", "").strip(),
+            "capacidade": request.form.get("capacidade", "").strip(),
+            "competencia": request.form.get("competencia", "").strip(),
+            "restrito": request.form.get("restrito") == "sim",
+        }
+
+        if not 1 <= len(dados["nome"]) <= 120:
+            erros.append("Informe um nome com até 120 caracteres.")
+
+        if dados["tipo"] not in ("SALA", "PROFESSOR", "MATERIAL"):
+            erros.append("Selecione um tipo de recurso válido.")
+
+        if not 1 <= len(dados["localizacao"]) <= 120:
+            erros.append("Informe uma localização com até 120 caracteres.")
+
+        capacidade = None
+
+        if dados["tipo"] == "SALA":
+            try:
+                capacidade = int(dados["capacidade"])
+
+                if not 1 <= capacidade <= 10000:
+                    erros.append("A capacidade deve estar entre 1 e 10000.")
+            except ValueError:
+                erros.append("Informe uma capacidade inteira para a sala.")
+
+        competencia = None
+
+        if dados["tipo"] == "PROFESSOR":
+            competencia = dados["competencia"]
+
+            if not 1 <= len(competencia) <= 150:
+                erros.append(
+                    "Informe a competência do professor com até 150 caracteres."
+                )
+
+        if not erros:
+            with engine.begin() as conexao:
+                conexao.execute(
+                    insert(recursos).values(
+                        nome=dados["nome"],
+                        tipo=dados["tipo"],
+                        localizacao=dados["localizacao"],
+                        capacidade=capacidade,
+                        competencia=competencia,
+                        restrito=dados["restrito"],
+                        ativo=True,
+                    )
+                )
+
+            return redirect(url_for("inicio"))
+
+        status = 400
+
+    return render_template(
+        "novo_recurso.html",
+        erros=erros,
+        dados=dados,
+    ), status
 
 if __name__ == "__main__":
     app.run(debug=False)
