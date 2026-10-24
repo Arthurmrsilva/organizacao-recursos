@@ -1,0 +1,151 @@
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background-color: #f3f5f7;
+    color: #243746;
+    line-height: 1.6;
+}
+
+header {
+    padding: 32px 20px;
+    background-color: #163f50;
+    color: white;
+    text-align: center;
+}
+
+header h1 {
+    margin: 0 0 8px;
+    font-size: 32px;
+}
+
+header p {
+    margin: 0;
+    color: #d6e6ed;
+}
+
+main {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 32px 20px;
+}
+
+.apresentacao {
+    margin-bottom: 28px;
+}
+
+h2 {
+    margin-top: 0;
+    font-size: 24px;
+}
+
+.cards {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+}
+
+.card {
+    padding: 24px;
+    background-color: white;
+    border: 1px solid #dce3e8;
+    border-radius: 10px;
+}
+
+.card h3 {
+    margin-top: 0;
+    color: #14647a;
+    font-size: 22px;
+}
+
+.card p {
+    margin-bottom: 0;
+}
+
+.aviso {
+    margin-top: 28px;
+    padding: 24px;
+    background-color: #e5eef4;
+    border-radius: 10px;
+}
+
+.aviso p {
+    margin-bottom: 0;
+}
+
+footer {
+    padding: 24px 20px;
+    border-top: 1px solid #dce3e8;
+    text-align: center;
+    font-size: 14px;
+    color: #526674;
+}
+
+footer p {
+    margin: 4px 0;
+}
+
+@media (max-width: 700px) {
+    .cards {
+        grid-template-columns: 1fr;
+    }
+
+    header h1 {
+        font-size: 26px;
+    }
+}
+.lista-recursos {
+    margin-top: 32px;
+}
+
+.grade-recursos {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 20px;
+}
+
+.recurso {
+    background-color: #ffffff;
+    border: 1px solid #d6e0e5;
+    border-radius: 10px;
+    padding: 24px;
+    overflow-wrap: anywhere;
+}
+
+.recurso h3 {
+    margin-top: 0;
+    color: #126782;
+}
+
+.filtros {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-bottom: 24px;
+}
+
+.filtros select,
+.filtros button {
+    padding: 10px 14px;
+    border: 1px solid #b8c8d0;
+    border-radius: 6px;
+    font: inherit;
+}
+
+.filtros button {
+    background-color: #163f50;
+    color: white;
+    cursor: pointer;
+}
+
+.filtros button:hover {
+    background-color: #245c70;
+}
+
+.filtros a {
+    color: #126782;
+}

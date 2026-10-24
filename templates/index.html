@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Organização de Recursos</title>
+
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='style.css') }}"
+    >
+</head>
+<body>
+    <header>
+        <h1>Organização de Recursos</h1>
+        <p>Reserva de salas, professores e materiais</p>
+    </header>
+
+    <main>
+        <section class="apresentacao">
+            <h2>Bem-vindo ao sistema</h2>
+            <p>
+                Organize os recursos da instituição e acompanhe
+                as reservas para evitar conflitos de horário.
+            </p>
+        </section>
+
+        <section class="cards" aria-label="Tipos de recursos">
+            <article class="card">
+                <h3>Salas</h3>
+                <p>
+                    Consulte espaços, localização, capacidade
+                    e disponibilidade.
+                </p>
+            </article>
+
+            <article class="card">
+                <h3>Professores</h3>
+                <p>
+                    Consulte competências e horários disponíveis
+                    dos professores.
+                </p>
+            </article>
+
+            <article class="card">
+                <h3>Materiais</h3>
+                <p>
+                    Organize reservas, retiradas e devoluções
+                    de equipamentos.
+                </p>
+            </article>
+        </section>
+
+        <section class="aviso">
+            <h2>Projeto em desenvolvimento</h2>
+            <p>
+                Esta é a página inicial. Os cadastros, o login
+                e as reservas serão implementados nas próximas etapas.
+            </p>
+        </section>
+        <section class="lista-recursos">
+    <h2>Recursos cadastrados</h2>
+    <form method="get" action="/" class="filtros">
+    <label for="tipo">Tipo de recurso:</label>
+
+    <select id="tipo" name="tipo">
+        <option value="">Todos</option>
+
+        <option value="SALA"
+            {% if tipo_selecionado == "SALA" %}selected{% endif %}>
+            Salas
+        </option>
+
+        <option value="PROFESSOR"
+            {% if tipo_selecionado == "PROFESSOR" %}selected{% endif %}>
+            Professores
+        </option>
+
+        <option value="MATERIAL"
+            {% if tipo_selecionado == "MATERIAL" %}selected{% endif %}>
+            Materiais
+        </option>
+    </select>
+
+    <button type="submit">Filtrar</button>
+    <a href="/">Limpar filtro</a>
+</form>
+
+    <div class="grade-recursos">
+        {% for recurso in recursos %}
+        <article class="recurso">
+            <h3>{{ recurso.nome }}</h3>
+
+            <p><strong>Tipo:</strong> {{ recurso.tipo }}</p>
+            <p>
+                <strong>Localização:</strong>
+                {{ recurso.localizacao }}
+            </p>
+
+            {% if recurso.capacidade is not none %}
+            <p>
+                <strong>Capacidade:</strong>
+                {{ recurso.capacidade }} pessoas
+            </p>
+            {% endif %}
+
+            {% if recurso.competencia %}
+            <p>
+                <strong>Competência:</strong>
+                {{ recurso.competencia }}
+            </p>
+            {% endif %}
+
+            {% if recurso.restrito %}
+            <p>Reserva mediante aprovação do responsável.</p>
+            {% else %}
+            <p>Recurso sem exigência de aprovação especial.</p>
+            {% endif %}
+        </article>
+        {% else %}
+        <p>Nenhum recurso cadastrado.</p>
+        {% endfor %}
+    </div>
+</section>
+    </main>
+
+    <footer>
+        <p>Projeto de Qualidade de Software — ADS, 4º semestre</p>
+        <p>
+            Arthur Mendes, Robert Oliveira,
+            Nicolas Ferreira e Murilo Henrique
+        </p>
+    </footer>
+</body>
+</html>
