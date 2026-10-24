@@ -18,6 +18,22 @@
     </header>
 
     <main>
+        <div class="filtros">
+    {% if g.usuario %}
+        <p>
+            Olá, {{ g.usuario.nome }}!
+            Perfil: {{ g.usuario.perfil }}
+        </p>
+
+        <form method="post" action="{{ url_for('sair') }}">
+            <input type="hidden" name="csrf_token"
+                   value="{{ session['csrf_token'] }}">
+            <button type="submit">Sair</button>
+        </form>
+    {% else %}
+        <a href="{{ url_for('login') }}">Entrar no sistema</a>
+    {% endif %}
+</div>
         <section class="apresentacao">
             <h2>Bem-vindo ao sistema</h2>
             <p>

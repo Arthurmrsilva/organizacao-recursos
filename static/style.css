@@ -149,3 +149,28 @@ footer p {
 .filtros a {
     color: #126782;
 }
+.formulario-login {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    max-width: 400px;
+}
+
+.formulario-login input,
+.formulario-login button {
+    padding: 12px;
+    font: inherit;
+    border: 1px solid #b8c8d0;
+    border-radius: 6px;
+}
+
+.formulario-login button {
+    background-color: #163f50;
+    color: white;
+    cursor: pointer;
+}
+
+[role="alert"] {
+    color: #a11919;
+    font-weight: bold;
+}

@@ -42,7 +42,20 @@ recursos = Table(
     ),
 )
 
-
+usuarios = Table(
+    "usuarios",
+    metadata,
+    Column("id", Integer, primary_key=True),
+    Column("nome", String(120), nullable=False),
+    Column("login", String(80), nullable=False, unique=True),
+    Column("senha_hash", String(255), nullable=False),
+    Column("perfil", String(20), nullable=False),
+    Column("ativo", Boolean, nullable=False, default=True),
+    CheckConstraint(
+        "perfil IN ('SOLICITANTE', 'RESPONSAVEL', 'ADMIN')",
+        name="perfil_usuario_valido",
+    ),
+)
 def criar_tabelas():
     metadata.create_all(engine)
 
