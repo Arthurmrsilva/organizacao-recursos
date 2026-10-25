@@ -82,6 +82,13 @@
                     + Cadastrar novo recurso
                 </a>
             </p>
+
+            <p>
+                <a class="botao botao-secundario"
+                   href="{{ url_for('consultar_auditoria') }}">
+                    Auditoria de reservas
+                </a>
+            </p>
             {% endif %}
         </nav>
         {% else %}
@@ -126,9 +133,10 @@
         <section class="aviso">
             <h2>Projeto em desenvolvimento</h2>
             <p>
-                Login, cadastro e consulta de recursos, criação
-                e cancelamento de reservas estão disponíveis.
-                A aprovação pelo responsável está em validação.
+                Login, cadastro e consulta de recursos, criação,
+                cancelamento e aprovação de reservas estão disponíveis.
+                Também é possível consultar suas reservas por situação
+                e, no perfil administrador, acessar a auditoria.
                 Retirada e devolução serão implementadas
                 nas próximas etapas.
             </p>
