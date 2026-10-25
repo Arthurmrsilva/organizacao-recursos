@@ -18,9 +18,9 @@ Esta matriz acompanha requisitos, riscos, testes e evidências.
 | RF01 | Autenticação e autorização por perfil | Acesso indevido | Login correto/incorreto, usuário inativo, acesso e envio do cadastro por perfil | Parcial: testes em tests/test_consulta.py; demais permissões pendentes |
 | RF02 | Cadastro e consulta de salas, professores e materiais | Dados inválidos ou perda de informação | Cadastro dos três tipos, campos inválidos e consulta de ativos | Implementado e testado nesta etapa; revisão por colega pendente |
 | RF03 | Pesquisa por tipo, capacidade, localização, competência e disponibilidade | Resultado incorreto ou recurso indisponível listado | test_filtrar_por_tipo, test_tipo_invalido_mostra_todos_os_ativos, test_filtros_de_pesquisa e test_filtros_invalidos | Parcial: filtros de tipo, capacidade, localização e competência implementados e testados; disponibilidade pendente. Evidência: commit c82a46e e execução #7 do GitHub Actions aprovada |
-| RF04 | Criar, alterar e cancelar reservas | Reserva incorreta ou alteração indevida | Fluxos de reserva e controle de proprietário planejados | Pendente |
-| RF05 | Detectar sobreposição, inclusive na agenda do professor | Dois usos do mesmo recurso no mesmo horário | Casos de sobreposição e horários adjacentes planejados | Pendente |
-| RF06 | Impedir dupla reserva simultânea | Duas solicitações aceitas para o mesmo horário | Requisições concorrentes com exatamente uma aceita | Pendente |
+| RF04 | Criar, alterar e cancelar reservas | Reserva incorreta ou alteração indevida | test_criar_reserva_valida; alteração, cancelamento e permissões ainda precisam de testes | Parcial: criação implementada e testada no serviço; alteração e cancelamento pendentes. Evidências EV08 a EV10 |
+| RF05 | Detectar sobreposição, inclusive na agenda do professor | Dois usos do mesmo recurso no mesmo horário | test_bloquear_horarios_sobrepostos e test_permitir_horarios_consecutivos | Parcial: conflito por recurso testado com sala; ampliar os cenários para professor e demais tipos. Evidências EV08 a EV10 |
+| RF06 | Impedir dupla reserva simultânea | Duas solicitações aceitas para o mesmo recurso e período | test_duas_solicitacoes_simultaneas | Implementado e verificado no serviço com SQLite: uma solicitação aceita, outra recusada e apenas uma reserva gravada; teste concorrente pela rota HTTP pendente. Evidências EV08 a EV10 |
 | RF07 | Exigir aprovação para recursos restritos | Uso sem autorização | Aprovação por responsável e bloqueio dos outros perfis | Pendente: somente o campo restrito existe |
 | RF08 | Bloquear recursos em manutenção | Reserva de recurso indisponível | Reserva durante e fora do bloqueio de manutenção | Pendente |
 | RF09 | Registrar retirada e devolução de materiais | Perda de controle dos equipamentos | Retirada, devolução e operações inválidas | Pendente |
@@ -57,7 +57,7 @@ Classe: TestSistema
 | Autorização do cadastro | test_cadastro_exige_login; test_admin_pode_abrir_cadastro; test_outros_perfis_nao_podem_abrir_cadastro; test_outros_perfis_nao_podem_gravar_recurso |
 | Persistência e validação | test_admin_cadastra_os_tres_tipos; test_cadastro_invalido_nao_grava |
 
-A suíte contém 16 métodos de teste, incluindo casos parametrizados
+A suíte contém 22 métodos de teste, incluindo casos parametrizados
 com subTest. Utiliza o cliente de testes do Flask e bancos SQLite
 temporários reais.
 
@@ -75,6 +75,9 @@ API em caixa-preta ou banco em container exigidos para a entrega final.
 | EV05 | GitHub Actions: execução do commit 250f9b2 aprovada em 21 segundos |
 | EV06 | Cadastro manual da Sala 202 confirmado na interface |
 | EV07 | Pull Request nº 1 aberto; revisão por outro integrante pendente |
+| EV08 | Commit 940a392: criação de reservas e testes de conflito, horários consecutivos e concorrência |
+| EV09 | Execução local do commit 940a392: 22 testes aprovados em 7,883 segundos |
+| EV10 | GitHub Actions: execuções #13 (push) e #14 (Pull Request) aprovadas |
 
 Pull Request:
 https://github.com/Arthurmrsilva/organizacao-recursos/pull/1

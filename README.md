@@ -25,7 +25,7 @@ Implementado:
 - Validação dos campos no servidor.
 - Consulta de recursos ativos com filtro por tipo.
 - Proteção CSRF nos formulários.
-- 18 testes automatizados.
+- 22 testes automatizados.
 - GitHub Actions executando testes em pushes e pull requests.
 
 Os perfis SOLICITANTE, RESPONSAVEL e ADMIN estão definidos no banco.
