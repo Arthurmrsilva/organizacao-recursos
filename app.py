@@ -18,6 +18,7 @@ from banco import (
     auditoria_reservas,
     criar_tabelas,
     engine,
+    manutencoes,
     recursos,
     reservas,
     usuarios,
@@ -25,6 +26,7 @@ from banco import (
 from servico_reservas import (
     avaliar_reserva,
     cancelar_reserva,
+    criar_manutencao,
     criar_reserva,
 )
 
@@ -332,7 +334,6 @@ def minhas_reservas():
 
     agora = datetime.now()
 
-    # Ativas: pendentes, aprovadas ou em uso, ainda não encerradas.
     condicao_ativa = (
         reservas.c.status.in_(
             ("SOLICITADA", "APROVADA", "EM_USO")
@@ -536,6 +537,92 @@ def consultar_auditoria():
         "auditoria.html",
         eventos=eventos,
     )
+
+
+@app.route("/manutencoes", methods=["GET", "POST"])
+def gerenciar_manutencoes():
+    if g.usuario is None:
+        return redirect(url_for("login"))
+
+    if g.usuario["perfil"] != "ADMIN":
+        return (
+            "Acesso negado. Área exclusiva do administrador.",
+            403,
+        )
+
+    erros = []
+    dados = {}
+    status = 200
+
+    if request.method == "POST":
+        dados = {
+            "recurso_id": request.form.get("recurso_id", "").strip(),
+            "inicio": request.form.get("inicio", "").strip(),
+            "fim": request.form.get("fim", "").strip(),
+            "motivo": request.form.get("motivo", "").strip(),
+        }
+
+        try:
+            manutencao_id = criar_manutencao(
+                engine,
+                g.usuario["id"],
+                dados,
+            )
+        except ValueError as erro:
+            erros.append(str(erro))
+            status = 400
+        else:
+            session["mensagem_manutencao"] = (
+                f"Manutenção nº {manutencao_id} cadastrada com sucesso!"
+            )
+            return redirect(url_for("gerenciar_manutencoes"))
+
+    consulta = (
+        select(
+            manutencoes.c.id,
+            manutencoes.c.inicio,
+            manutencoes.c.fim,
+            manutencoes.c.motivo,
+            manutencoes.c.ativo,
+            manutencoes.c.criado_em,
+            recursos.c.nome.label("recurso_nome"),
+            usuarios.c.nome.label("usuario_nome"),
+        )
+        .select_from(
+            manutencoes.join(
+                recursos,
+                manutencoes.c.recurso_id == recursos.c.id,
+            ).join(
+                usuarios,
+                manutencoes.c.usuario_id == usuarios.c.id,
+            )
+        )
+        .order_by(
+            manutencoes.c.inicio.desc(),
+            manutencoes.c.id.desc(),
+        )
+    )
+
+    with engine.connect() as conexao:
+        lista_recursos = conexao.execute(
+            select(recursos)
+            .where(recursos.c.ativo.is_(True))
+            .order_by(recursos.c.nome)
+        ).mappings().all()
+
+        lista_manutencoes = conexao.execute(
+            consulta
+        ).mappings().all()
+
+    return render_template(
+        "manutencoes.html",
+        recursos=lista_recursos,
+        manutencoes=lista_manutencoes,
+        dados=dados,
+        erros=erros,
+        mensagem=session.pop("mensagem_manutencao", None),
+        agora=datetime.now(),
+    ), status
 
 
 if __name__ == "__main__":

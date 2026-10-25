@@ -2,7 +2,13 @@ from datetime import datetime
 
 from sqlalchemy import insert, select, update
 
-from banco import auditoria_reservas, recursos, reservas, usuarios
+from banco import (
+    auditoria_reservas,
+    manutencoes,
+    recursos,
+    reservas,
+    usuarios,
+)
 
 
 def registrar_auditoria(
@@ -24,6 +30,135 @@ def registrar_auditoria(
             status_novo=status_novo,
         )
     )
+
+
+def verificar_manutencao(conexao, recurso_id, inicio, fim):
+    bloqueio = conexao.execute(
+        select(manutencoes.c.id).where(
+            manutencoes.c.recurso_id == recurso_id,
+            manutencoes.c.ativo.is_(True),
+            manutencoes.c.inicio < fim,
+            manutencoes.c.fim > inicio,
+        ).limit(1)
+    ).first()
+
+    if bloqueio is not None:
+        raise ValueError(
+            "O recurso está em manutenção no período informado."
+        )
+
+
+def criar_manutencao(engine, usuario_id, dados):
+    motivo = dados.get("motivo", "").strip()
+
+    if not 1 <= len(motivo) <= 200:
+        raise ValueError(
+            "Informe o motivo da manutenção com até 200 caracteres."
+        )
+
+    try:
+        recurso_id = int(dados.get("recurso_id", ""))
+    except (TypeError, ValueError):
+        raise ValueError("Selecione um recurso válido.") from None
+
+    try:
+        inicio = datetime.strptime(
+            dados.get("inicio", ""),
+            "%Y-%m-%dT%H:%M",
+        )
+        fim = datetime.strptime(
+            dados.get("fim", ""),
+            "%Y-%m-%dT%H:%M",
+        )
+    except (TypeError, ValueError):
+        raise ValueError(
+            "Informe datas e horários válidos."
+        ) from None
+
+    if fim <= inicio:
+        raise ValueError(
+            "O término deve ser posterior ao início."
+        )
+
+    if inicio <= datetime.now():
+        raise ValueError(
+            "O início da manutenção deve estar no futuro."
+        )
+
+    with engine.connect() as conexao:
+        try:
+            # Usa a mesma estratégia de bloqueio das reservas.
+            conexao.exec_driver_sql("BEGIN IMMEDIATE")
+
+            usuario = conexao.execute(
+                select(usuarios).where(
+                    usuarios.c.id == usuario_id,
+                    usuarios.c.ativo.is_(True),
+                )
+            ).mappings().first()
+
+            if usuario is None or usuario["perfil"] != "ADMIN":
+                raise ValueError(
+                    "Somente administradores podem cadastrar manutenção."
+                )
+
+            recurso = conexao.execute(
+                select(recursos).where(
+                    recursos.c.id == recurso_id,
+                    recursos.c.ativo.is_(True),
+                )
+            ).mappings().first()
+
+            if recurso is None:
+                raise ValueError(
+                    "O recurso selecionado não está disponível."
+                )
+
+            verificar_manutencao(
+                conexao,
+                recurso_id,
+                inicio,
+                fim,
+            )
+
+            conflito = conexao.execute(
+                select(reservas.c.id).where(
+                    reservas.c.recurso_id == recurso_id,
+                    reservas.c.status.in_(
+                        ("SOLICITADA", "APROVADA", "EM_USO")
+                    ),
+                    reservas.c.inicio < fim,
+                    reservas.c.fim > inicio,
+                ).limit(1)
+            ).first()
+
+            if conflito is not None:
+                raise ValueError(
+                    "Já existe uma reserva para esse recurso "
+                    "no período da manutenção. Resolva a reserva "
+                    "antes de cadastrar o bloqueio."
+                )
+
+            resultado = conexao.execute(
+                insert(manutencoes).values(
+                    recurso_id=recurso_id,
+                    usuario_id=usuario_id,
+                    inicio=inicio,
+                    fim=fim,
+                    motivo=motivo,
+                    criado_em=datetime.now(),
+                    ativo=True,
+                )
+            )
+
+            manutencao_id = resultado.inserted_primary_key[0]
+
+            conexao.commit()
+            return manutencao_id
+
+        except Exception:
+            conexao.rollback()
+            raise
 
 
 def criar_reserva(engine, usuario_id, dados):
@@ -66,7 +201,6 @@ def criar_reserva(engine, usuario_id, dados):
 
     with engine.connect() as conexao:
         try:
-            # Serializa as gravações no SQLite.
             conexao.exec_driver_sql("BEGIN IMMEDIATE")
 
             recurso = conexao.execute(
@@ -80,6 +214,13 @@ def criar_reserva(engine, usuario_id, dados):
                 raise ValueError(
                     "O recurso selecionado não está disponível."
                 )
+
+            verificar_manutencao(
+                conexao,
+                recurso_id,
+                inicio,
+                fim,
+            )
 
             conflito = conexao.execute(
                 select(reservas.c.id).where(
@@ -253,6 +394,13 @@ def avaliar_reserva(engine, usuario_id, reserva_id, decisao):
                         "Não é possível aprovar uma reserva "
                         "de um recurso inativo."
                     )
+
+                verificar_manutencao(
+                    conexao,
+                    recurso["id"],
+                    reserva["inicio"],
+                    reserva["fim"],
+                )
 
                 conflito = conexao.execute(
                     select(reservas.c.id).where(

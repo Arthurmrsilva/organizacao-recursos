@@ -147,6 +147,40 @@ auditoria_reservas = Table(
     ),
 )
 
+# Períodos em que um recurso fica indisponível para manutenção.
+manutencoes = Table(
+    "manutencoes",
+    metadata,
+    Column("id", Integer, primary_key=True),
+    Column(
+        "recurso_id",
+        Integer,
+        ForeignKey("recursos.id"),
+        nullable=False,
+        index=True,
+    ),
+    Column(
+        "usuario_id",
+        Integer,
+        ForeignKey("usuarios.id"),
+        nullable=False,
+        index=True,
+    ),
+    Column("inicio", DateTime, nullable=False),
+    Column("fim", DateTime, nullable=False),
+    Column("motivo", String(200), nullable=False),
+    Column("criado_em", DateTime, nullable=False),
+    Column("ativo", Boolean, nullable=False, default=True),
+    CheckConstraint(
+        "fim > inicio",
+        name="periodo_manutencao_valido",
+    ),
+    CheckConstraint(
+        "length(trim(motivo)) BETWEEN 1 AND 200",
+        name="motivo_manutencao_valido",
+    ),
+)
+
 
 def criar_tabelas():
     metadata.create_all(engine)

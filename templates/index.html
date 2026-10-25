@@ -89,6 +89,13 @@
                     Auditoria de reservas
                 </a>
             </p>
+
+            <p>
+                <a class="botao botao-secundario"
+                   href="{{ url_for('gerenciar_manutencoes') }}">
+                    Manutenção de recursos
+                </a>
+            </p>
             {% endif %}
         </nav>
         {% else %}
@@ -135,8 +142,10 @@
             <p>
                 Login, cadastro e consulta de recursos, criação,
                 cancelamento e aprovação de reservas estão disponíveis.
-                Também é possível consultar suas reservas por situação
-                e, no perfil administrador, acessar a auditoria.
+                Também é possível consultar suas reservas por situação.
+                O administrador pode acessar a auditoria e cadastrar
+                períodos de manutenção, que impedem reservas
+                nos horários bloqueados.
                 Retirada e devolução serão implementadas
                 nas próximas etapas.
             </p>
