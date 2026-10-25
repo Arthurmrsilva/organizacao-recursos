@@ -2,8 +2,7 @@ from datetime import datetime
 
 from sqlalchemy import insert, select, update
 
-from banco import recursos, reservas
-
+from banco import recursos, reservas, usuarios
 
 def criar_reserva(engine, usuario_id, dados):
     finalidade = dados.get("finalidade", "").strip()
@@ -146,6 +145,96 @@ def cancelar_reserva(engine, usuario_id, reserva_id):
                     reservas.c.usuario_id == usuario_id,
                 )
                 .values(status="CANCELADA")
+            )
+
+            conexao.commit()
+
+        except Exception:
+            conexao.rollback()
+            raise
+def avaliar_reserva(engine, usuario_id, reserva_id, decisao):
+    if decisao not in ("APROVADA", "REJEITADA"):
+        raise ValueError("Selecione uma decisão válida.")
+
+    with engine.connect() as conexao:
+        try:
+            conexao.exec_driver_sql("BEGIN IMMEDIATE")
+
+            usuario = conexao.execute(
+                select(usuarios).where(
+                    usuarios.c.id == usuario_id,
+                    usuarios.c.ativo.is_(True),
+                )
+            ).mappings().first()
+
+            if usuario is None or usuario["perfil"] != "RESPONSAVEL":
+                raise ValueError(
+                    "Somente um responsável pode avaliar reservas."
+                )
+
+            reserva = conexao.execute(
+                select(reservas).where(
+                    reservas.c.id == reserva_id
+                )
+            ).mappings().first()
+
+            if reserva is None:
+                raise ValueError("Reserva não encontrada.")
+
+            recurso = conexao.execute(
+                select(recursos).where(
+                    recursos.c.id == reserva["recurso_id"]
+                )
+            ).mappings().first()
+
+            if (
+                recurso is None
+                or recurso["responsavel_id"] != usuario_id
+            ):
+                raise ValueError(
+                    "Você não é o responsável por este recurso."
+                )
+
+            if reserva["status"] != "SOLICITADA":
+                raise ValueError(
+                    "Somente reservas aguardando aprovação "
+                    "podem ser avaliadas."
+                )
+
+            if reserva["inicio"] <= datetime.now():
+                raise ValueError(
+                    "O prazo para avaliar esta reserva terminou."
+                )
+
+            if decisao == "APROVADA":
+                if not recurso["ativo"]:
+                    raise ValueError(
+                        "Não é possível aprovar uma reserva "
+                        "de um recurso inativo."
+                    )
+
+                conflito = conexao.execute(
+                    select(reservas.c.id).where(
+                        reservas.c.id != reserva_id,
+                        reservas.c.recurso_id == recurso["id"],
+                        reservas.c.status.in_(
+                            ("SOLICITADA", "APROVADA", "EM_USO")
+                        ),
+                        reservas.c.inicio < reserva["fim"],
+                        reservas.c.fim > reserva["inicio"],
+                    ).limit(1)
+                ).first()
+
+                if conflito is not None:
+                    raise ValueError(
+                        "Existe outra reserva para este recurso "
+                        "no período informado."
+                    )
+
+            conexao.execute(
+                update(reservas)
+                .where(reservas.c.id == reserva_id)
+                .values(status=decisao)
             )
 
             conexao.commit()

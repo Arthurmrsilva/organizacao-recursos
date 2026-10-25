@@ -10,7 +10,7 @@
           href="{{ url_for('static', filename='style.css') }}">
 </head>
 
-<body>
+<body class="perfil-{{ g.usuario.perfil|lower if g.usuario else 'visitante' }}">
     <header>
         <h1>Organização de Recursos</h1>
         <p>Consulta e acompanhamento das suas reservas</p>

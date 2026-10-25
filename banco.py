@@ -12,6 +12,7 @@ from sqlalchemy import (
     Table,
     create_engine,
 )
+
 # Salva o banco na mesma pasta deste arquivo.
 PASTA_PROJETO = Path(__file__).resolve().parent
 CAMINHO_BANCO = PASTA_PROJETO / "recursos.db"
@@ -21,27 +22,6 @@ engine = create_engine(
 )
 
 metadata = MetaData()
-
-recursos = Table(
-    "recursos",
-    metadata,
-    Column("id", Integer, primary_key=True),
-    Column("nome", String(120), nullable=False),
-    Column("tipo", String(20), nullable=False),
-    Column("localizacao", String(120), nullable=False),
-    Column("capacidade", Integer, nullable=True),
-    Column("competencia", String(150), nullable=True),
-    Column("restrito", Boolean, nullable=False, default=False),
-    Column("ativo", Boolean, nullable=False, default=True),
-    CheckConstraint(
-        "tipo IN ('SALA', 'PROFESSOR', 'MATERIAL')",
-        name="tipo_recurso_valido",
-    ),
-    CheckConstraint(
-        "capacidade IS NULL OR capacidade > 0",
-        name="capacidade_positiva",
-    ),
-)
 
 usuarios = Table(
     "usuarios",
@@ -57,6 +37,34 @@ usuarios = Table(
         name="perfil_usuario_valido",
     ),
 )
+
+recursos = Table(
+    "recursos",
+    metadata,
+    Column("id", Integer, primary_key=True),
+    Column("nome", String(120), nullable=False),
+    Column("tipo", String(20), nullable=False),
+    Column("localizacao", String(120), nullable=False),
+    Column("capacidade", Integer, nullable=True),
+    Column("competencia", String(150), nullable=True),
+    Column("restrito", Boolean, nullable=False, default=False),
+    Column("ativo", Boolean, nullable=False, default=True),
+    Column(
+        "responsavel_id",
+        Integer,
+        ForeignKey("usuarios.id"),
+        nullable=True,
+    ),
+    CheckConstraint(
+        "tipo IN ('SALA', 'PROFESSOR', 'MATERIAL')",
+        name="tipo_recurso_valido",
+    ),
+    CheckConstraint(
+        "capacidade IS NULL OR capacidade > 0",
+        name="capacidade_positiva",
+    ),
+)
+
 reservas = Table(
     "reservas",
     metadata,
@@ -96,6 +104,8 @@ reservas = Table(
         name="status_reserva_valido",
     ),
 )
+
+
 def criar_tabelas():
     metadata.create_all(engine)
 

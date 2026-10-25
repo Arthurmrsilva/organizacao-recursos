@@ -14,7 +14,11 @@ from sqlalchemy import insert, select
 from werkzeug.security import check_password_hash
 
 from banco import criar_tabelas, engine, recursos, reservas, usuarios
-from servico_reservas import criar_reserva, cancelar_reserva
+from servico_reservas import (
+    avaliar_reserva,
+    cancelar_reserva,
+    criar_reserva,
+)
 
 app = Flask(__name__)
 
@@ -357,6 +361,83 @@ def cancelar_minha_reserva(reserva_id):
         )
 
     return redirect(url_for("minhas_reservas"))
+@app.route("/aprovacoes")
+def aprovacoes():
+    if g.usuario is None:
+        return redirect(url_for("login"))
 
+    if g.usuario["perfil"] != "RESPONSAVEL":
+        return "Acesso negado. Área exclusiva do responsável.", 403
+
+    consulta = (
+        select(
+            reservas.c.id,
+            recursos.c.nome.label("recurso_nome"),
+            recursos.c.tipo.label("recurso_tipo"),
+            usuarios.c.nome.label("solicitante_nome"),
+            reservas.c.inicio,
+            reservas.c.fim,
+            reservas.c.finalidade,
+        )
+        .select_from(
+            reservas.join(
+                recursos,
+                reservas.c.recurso_id == recursos.c.id,
+            ).join(
+                usuarios,
+                reservas.c.usuario_id == usuarios.c.id,
+            )
+        )
+        .where(
+            recursos.c.responsavel_id == g.usuario["id"],
+            reservas.c.status == "SOLICITADA",
+        )
+        .order_by(reservas.c.inicio, reservas.c.id)
+    )
+
+    with engine.connect() as conexao:
+        pendentes = conexao.execute(
+            consulta
+        ).mappings().all()
+
+    return render_template(
+        "aprovacoes.html",
+        reservas=pendentes,
+        mensagem=session.pop("mensagem_aprovacao", None),
+        erro=session.pop("erro_aprovacao", None),
+    )
+
+
+@app.route(
+    "/reservas/<int:reserva_id>/avaliar",
+    methods=["POST"],
+)
+def avaliar_minha_solicitacao(reserva_id):
+    if g.usuario is None:
+        return redirect(url_for("login"))
+
+    if g.usuario["perfil"] != "RESPONSAVEL":
+        return "Acesso negado. Área exclusiva do responsável.", 403
+
+    decisao = request.form.get("decisao", "").strip()
+
+    try:
+        avaliar_reserva(
+            engine,
+            g.usuario["id"],
+            reserva_id,
+            decisao,
+        )
+    except ValueError as erro:
+        session["erro_aprovacao"] = str(erro)
+    else:
+        situacao = (
+            "aprovada" if decisao == "APROVADA" else "rejeitada"
+        )
+        session["mensagem_aprovacao"] = (
+            f"Reserva nº {reserva_id} {situacao} com sucesso!"
+        )
+
+    return redirect(url_for("aprovacoes"))
 if __name__ == "__main__":
     app.run(debug=False)
