@@ -14,6 +14,7 @@ from sqlalchemy import insert, select
 from werkzeug.security import check_password_hash
 
 from banco import criar_tabelas, engine, recursos, usuarios
+from servico_reservas import criar_reserva
 
 app = Flask(__name__)
 
@@ -259,10 +260,35 @@ def novo_recurso():
     ), status
 
 
-@app.route("/reservas/nova", methods=["GET"])
+@app.route("/reservas/nova", methods=["GET", "POST"])
 def nova_reserva():
     if g.usuario is None:
         return redirect(url_for("login"))
+
+    erros = []
+    dados = {}
+    status = 200
+
+    if request.method == "POST":
+        dados = {
+            "recurso_id": request.form.get("recurso_id", "").strip(),
+            "inicio": request.form.get("inicio", "").strip(),
+            "fim": request.form.get("fim", "").strip(),
+            "finalidade": request.form.get("finalidade", "").strip(),
+        }
+
+        try:
+            reserva_id = criar_reserva(
+                engine,
+                g.usuario["id"],
+                dados,
+            )
+        except ValueError as erro:
+            erros.append(str(erro))
+            status = 400
+        else:
+            session["reserva_criada"] = reserva_id
+            return redirect(url_for("nova_reserva"))
 
     with engine.connect() as conexao:
         lista_recursos = conexao.execute(
@@ -271,11 +297,15 @@ def nova_reserva():
             .order_by(recursos.c.nome)
         ).mappings().all()
 
+    reserva_criada = session.pop("reserva_criada", None)
+
     return render_template(
         "nova_reserva.html",
         recursos=lista_recursos,
-    )
-
+        erros=erros,
+        dados=dados,
+        reserva_criada=reserva_criada,
+    ), status
 
 if __name__ == "__main__":
     app.run(debug=False)

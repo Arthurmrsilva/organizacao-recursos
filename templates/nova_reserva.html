@@ -19,15 +19,47 @@
             <h2>Nova reserva</h2>
             <p>Selecione o recurso e informe o período de utilização.</p>
 
+            {% if reserva_criada %}
+                <div role="status">
+                    <p>
+                        Reserva nº {{ reserva_criada }} registrada com sucesso!
+                        Recursos restritos e professores aguardam aprovação.
+                    </p>
+                </div>
+            {% endif %}
+
+            {% if erros %}
+                <div role="alert">
+                    <p>Confira os dados da reserva:</p>
+                    <ul>
+                        {% for erro in erros %}
+                            <li>{{ erro }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            {% endif %}
+
             {% if recursos %}
-                <form class="formulario-reserva">
+                <form class="formulario-reserva"
+                      method="post"
+                      action="{{ url_for('nova_reserva') }}">
+
+                    <input type="hidden"
+                           name="csrf_token"
+                           value="{{ session['csrf_token'] }}">
+
                     <div>
                         <label for="recurso_id">Recurso</label>
+
                         <select id="recurso_id" name="recurso_id" required>
                             <option value="">Selecione um recurso</option>
 
                             {% for recurso in recursos %}
-                                <option value="{{ recurso.id }}">
+                                <option
+                                    value="{{ recurso.id }}"
+                                    {% if dados.get('recurso_id', '') == recurso.id|string %}
+                                        selected
+                                    {% endif %}>
                                     {{ recurso.nome }} — {{ recurso.tipo }}
                                 </option>
                             {% endfor %}
@@ -36,32 +68,35 @@
 
                     <div>
                         <label for="inicio">Data e horário de início</label>
+
                         <input type="datetime-local"
                                id="inicio"
                                name="inicio"
+                               value="{{ dados.get('inicio', '') }}"
                                required>
                     </div>
 
                     <div>
                         <label for="fim">Data e horário de término</label>
+
                         <input type="datetime-local"
                                id="fim"
                                name="fim"
+                               value="{{ dados.get('fim', '') }}"
                                required>
                     </div>
 
                     <div>
                         <label for="finalidade">Finalidade da reserva</label>
+
                         <textarea id="finalidade"
                                   name="finalidade"
                                   maxlength="200"
                                   rows="3"
-                                  required></textarea>
+                                  required>{{ dados.get('finalidade', '') }}</textarea>
                     </div>
 
-                    <p>A gravação será habilitada na próxima etapa.</p>
-
-                    <button class="botao" type="button" disabled>
+                    <button class="botao" type="submit">
                         Reservar
                     </button>
                 </form>

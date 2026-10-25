@@ -19,31 +19,54 @@
     </header>
 
     <main>
-        {% if g.usuario and g.usuario.perfil == "ADMIN" %}
-<p>
-    <a class="botao" href="{{ url_for('novo_recurso') }}">
-    + Cadastrar novo recurso
-</a>
-</p>
-{% endif %}
-        <div class="filtros">
-    {% if g.usuario %}
-        <p>
-            Olá, {{ g.usuario.nome }}!
-            Perfil: {{ g.usuario.perfil }}
-        </p>
+        {% if g.usuario %}
+            <nav aria-label="Ações do sistema">
+                <p>
+                    <a class="botao"
+                       href="{{ url_for('nova_reserva') }}">
+                        + Fazer reserva
+                    </a>
+                </p>
 
-        <form method="post" action="{{ url_for('sair') }}">
-            <input type="hidden" name="csrf_token"
-                   value="{{ session['csrf_token'] }}">
-            <button type="submit">Sair</button>
-        </form>
-    {% else %}
-        <a href="{{ url_for('login') }}">Entrar no sistema</a>
-    {% endif %}
-</div>
+                {% if g.usuario.perfil == "ADMIN" %}
+                    <p>
+                        <a class="botao"
+                           href="{{ url_for('novo_recurso') }}">
+                            + Cadastrar novo recurso
+                        </a>
+                    </p>
+                {% endif %}
+            </nav>
+        {% endif %}
+
+        <div class="filtros">
+            {% if g.usuario %}
+                <p>
+                    Olá, {{ g.usuario.nome }}!
+                    Perfil: {{ g.usuario.perfil }}
+                </p>
+
+                <form method="post" action="{{ url_for('sair') }}">
+                    <input
+                        type="hidden"
+                        name="csrf_token"
+                        value="{{ session['csrf_token'] }}"
+                    >
+
+                    <button class="botao" type="submit">
+                        Sair
+                    </button>
+                </form>
+            {% else %}
+                <a class="botao" href="{{ url_for('login') }}">
+                    Entrar no sistema
+                </a>
+            {% endif %}
+        </div>
+
         <section class="apresentacao">
             <h2>Bem-vindo ao sistema</h2>
+
             <p>
                 Organize os recursos da instituição e acompanhe
                 as reservas para evitar conflitos de horário.
@@ -54,140 +77,188 @@
             <article class="card">
                 <h3>Salas</h3>
                 <p>
-                    Consulte espaços, localização, capacidade
-                    e disponibilidade.
+                    Consulte espaços, localização e capacidade.
                 </p>
             </article>
 
             <article class="card">
                 <h3>Professores</h3>
                 <p>
-                    Consulte competências e horários disponíveis
-                    dos professores.
+                    Consulte competências e solicite a reserva
+                    de um horário.
                 </p>
             </article>
 
             <article class="card">
                 <h3>Materiais</h3>
                 <p>
-                    Organize reservas, retiradas e devoluções
-                    de equipamentos.
+                    Consulte os equipamentos cadastrados
+                    e solicite sua utilização.
                 </p>
             </article>
         </section>
 
         <section class="aviso">
             <h2>Projeto em desenvolvimento</h2>
-           <p>
-            Login, cadastro e consulta de recursos já estão disponíveis.
-            As reservas serão implementadas nas próximas etapas.
-          </p>
+
+            <p>
+                Login, cadastro e consulta de recursos estão disponíveis.
+                A criação de reservas está em validação.
+                As próximas etapas incluem gerenciamento das reservas,
+                aprovação, retirada e devolução.
+            </p>
         </section>
+
         <section class="lista-recursos">
-    <h2>Recursos cadastrados</h2>
-    <form method="get" action="/" class="filtros">
-    <div>
-        <label for="tipo">Tipo</label>
-        <select id="tipo" name="tipo">
-            <option value="">Todos</option>
+            <h2>Recursos cadastrados</h2>
 
-            <option value="SALA"
-                {% if tipo_selecionado == "SALA" %}selected{% endif %}>
-                Salas
-            </option>
+            <form
+                method="get"
+                action="{{ url_for('inicio') }}"
+                class="filtros"
+            >
+                <div>
+                    <label for="tipo">Tipo</label>
 
-            <option value="PROFESSOR"
-                {% if tipo_selecionado == "PROFESSOR" %}selected{% endif %}>
-                Professores
-            </option>
+                    <select id="tipo" name="tipo">
+                        <option value="">Todos</option>
 
-            <option value="MATERIAL"
-                {% if tipo_selecionado == "MATERIAL" %}selected{% endif %}>
-                Materiais
-            </option>
-        </select>
-    </div>
+                        <option
+                            value="SALA"
+                            {% if tipo_selecionado == "SALA" %}
+                                selected
+                            {% endif %}
+                        >
+                            Salas
+                        </option>
 
-    <div>
-        <label for="localizacao">Localização</label>
-        <input id="localizacao" name="localizacao" type="text"
-               maxlength="120"
-               value="{{ localizacao }}"
-               placeholder="Ex.: Bloco B">
-    </div>
+                        <option
+                            value="PROFESSOR"
+                            {% if tipo_selecionado == "PROFESSOR" %}
+                                selected
+                            {% endif %}
+                        >
+                            Professores
+                        </option>
 
-    <div>
-        <label for="capacidade">Capacidade mínima</label>
-        <input id="capacidade" name="capacidade" type="number"
-               min="1" max="10000" step="1"
-               value="{{ capacidade }}"
-               placeholder="Ex.: 35">
-    </div>
+                        <option
+                            value="MATERIAL"
+                            {% if tipo_selecionado == "MATERIAL" %}
+                                selected
+                            {% endif %}
+                        >
+                            Materiais
+                        </option>
+                    </select>
+                </div>
 
-    <div>
-        <label for="competencia">Competência</label>
-        <input id="competencia" name="competencia" type="text"
-               maxlength="150"
-               value="{{ competencia }}"
-               placeholder="Ex.: Python">
-    </div>
+                <div>
+                    <label for="localizacao">Localização</label>
 
-    <button class="botao" type="submit">Filtrar</button>
+                    <input
+                        id="localizacao"
+                        name="localizacao"
+                        type="text"
+                        maxlength="120"
+                        value="{{ localizacao }}"
+                        placeholder="Ex.: Bloco B"
+                    >
+                </div>
 
-<a class="botao botao-secundario"
-   href="{{ url_for('inicio') }}">
-    Limpar filtros
-</a>
-</form>
-    
-</form>
+                <div>
+                    <label for="capacidade">Capacidade mínima</label>
 
-{% if erros %}
-<div role="alert">
-    <ul>
-        {% for erro in erros %}
-        <li>{{ erro }}</li>
-        {% endfor %}
-    </ul>
-</div>
-{% endif %}
+                    <input
+                        id="capacidade"
+                        name="capacidade"
+                        type="number"
+                        min="1"
+                        max="10000"
+                        step="1"
+                        value="{{ capacidade }}"
+                        placeholder="Ex.: 35"
+                    >
+                </div>
 
-    <div class="grade-recursos">
-        {% for recurso in recursos %}
-        <article class="recurso">
-            <h3>{{ recurso.nome }}</h3>
+                <div>
+                    <label for="competencia">Competência</label>
 
-            <p><strong>Tipo:</strong> {{ recurso.tipo }}</p>
-            <p>
-                <strong>Localização:</strong>
-                {{ recurso.localizacao }}
-            </p>
+                    <input
+                        id="competencia"
+                        name="competencia"
+                        type="text"
+                        maxlength="150"
+                        value="{{ competencia }}"
+                        placeholder="Ex.: Python"
+                    >
+                </div>
 
-            {% if recurso.capacidade is not none %}
-            <p>
-                <strong>Capacidade:</strong>
-                {{ recurso.capacidade }} pessoas
-            </p>
+                <button class="botao" type="submit">
+                    Filtrar
+                </button>
+
+                <a
+                    class="botao botao-secundario"
+                    href="{{ url_for('inicio') }}"
+                >
+                    Limpar filtros
+                </a>
+            </form>
+
+            {% if erros %}
+                <div role="alert">
+                    <ul>
+                        {% for erro in erros %}
+                            <li>{{ erro }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
             {% endif %}
 
-            {% if recurso.competencia %}
-            <p>
-                <strong>Competência:</strong>
-                {{ recurso.competencia }}
-            </p>
-            {% endif %}
+            <div class="grade-recursos">
+                {% for recurso in recursos %}
+                    <article class="recurso">
+                        <h3>{{ recurso.nome }}</h3>
 
-            {% if recurso.restrito %}
-            <p>Reserva mediante aprovação do responsável.</p>
-            {% else %}
-            <p>Recurso sem exigência de aprovação especial.</p>
-            {% endif %}
-        </article>
-        {% else %}
-             <p>Nenhum recurso encontrado para esta consulta.</p>
-        {% endfor %}
-    </div>
-</section>
+                        <p>
+                            <strong>Tipo:</strong>
+                            {{ recurso.tipo }}
+                        </p>
+
+                        <p>
+                            <strong>Localização:</strong>
+                            {{ recurso.localizacao }}
+                        </p>
+
+                        {% if recurso.capacidade is not none %}
+                            <p>
+                                <strong>Capacidade:</strong>
+                                {{ recurso.capacidade }} pessoas
+                            </p>
+                        {% endif %}
+
+                        {% if recurso.competencia %}
+                            <p>
+                                <strong>Competência:</strong>
+                                {{ recurso.competencia }}
+                            </p>
+                        {% endif %}
+
+                        {% if recurso.restrito or recurso.tipo == "PROFESSOR" %}
+                            <p>
+                                Reserva mediante aprovação do responsável.
+                            </p>
+                        {% else %}
+                            <p>
+                                Recurso sem exigência de aprovação especial.
+                            </p>
+                        {% endif %}
+                    </article>
+                {% else %}
+                    <p>Nenhum recurso encontrado para esta consulta.</p>
+                {% endfor %}
+            </div>
+        </section>
     </main>
 
     <footer>
@@ -197,118 +268,146 @@
             Nicolas Ferreira e Murilo Henrique
         </p>
     </footer>
-    <script>
-    const formularioFiltro = document.querySelector(
-        'form.filtros[method="get"]'
-    );
 
-    if (formularioFiltro) {
-        const botaoFiltrar = formularioFiltro.querySelector(
-            'button[type="submit"]'
+    <script>
+        const formularioFiltro = document.querySelector(
+            'form.filtros[method="get"]'
         );
 
-        let buscando = false;
+        if (formularioFiltro) {
+            const botaoFiltrar = formularioFiltro.querySelector(
+                'button[type="submit"]'
+            );
 
-        async function atualizarRecursos(endereco) {
-            if (buscando) {
-                return;
-            }
+            const limparFiltros = formularioFiltro.querySelector(
+                "a.botao-secundario"
+            );
 
-            buscando = true;
-            botaoFiltrar.disabled = true;
-            botaoFiltrar.textContent = "Buscando...";
+            let buscando = false;
 
-            try {
-                const resposta = await fetch(endereco);
-
-                if (resposta.redirected) {
-                    window.location.href = resposta.url;
+            async function atualizarRecursos(endereco) {
+                if (buscando) {
                     return;
                 }
 
-                if (!resposta.ok && resposta.status !== 400) {
-                    throw new Error("Erro ao consultar recursos.");
+                buscando = true;
+                botaoFiltrar.disabled = true;
+                botaoFiltrar.textContent = "Buscando...";
+
+                try {
+                    const resposta = await fetch(endereco);
+
+                    if (resposta.redirected) {
+                        window.location.href = resposta.url;
+                        return;
+                    }
+
+                    if (!resposta.ok && resposta.status !== 400) {
+                        throw new Error("Erro ao consultar recursos.");
+                    }
+
+                    const html = await resposta.text();
+
+                    const documento = new DOMParser().parseFromString(
+                        html,
+                        "text/html"
+                    );
+
+                    const listaAtual = document.querySelector(
+                        ".grade-recursos"
+                    );
+
+                    const listaNova = documento.querySelector(
+                        ".grade-recursos"
+                    );
+
+                    if (!listaAtual || !listaNova) {
+                        throw new Error(
+                            "Lista de recursos não encontrada."
+                        );
+                    }
+
+                    listaAtual.replaceChildren(
+                        ...Array.from(listaNova.childNodes)
+                    );
+
+                    const secao = document.querySelector(
+                        ".lista-recursos"
+                    );
+
+                    const erroAnterior = secao.querySelector(
+                        '[role="alert"]'
+                    );
+
+                    const erroNovo = documento.querySelector(
+                        '.lista-recursos [role="alert"]'
+                    );
+
+                    if (erroAnterior) {
+                        erroAnterior.remove();
+                    }
+
+                    if (erroNovo) {
+                        formularioFiltro.insertAdjacentElement(
+                            "afterend",
+                            erroNovo
+                        );
+                    }
+
+                    window.history.replaceState(null, "", endereco);
+                } catch (erro) {
+                    window.alert(
+                        "Não foi possível atualizar a lista. Tente novamente."
+                    );
+                } finally {
+                    buscando = false;
+                    botaoFiltrar.disabled = false;
+                    botaoFiltrar.textContent = "Filtrar";
                 }
+            }
 
-                const html = await resposta.text();
-                const documento = new DOMParser().parseFromString(
-                    html,
-                    "text/html"
-                );
+            formularioFiltro.addEventListener(
+                "submit",
+                function (evento) {
+                    evento.preventDefault();
 
-                const listaAtual = document.querySelector(
-                    ".grade-recursos"
-                );
-                const listaNova = documento.querySelector(
-                    ".grade-recursos"
-                );
+                    const parametros = new URLSearchParams(
+                        new FormData(formularioFiltro)
+                    );
 
-                if (!listaAtual || !listaNova) {
-                    throw new Error("Lista de recursos não encontrada.");
-                }
-
-                listaAtual.replaceChildren(
-                    ...Array.from(listaNova.childNodes)
-                );
-
-                const secao = document.querySelector(".lista-recursos");
-                const erroAnterior = secao.querySelector('[role="alert"]');
-                const erroNovo = documento.querySelector(
-                    '.lista-recursos [role="alert"]'
-                );
-
-                if (erroAnterior) {
-                    erroAnterior.remove();
-                }
-
-                if (erroNovo) {
-                    formularioFiltro.insertAdjacentElement(
-                        "afterend",
-                        erroNovo
+                    atualizarRecursos(
+                        formularioFiltro.action
+                        + "?"
+                        + parametros.toString()
                     );
                 }
+            );
 
-                window.history.replaceState(null, "", endereco);
-            } catch (erro) {
-                window.alert(
-                    "Não foi possível atualizar a lista. Tente novamente."
+            if (limparFiltros) {
+                limparFiltros.addEventListener(
+                    "click",
+                    function (evento) {
+                        evento.preventDefault();
+
+                        if (buscando) {
+                            return;
+                        }
+
+                        formularioFiltro.querySelectorAll(
+                            "input"
+                        ).forEach(function (campo) {
+                            campo.value = "";
+                        });
+
+                        formularioFiltro.querySelector(
+                            "select"
+                        ).value = "";
+
+                        atualizarRecursos(limparFiltros.href);
+                    }
                 );
-            } finally {
-                buscando = false;
-                botaoFiltrar.disabled = false;
-                botaoFiltrar.textContent = "Filtrar";
             }
         }
-
-        formularioFiltro.addEventListener("submit", function (evento) {
-            evento.preventDefault();
-
-            const parametros = new URLSearchParams(
-                new FormData(formularioFiltro)
-            );
-
-            atualizarRecursos(
-                formularioFiltro.action + "?" + parametros.toString()
-            );
-        });
-
-        const limparFiltros = formularioFiltro.querySelector("a");
-
-        limparFiltros.addEventListener("click", function (evento) {
-            evento.preventDefault();
-
-            if (buscando) {
-                return;
-            }
-
-            formularioFiltro.querySelectorAll("input").forEach(
-                campo => campo.value = ""
-            );
-            formularioFiltro.querySelector("select").value = "";
-
-            atualizarRecursos(limparFiltros.href);
-        });
-    }
-</script>
+    </script>
 </body>
 </html>
