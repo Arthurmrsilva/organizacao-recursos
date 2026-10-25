@@ -112,3 +112,38 @@ ao pacote de entrega do repositório.
 | Gestão de defeitos | Registro, prioridade, correção e reteste | Pendente |
 | Relatório final | Evidências, métricas e decisão de qualidade | Pendente |
 | Apresentação | Demonstração e domínio do projeto pelo grupo | Pendente |
+
+## Atualização — Cancelamento de reservas — 25/10/2026
+
+### Funcionalidades implementadas
+
+- Consulta das próprias reservas na tela "Minhas reservas".
+- Cancelamento pelo proprietário da reserva.
+- Cancelamento permitido nos estados SOLICITADA e APROVADA,
+  desde que o horário de início ainda não tenha chegado.
+- Preservação da reserva cancelada no histórico.
+- Liberação do horário após o cancelamento.
+
+### Evidências de validação
+
+- Execução local: 31 testes aprovados em 9,850 segundos.
+- Commit do cancelamento: `ecb0eb7`.
+- Teste manual: reserva nº 3 cancelada e reserva nº 4 aprovada
+  para o mesmo recurso e período, em 30/10/2026, das 15:30 às 16:30.
+- Testes automatizados em `tests/test_reservas.py` verificam:
+  cancelamento de reservas aprovadas e solicitadas,
+  bloqueio de outro usuário, bloqueio após o início,
+  rejeição de estados não permitidos e liberação do horário.
+
+### Situação do requisito RF04
+
+Parcialmente implementado: criação, consulta das próprias reservas
+e cancelamento disponíveis. Alteração de reservas ainda pendente.
+
+### Validações pendentes desta etapa
+
+- Testes HTTP específicos da rota de cancelamento:
+  autenticação, proteção CSRF e autorização.
+- Confirmação da execução da integração contínua no GitHub
+  para o commit `ecb0eb7`.
+- Registro de auditoria das mudanças de situação.
