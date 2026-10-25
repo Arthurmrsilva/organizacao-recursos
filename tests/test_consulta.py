@@ -379,6 +379,104 @@ class TestSistema(unittest.TestCase):
 
         self.assertEqual(resposta.status_code, 400)
         self.assertIsNone(self.buscar_recurso(dados["nome"]))     
+    def test_filtros_de_pesquisa(self):
+        with self.engine.begin() as conexao:
+            conexao.execute(
+                update(recursos)
+                .where(recursos.c.nome == "Sala Teste")
+                .values(capacidade=40, localizacao="Bloco B")
+            )
+            conexao.execute(
+                update(recursos)
+                .where(recursos.c.nome == "Professor Teste")
+                .values(competencia="Programação em Python")
+            )
 
+        self.entrar()
+
+        casos = [
+            (
+                {"capacidade": "35"},
+                ["Sala Teste"],
+                ["Professor Teste", "Projetor Teste"],
+            ),
+            (
+                {"localizacao": "bloco b"},
+                ["Sala Teste"],
+                ["Professor Teste", "Projetor Teste"],
+            ),
+            (
+                {"competencia": "python"},
+                ["Professor Teste"],
+                ["Sala Teste", "Projetor Teste"],
+            ),
+            (
+                {
+                    "tipo": "SALA",
+                    "localizacao": "Bloco B",
+                    "capacidade": "40",
+                },
+                ["Sala Teste"],
+                ["Professor Teste", "Projetor Teste"],
+            ),
+            (
+                {"capacidade": "41"},
+                [],
+                ["Sala Teste", "Professor Teste", "Projetor Teste"],
+            ),
+            (
+                {"competencia": "Python", "capacidade": "35"},
+                [],
+                ["Sala Teste", "Professor Teste", "Projetor Teste"],
+            ),
+        ]
+
+        for filtros, presentes, ausentes in casos:
+            with self.subTest(filtros=filtros):
+                resposta = self.cliente.get(
+                    "/", query_string=filtros
+                )
+                pagina = resposta.get_data(as_text=True)
+
+                self.assertEqual(resposta.status_code, 200)
+                self.assertNotIn("Sala Inativa", pagina)
+
+                for nome in presentes:
+                    self.assertIn(nome, pagina)
+
+                for nome in ausentes:
+                    self.assertNotIn(nome, pagina)
+
+                if not presentes:
+                    self.assertIn(
+                        "Nenhum recurso encontrado para esta consulta.",
+                        pagina,
+                    )
+
+    def test_filtros_invalidos(self):
+        self.entrar()
+
+        casos = [
+            {"capacidade": "abc"},
+            {"capacidade": "2.5"},
+            {"capacidade": "0"},
+            {"capacidade": "-1"},
+            {"capacidade": "10001"},
+            {"localizacao": "A" * 121},
+            {"competencia": "A" * 151},
+        ]
+
+        for filtros in casos:
+            with self.subTest(filtros=filtros):
+                resposta = self.cliente.get(
+                    "/", query_string=filtros
+                )
+                pagina = resposta.get_data(as_text=True)
+
+                self.assertEqual(resposta.status_code, 400)
+                self.assertIn('role="alert"', pagina)
+                self.assertNotIn("Sala Teste", pagina)
+                self.assertNotIn("Professor Teste", pagina)
+                self.assertNotIn("Projetor Teste", pagina)
 if __name__ == "__main__":
     unittest.main()

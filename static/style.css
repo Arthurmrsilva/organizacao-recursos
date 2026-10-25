@@ -181,3 +181,67 @@ footer p {
     border-radius: 6px;
     background-color: white;
 }
+.filtros > div {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    flex: 1 1 180px;
+    min-width: 0;
+}
+
+.filtros input {
+    padding: 10px 14px;
+    border: 1px solid #b8c8d0;
+    border-radius: 6px;
+    font: inherit;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.filtros {
+    align-items: flex-end;
+}
+a.botao,
+button.botao {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 44px;
+    padding: 11px 20px;
+    box-sizing: border-box;
+    border: 1px solid #163f50;
+    border-radius: 10px;
+    background: #163f50;
+    color: #ffffff;
+    font: inherit;
+    font-weight: 600;
+    line-height: 1.4;
+    text-decoration: none;
+    cursor: pointer;
+    box-shadow: 0 2px 5px #00000015;
+}
+
+a.botao:hover,
+button.botao:hover {
+    background: #245c70;
+    color: #ffffff;
+}
+
+a.botao.botao-secundario {
+    background: #ffffff;
+    color: #163f50;
+}
+
+a.botao.botao-secundario:hover {
+    background: #e4eef3;
+}
+
+.botao:focus-visible {
+    outline: 3px solid #168aaf;
+    outline-offset: 3px;
+}
+
+button.botao:disabled {
+    opacity: 0.65;
+    cursor: wait;
+}

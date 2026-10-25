@@ -11,6 +11,7 @@
         href="{{ url_for('static', filename='style.css') }}"
     >
 </head>
+
 <body>
     <header>
         <h1>Organização de Recursos</h1>
@@ -20,7 +21,9 @@
     <main>
         {% if g.usuario and g.usuario.perfil == "ADMIN" %}
 <p>
-    <a href="{{ url_for('novo_recurso') }}">Cadastrar novo recurso</a>
+    <a class="botao" href="{{ url_for('novo_recurso') }}">
+    + Cadastrar novo recurso
+</a>
 </p>
 {% endif %}
         <div class="filtros">
@@ -75,38 +78,79 @@
 
         <section class="aviso">
             <h2>Projeto em desenvolvimento</h2>
-            <p>
-                Esta é a página inicial. Os cadastros, o login
-                e as reservas serão implementados nas próximas etapas.
-            </p>
+           <p>
+            Login, cadastro e consulta de recursos já estão disponíveis.
+            As reservas serão implementadas nas próximas etapas.
+          </p>
         </section>
         <section class="lista-recursos">
     <h2>Recursos cadastrados</h2>
     <form method="get" action="/" class="filtros">
-    <label for="tipo">Tipo de recurso:</label>
+    <div>
+        <label for="tipo">Tipo</label>
+        <select id="tipo" name="tipo">
+            <option value="">Todos</option>
 
-    <select id="tipo" name="tipo">
-        <option value="">Todos</option>
+            <option value="SALA"
+                {% if tipo_selecionado == "SALA" %}selected{% endif %}>
+                Salas
+            </option>
 
-        <option value="SALA"
-            {% if tipo_selecionado == "SALA" %}selected{% endif %}>
-            Salas
-        </option>
+            <option value="PROFESSOR"
+                {% if tipo_selecionado == "PROFESSOR" %}selected{% endif %}>
+                Professores
+            </option>
 
-        <option value="PROFESSOR"
-            {% if tipo_selecionado == "PROFESSOR" %}selected{% endif %}>
-            Professores
-        </option>
+            <option value="MATERIAL"
+                {% if tipo_selecionado == "MATERIAL" %}selected{% endif %}>
+                Materiais
+            </option>
+        </select>
+    </div>
 
-        <option value="MATERIAL"
-            {% if tipo_selecionado == "MATERIAL" %}selected{% endif %}>
-            Materiais
-        </option>
-    </select>
+    <div>
+        <label for="localizacao">Localização</label>
+        <input id="localizacao" name="localizacao" type="text"
+               maxlength="120"
+               value="{{ localizacao }}"
+               placeholder="Ex.: Bloco B">
+    </div>
 
-    <button type="submit">Filtrar</button>
-    <a href="/">Limpar filtro</a>
+    <div>
+        <label for="capacidade">Capacidade mínima</label>
+        <input id="capacidade" name="capacidade" type="number"
+               min="1" max="10000" step="1"
+               value="{{ capacidade }}"
+               placeholder="Ex.: 35">
+    </div>
+
+    <div>
+        <label for="competencia">Competência</label>
+        <input id="competencia" name="competencia" type="text"
+               maxlength="150"
+               value="{{ competencia }}"
+               placeholder="Ex.: Python">
+    </div>
+
+    <button class="botao" type="submit">Filtrar</button>
+
+<a class="botao botao-secundario"
+   href="{{ url_for('inicio') }}">
+    Limpar filtros
+</a>
 </form>
+    
+</form>
+
+{% if erros %}
+<div role="alert">
+    <ul>
+        {% for erro in erros %}
+        <li>{{ erro }}</li>
+        {% endfor %}
+    </ul>
+</div>
+{% endif %}
 
     <div class="grade-recursos">
         {% for recurso in recursos %}
@@ -140,7 +184,7 @@
             {% endif %}
         </article>
         {% else %}
-        <p>Nenhum recurso cadastrado.</p>
+             <p>Nenhum recurso encontrado para esta consulta.</p>
         {% endfor %}
     </div>
 </section>
@@ -153,5 +197,118 @@
             Nicolas Ferreira e Murilo Henrique
         </p>
     </footer>
+    <script>
+    const formularioFiltro = document.querySelector(
+        'form.filtros[method="get"]'
+    );
+
+    if (formularioFiltro) {
+        const botaoFiltrar = formularioFiltro.querySelector(
+            'button[type="submit"]'
+        );
+
+        let buscando = false;
+
+        async function atualizarRecursos(endereco) {
+            if (buscando) {
+                return;
+            }
+
+            buscando = true;
+            botaoFiltrar.disabled = true;
+            botaoFiltrar.textContent = "Buscando...";
+
+            try {
+                const resposta = await fetch(endereco);
+
+                if (resposta.redirected) {
+                    window.location.href = resposta.url;
+                    return;
+                }
+
+                if (!resposta.ok && resposta.status !== 400) {
+                    throw new Error("Erro ao consultar recursos.");
+                }
+
+                const html = await resposta.text();
+                const documento = new DOMParser().parseFromString(
+                    html,
+                    "text/html"
+                );
+
+                const listaAtual = document.querySelector(
+                    ".grade-recursos"
+                );
+                const listaNova = documento.querySelector(
+                    ".grade-recursos"
+                );
+
+                if (!listaAtual || !listaNova) {
+                    throw new Error("Lista de recursos não encontrada.");
+                }
+
+                listaAtual.replaceChildren(
+                    ...Array.from(listaNova.childNodes)
+                );
+
+                const secao = document.querySelector(".lista-recursos");
+                const erroAnterior = secao.querySelector('[role="alert"]');
+                const erroNovo = documento.querySelector(
+                    '.lista-recursos [role="alert"]'
+                );
+
+                if (erroAnterior) {
+                    erroAnterior.remove();
+                }
+
+                if (erroNovo) {
+                    formularioFiltro.insertAdjacentElement(
+                        "afterend",
+                        erroNovo
+                    );
+                }
+
+                window.history.replaceState(null, "", endereco);
+            } catch (erro) {
+                window.alert(
+                    "Não foi possível atualizar a lista. Tente novamente."
+                );
+            } finally {
+                buscando = false;
+                botaoFiltrar.disabled = false;
+                botaoFiltrar.textContent = "Filtrar";
+            }
+        }
+
+        formularioFiltro.addEventListener("submit", function (evento) {
+            evento.preventDefault();
+
+            const parametros = new URLSearchParams(
+                new FormData(formularioFiltro)
+            );
+
+            atualizarRecursos(
+                formularioFiltro.action + "?" + parametros.toString()
+            );
+        });
+
+        const limparFiltros = formularioFiltro.querySelector("a");
+
+        limparFiltros.addEventListener("click", function (evento) {
+            evento.preventDefault();
+
+            if (buscando) {
+                return;
+            }
+
+            formularioFiltro.querySelectorAll("input").forEach(
+                campo => campo.value = ""
+            );
+            formularioFiltro.querySelector("select").value = "";
+
+            atualizarRecursos(limparFiltros.href);
+        });
+    }
+</script>
 </body>
 </html>

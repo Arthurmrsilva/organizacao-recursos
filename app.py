@@ -66,10 +66,30 @@ def inicio():
         return redirect(url_for("login"))
 
     tipo = request.args.get("tipo", "").strip().upper()
-    tipos_validos = ("SALA", "PROFESSOR", "MATERIAL")
+    localizacao = request.args.get("localizacao", "").strip()
+    competencia = request.args.get("competencia", "").strip()
+    capacidade_texto = request.args.get("capacidade", "").strip()
 
-    if tipo not in tipos_validos:
+    erros = []
+    capacidade = None
+
+    if tipo not in ("SALA", "PROFESSOR", "MATERIAL"):
         tipo = ""
+
+    if len(localizacao) > 120:
+        erros.append("A localização deve ter até 120 caracteres.")
+
+    if len(competencia) > 150:
+        erros.append("A competência deve ter até 150 caracteres.")
+
+    if capacidade_texto:
+        try:
+            capacidade = int(capacidade_texto)
+
+            if not 1 <= capacidade <= 10000:
+                erros.append("A capacidade deve estar entre 1 e 10000.")
+        except ValueError:
+            erros.append("A capacidade deve ser um número inteiro.")
 
     consulta = select(recursos).where(
         recursos.c.ativo.is_(True)
@@ -78,16 +98,44 @@ def inicio():
     if tipo:
         consulta = consulta.where(recursos.c.tipo == tipo)
 
-    consulta = consulta.order_by(recursos.c.nome)
+    if localizacao and len(localizacao) <= 120:
+        consulta = consulta.where(
+            recursos.c.localizacao.icontains(
+                localizacao,
+                autoescape=True,
+            )
+        )
 
-    with engine.connect() as conexao:
-        lista_recursos = conexao.execute(consulta).mappings().all()
+    if competencia and len(competencia) <= 150:
+        consulta = consulta.where(
+            recursos.c.competencia.icontains(
+                competencia,
+                autoescape=True,
+            )
+        )
+
+    if capacidade is not None and not erros:
+        consulta = consulta.where(
+            recursos.c.capacidade >= capacidade
+        )
+
+    lista_recursos = []
+
+    if not erros:
+        with engine.connect() as conexao:
+            lista_recursos = conexao.execute(
+                consulta.order_by(recursos.c.nome)
+            ).mappings().all()
 
     return render_template(
         "index.html",
         recursos=lista_recursos,
         tipo_selecionado=tipo,
-    )
+        localizacao=localizacao,
+        competencia=competencia,
+        capacidade=capacidade_texto,
+        erros=erros,
+    ), 400 if erros else 200
 
 
 @app.route("/login", methods=["GET", "POST"])
