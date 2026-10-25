@@ -21,6 +21,12 @@
     <main>
         {% if g.usuario %}
             <nav aria-label="Ações do sistema">
+    <p>
+        <a class="botao botao-secundario"
+        href="{{ url_for('minhas_reservas') }}">
+         Minhas reservas
+    </a>
+</p>
                 <p>
                     <a class="botao"
                        href="{{ url_for('nova_reserva') }}">

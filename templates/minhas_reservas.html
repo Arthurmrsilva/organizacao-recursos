@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Minhas reservas — Organização de Recursos</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body>
+    <header>
+        <h1>Organização de Recursos</h1>
+        <p>Reserva de salas, professores e materiais</p>
+    </header>
+
+    <main>
+        <section>
+            <h2>Minhas reservas</h2>
+
+            <p>
+                Consulte os recursos e os períodos que você reservou.
+            </p>
+
+            <p>
+                <a class="botao"
+                   href="{{ url_for('nova_reserva') }}">
+                    + Fazer reserva
+                </a>
+            </p>
+
+            {% set situacoes = {
+                'SOLICITADA': 'Aguardando aprovação',
+                'APROVADA': 'Aprovada',
+                'EM_USO': 'Em uso',
+                'CONCLUIDA': 'Concluída',
+                'REJEITADA': 'Rejeitada',
+                'CANCELADA': 'Cancelada',
+                'NAO_COMPARECEU': 'Não compareceu'
+            } %}
+
+            <div class="grade-recursos">
+                {% for reserva in reservas %}
+                    <article class="recurso">
+                        <h3>{{ reserva.recurso_nome }}</h3>
+
+                        <p>
+                            <strong>Reserva:</strong>
+                            nº {{ reserva.id }}
+                        </p>
+
+                        <p>
+                            <strong>Tipo:</strong>
+                            {{ reserva.recurso_tipo }}
+                        </p>
+
+                        <p>
+                            <strong>Início:</strong>
+                            {{ reserva.inicio.strftime('%d/%m/%Y às %H:%M') }}
+                        </p>
+
+                        <p>
+                            <strong>Término:</strong>
+                            {{ reserva.fim.strftime('%d/%m/%Y às %H:%M') }}
+                        </p>
+
+                        <p>
+                            <strong>Finalidade:</strong>
+                            {{ reserva.finalidade }}
+                        </p>
+
+                        <p>
+                            <strong>Situação:</strong>
+                            {{ situacoes.get(reserva.status, reserva.status) }}
+                        </p>
+                    </article>
+                {% else %}
+                    <p>Você ainda não possui reservas.</p>
+                {% endfor %}
+            </div>
+
+            <p>
+                <a class="botao botao-secundario"
+                   href="{{ url_for('inicio') }}">
+                    Voltar ao início
+                </a>
+            </p>
+        </section>
+    </main>
+</body>
+</html>

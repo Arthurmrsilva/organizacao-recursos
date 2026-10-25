@@ -13,7 +13,7 @@ from flask import (
 from sqlalchemy import insert, select
 from werkzeug.security import check_password_hash
 
-from banco import criar_tabelas, engine, recursos, usuarios
+from banco import criar_tabelas, engine, recursos, reservas, usuarios
 from servico_reservas import criar_reserva
 
 app = Flask(__name__)
@@ -306,6 +306,38 @@ def nova_reserva():
         dados=dados,
         reserva_criada=reserva_criada,
     ), status
+@app.route("/reservas")
+def minhas_reservas():
+    if g.usuario is None:
+        return redirect(url_for("login"))
+
+    consulta = (
+        select(
+            reservas.c.id,
+            recursos.c.nome.label("recurso_nome"),
+            recursos.c.tipo.label("recurso_tipo"),
+            reservas.c.inicio,
+            reservas.c.fim,
+            reservas.c.finalidade,
+            reservas.c.status,
+        )
+        .join(
+            recursos,
+            reservas.c.recurso_id == recursos.c.id,
+        )
+        .where(reservas.c.usuario_id == g.usuario["id"])
+        .order_by(reservas.c.inicio.desc(), reservas.c.id.desc())
+    )
+
+    with engine.connect() as conexao:
+        lista_reservas = conexao.execute(
+            consulta
+        ).mappings().all()
+
+    return render_template(
+        "minhas_reservas.html",
+        reservas=lista_reservas,
+    )
 
 if __name__ == "__main__":
     app.run(debug=False)
