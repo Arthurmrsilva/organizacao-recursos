@@ -232,3 +232,48 @@ Execução local: 65 testes aprovados em 15,054 segundos.
 
 Commit dos testes de acesso à auditoria: db1e5e8.
 Confirmação da execução do CI desse commit ainda pendente.
+
+## Atualização — Manutenção de recursos — 25/10/2026
+
+### Funcionalidades implementadas
+
+- Cadastro e consulta de manutenção exclusivos do administrador.
+- Período futuro com término posterior ao início.
+- Motivo obrigatório com até 200 caracteres.
+- Bloqueio de manutenções sobrepostas para o mesmo recurso.
+- Bloqueio de manutenção que coincida com reserva em
+  SOLICITADA, APROVADA ou EM_USO.
+- Bloqueio de criação e aprovação de reservas durante manutenção.
+- Permissão de horários consecutivos, sem sobreposição.
+- Proteção CSRF no formulário de cadastro.
+
+### Testes automatizados
+
+- tests/test_manutencoes.py: 12 métodos de teste.
+- tests/test_manutencoes_http.py: 9 métodos de teste.
+- Suíte completa: 86 testes aprovados em 21,313 segundos.
+
+### Verificações manuais
+
+- Manutenção nº 1 cadastrada para Sala 101 em
+  01/11/2026, das 14:00 às 16:00.
+- Segunda manutenção das 14:30 às 15:30 bloqueada.
+- Reserva das 14:30 às 15:30 bloqueada pela manutenção.
+- Reserva nº 9 registrada após o teste com início às 16:00.
+
+### Atualização dos requisitos
+
+- RF08 e RC04: implementados e verificados nesta etapa.
+- RF01: permissões das rotas de manutenção verificadas.
+- RF13: formulário, mensagens e botão administrativo disponíveis.
+
+### Limitações e pendências
+
+- Edição e desativação de manutenção pela interface não implementadas.
+- Cadastro de manutenção emergencial com início imediato não disponível.
+- Concorrência entre cadastro de manutenção e reserva ainda precisa
+  de teste automatizado específico.
+- Revisão por outro integrante e medição de cobertura pendentes.
+
+O cadastro da manutenção identifica autor e data de criação
+na própria tabela manutencoes. Não gera evento na auditoria de reservas.
