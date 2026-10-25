@@ -1,92 +1,118 @@
 # Matriz de Rastreabilidade — RTM
 
-Projeto: Organização de Recursos.
+Projeto: Organização de Recursos  
+Última atualização: 25/10/2026
 
-Esta matriz acompanha requisitos, riscos, testes e evidências.
-É atualizada conforme a implementação avança.
+Esta matriz relaciona requisitos, riscos, testes e evidências.
+As tabelas principais representam a situação atual.
+As evidências históricas preservam os resultados de cada etapa.
 
 ## Legenda
 
-- Parcial: somente parte do requisito foi implementada e verificada.
+- Parcial: somente parte do requisito foi implementada ou verificada.
 - Pendente: implementação ou verificação ainda não realizada.
+- Implementado nesta etapa: comportamento disponível e verificado no escopo descrito.
 - Testes planejados não representam evidência de aprovação.
+- Quantidade de testes aprovados não representa percentual de cobertura.
 
 ## Requisitos funcionais
 
-| ID | Requisito | Risco | Teste existente ou planejado | Evidência e situação |
+| ID | Requisito | Risco | Testes e verificações | Situação atual |
 | --- | --- | --- | --- | --- |
-| RF01 | Autenticação e autorização por perfil | Acesso indevido | Login correto/incorreto, usuário inativo, acesso e envio do cadastro por perfil | Parcial: testes em tests/test_consulta.py; demais permissões pendentes |
-| RF02 | Cadastro e consulta de salas, professores e materiais | Dados inválidos ou perda de informação | Cadastro dos três tipos, campos inválidos e consulta de ativos | Implementado e testado nesta etapa; revisão por colega pendente |
-| RF03 | Pesquisa por tipo, capacidade, localização, competência e disponibilidade | Resultado incorreto ou recurso indisponível listado | test_filtrar_por_tipo, test_tipo_invalido_mostra_todos_os_ativos, test_filtros_de_pesquisa e test_filtros_invalidos | Parcial: filtros de tipo, capacidade, localização e competência implementados e testados; disponibilidade pendente. Evidência: commit c82a46e e execução #7 do GitHub Actions aprovada |
-| RF04 | Criar, alterar e cancelar reservas | Reserva incorreta ou alteração indevida | test_criar_reserva_valida; alteração, cancelamento e permissões ainda precisam de testes | Parcial: criação implementada e testada no serviço; alteração e cancelamento pendentes. Evidências EV08 a EV10 |
-| RF05 | Detectar sobreposição, inclusive na agenda do professor | Dois usos do mesmo recurso no mesmo horário | test_bloquear_horarios_sobrepostos e test_permitir_horarios_consecutivos | Parcial: conflito por recurso testado com sala; ampliar os cenários para professor e demais tipos. Evidências EV08 a EV10 |
-| RF06 | Impedir dupla reserva simultânea | Duas solicitações aceitas para o mesmo recurso e período | test_duas_solicitacoes_simultaneas | Implementado e verificado no serviço com SQLite: uma solicitação aceita, outra recusada e apenas uma reserva gravada; teste concorrente pela rota HTTP pendente. Evidências EV08 a EV10 |
-| RF07 | Exigir aprovação para recursos restritos | Uso sem autorização | Aprovação por responsável e bloqueio dos outros perfis | Pendente: somente o campo restrito existe |
-| RF08 | Bloquear recursos em manutenção | Reserva de recurso indisponível | Reserva durante e fora do bloqueio de manutenção | Pendente |
-| RF09 | Registrar retirada e devolução de materiais | Perda de controle dos equipamentos | Retirada, devolução e operações inválidas | Pendente |
-| RF10 | Manter histórico auditável | Mudanças sem identificação ou rastreio | Conferência da auditoria após cada mudança | Pendente |
-| RF11 | Notificação simulada ou integração externa | Usuário não informado sobre a reserva | Conferência de notificação após eventos da reserva | Pendente |
-| RF12 | Relatórios de utilização, horas e conflitos evitados | Indicadores incorretos | Comparação com dados conhecidos no banco | Pendente |
-| RF13 | Interface responsiva e erros compreensíveis | Dificuldade de uso e erros sem orientação | Testes de mensagens existentes; testes de navegador e telas planejados | Parcial |
-| RF14 | Documentação da API ou dos fluxos públicos | Dificuldade de instalar, usar e manter | Conferência das instruções e dos fluxos documentados | Parcial: README inicial criado |
+| RF01 | Autenticação e autorização por perfil | Acesso indevido | test_consulta.py, test_cancelamento_http.py, test_aprovacoes_http.py e test_auditoria_http.py | Parcial: login e permissões das funcionalidades atuais verificados; ampliar conforme novas rotas forem criadas |
+| RF02 | Cadastro e consulta de salas, professores e materiais | Dados inválidos ou perda de informação | Cadastro dos três tipos, validação dos campos, autorização e consulta de ativos em test_consulta.py | Implementado e testado nesta etapa; revisão por colega pendente |
+| RF03 | Pesquisa por tipo, capacidade, localização, competência e disponibilidade | Resultado incorreto ou recurso indisponível listado | Filtros de pesquisa e entradas inválidas em test_consulta.py | Parcial: tipo, capacidade, localização e competência disponíveis; pesquisa por disponibilidade pendente |
+| RF04 | Criar, alterar e cancelar reservas | Reserva incorreta ou alteração indevida | test_reservas.py, test_minhas_reservas.py e test_cancelamento_http.py | Parcial: criação, consulta das próprias reservas e cancelamento disponíveis; alteração pendente |
+| RF05 | Detectar sobreposição, inclusive na agenda do professor | Dois usos do mesmo recurso no mesmo horário | Testes de sobreposição e horários consecutivos em test_reservas.py; verificação de conflito na aprovação em test_aprovacoes.py | Parcial: conflito por recurso implementado; ampliar cenários explícitos para todos os tipos e agenda do professor |
+| RF06 | Impedir dupla reserva simultânea | Duas solicitações aceitas para o mesmo recurso e período | test_duas_solicitacoes_simultaneas em test_reservas.py | Verificado no serviço com SQLite: uma solicitação aceita, outra recusada e apenas uma reserva gravada; concorrência por HTTP pendente |
+| RF07 | Exigir aprovação para recursos restritos | Uso sem autorização | test_aprovacoes.py e test_aprovacoes_http.py | Implementado nesta etapa: recursos restritos e professores aguardam aprovação do responsável vinculado; interface de vinculação pendente |
+| RF08 | Bloquear recursos em manutenção | Reserva de recurso indisponível | Planejado: testar reservas durante e fora do bloqueio | Pendente |
+| RF09 | Registrar retirada e devolução de materiais | Perda de controle dos equipamentos | Planejado: retirada, devolução e operações inválidas | Pendente |
+| RF10 | Manter histórico auditável | Mudanças sem identificação ou rastreio | test_auditoria.py, test_auditoria_http.py e conferência manual da tela | Parcial: criação, cancelamento, aprovação e rejeição auditados; consulta dos 100 eventos mais recentes exclusiva do administrador; ampliar para futuras operações |
+| RF11 | Notificação simulada ou integração externa | Usuário não informado sobre a reserva | Planejado: conferir notificações dos eventos da reserva | Pendente |
+| RF12 | Relatórios de utilização, horas e conflitos evitados | Indicadores incorretos | Planejado: comparar resultados com dados conhecidos | Pendente |
+| RF13 | Interface responsiva e erros compreensíveis | Dificuldade de uso e erros sem orientação | Mensagens verificadas pelos testes HTTP e verificações manuais da interface | Parcial: temas por perfil, botões e filtros disponíveis; testes de navegador e avaliação em diferentes telas pendentes |
+| RF14 | Documentação da API ou dos fluxos públicos | Dificuldade de instalar, usar e manter | README inicial e esta matriz | Parcial: ampliar documentação de instalação, fluxos e interfaces |
 
 ## Regras críticas
 
-| ID | Regra | Risco | Verificação planejada | Situação |
+| ID | Regra | Risco | Verificação atual ou planejada | Situação |
 | --- | --- | --- | --- | --- |
-| RC01 | Término posterior ao início | Período inválido | Rejeitar término anterior ou igual ao início | Pendente |
-| RC02 | Mesmo recurso sem sobreposição | Conflito de utilização | Testar sala, material e professor | Pendente |
-| RC03 | Solicitações simultâneas com uma única aceita | Dupla reserva | Teste automatizado de concorrência | Pendente |
-| RC04 | Recurso em manutenção indisponível | Reserva impossível de atender | Testar interseção com bloqueio | Pendente |
-| RC05 | Fluxo SOLICITADA → APROVADA → EM_USO → CONCLUIDA | Estado inconsistente | Testar transições permitidas e proibidas | Pendente |
-| RC06 | Estados alternativos REJEITADA, CANCELADA e NAO_COMPARECEU | Histórico incorreto | Testar condições de cada transição | Pendente |
-| RC07 | Somente responsável aprova recurso restrito | Aprovação indevida | Testar todos os perfis | Pendente |
-| RC08 | Reservas iniciadas não podem ser apagadas | Perda de histórico | Tentar apagar reserva iniciada | Pendente |
-| RC09 | Toda mudança de estado gera auditoria | Ausência de rastreabilidade | Conferir autor, ação, reserva e momento | Pendente |
+| RC01 | Término posterior ao início | Período inválido | Validação no serviço e restrição no banco; ampliar testes explícitos de término igual ou anterior | Parcial |
+| RC02 | Mesmo recurso sem sobreposição | Conflito de utilização | Testes de sobreposição e horários consecutivos; conflito na aprovação | Parcial: ampliar cenários por tipo de recurso |
+| RC03 | Solicitações simultâneas com uma única aceita | Dupla reserva | test_duas_solicitacoes_simultaneas | Verificado no serviço; teste concorrente por HTTP pendente |
+| RC04 | Recurso em manutenção indisponível | Reserva impossível de atender | Planejado: testar interseção com bloqueio | Pendente |
+| RC05 | Fluxo SOLICITADA → APROVADA → EM_USO → CONCLUIDA | Estado inconsistente | Aprovação implementada e testada; retirada e devolução pendentes | Parcial |
+| RC06 | Estados alternativos REJEITADA, CANCELADA e NAO_COMPARECEU | Histórico incorreto | Rejeição e cancelamento testados; registro de não comparecimento pendente | Parcial |
+| RC07 | Somente responsável vinculado aprova recurso restrito | Aprovação indevida | Testes de perfil, vínculo com o recurso, prazo e estado da reserva | Implementado e testado nesta etapa |
+| RC08 | Reservas iniciadas não podem ser apagadas | Perda de histórico | Sem exclusão física disponível; cancelamento após início bloqueado e testado | Parcial: revisar também nas futuras funcionalidades administrativas |
+| RC09 | Toda mudança de estado gera auditoria | Ausência de rastreabilidade | Auditoria das operações atuais, identificação do autor e testes de rollback | Parcial: cobrir novas transições quando implementadas |
 
 ## Testes existentes
 
-Arquivo: tests/test_consulta.py
-Classe: TestSistema
+A execução local mais recente apresentou **65 métodos de teste aprovados**.
 
-| Área | Métodos |
+Alguns métodos utilizam `subTest` para verificar vários cenários.
+O total de métodos não corresponde ao total de cenários nem à cobertura.
+
+| Arquivo | Escopo |
 | --- | --- |
-| Autenticação | test_inicio_exige_login; test_login_correto; test_senha_incorreta; test_usuario_inativo_nao_entra; test_sair_encerra_acesso |
-| Proteção dos formulários | test_login_sem_token_e_bloqueado; test_cadastro_sem_token_nao_grava |
-| Consulta | test_listar_recursos_ativos; test_filtrar_por_tipo; test_tipo_invalido_mostra_todos_os_ativos |
-| Autorização do cadastro | test_cadastro_exige_login; test_admin_pode_abrir_cadastro; test_outros_perfis_nao_podem_abrir_cadastro; test_outros_perfis_nao_podem_gravar_recurso |
-| Persistência e validação | test_admin_cadastra_os_tres_tipos; test_cadastro_invalido_nao_grava |
+| tests/test_consulta.py | Login, logout, usuário inativo, CSRF, autorização do cadastro, validação, persistência e filtros de recursos |
+| tests/test_reservas.py | Criação, conflitos, horários consecutivos, concorrência e regras de cancelamento |
+| tests/test_minhas_reservas.py | Login obrigatório, isolamento entre usuários e mensagens de lista vazia nos filtros Ativas, Histórico e Todas |
+| tests/test_cancelamento_http.py | Autenticação, autorização e proteção CSRF na rota de cancelamento |
+| tests/test_aprovacoes.py | Regras de aprovação, rejeição, vínculo do responsável, prazo, estado e conflito |
+| tests/test_aprovacoes_http.py | Acesso às rotas, perfis, proteção CSRF e isolamento por responsável |
+| tests/test_auditoria.py | Registro das operações atuais, identificação do autor e rollback da operação e da auditoria |
+| tests/test_auditoria_http.py | Login obrigatório, bloqueio de responsável e solicitante, acesso do administrador e visibilidade do botão |
 
-A suíte contém 22 métodos de teste, incluindo casos parametrizados
-com subTest. Utiliza o cliente de testes do Flask e bancos SQLite
-temporários reais.
+Os testes utilizam bancos SQLite temporários.
+Os testes HTTP atuais usam o cliente de testes do Flask.
 
-Esses testes não substituem os testes de navegador, concorrência,
-API em caixa-preta ou banco em container exigidos para a entrega final.
+Esses testes não substituem os testes de navegador, API em
+caixa-preta por HTTP externo, carga ou banco em container previstos
+para a entrega final.
+
+Os filtros Ativas, Histórico e Todas também foram conferidos
+manualmente. Ainda faltam testes automatizados específicos para
+a distribuição dos registros entre esses filtros e sua ordenação.
 
 ## Evidências registradas
 
 | ID | Evidência |
 | --- | --- |
-| EV01 | Commit RED 1ed928d: testes de acesso ao cadastro falhando antes da implementação |
-| EV02 | Commit GREEN 49b42fe: implementação do cadastro e testes de acesso aprovados |
+| EV01 | Commit 1ed928d: etapa RED dos testes de acesso ao cadastro |
+| EV02 | Commit 49b42fe: etapa GREEN com implementação do cadastro e testes de acesso aprovados |
 | EV03 | Commit 250f9b2: ampliação para 16 testes e configuração do GitHub Actions |
-| EV04 | Execução local: 16 testes aprovados em 6,098 segundos |
-| EV05 | GitHub Actions: execução do commit 250f9b2 aprovada em 21 segundos |
+| EV04 | Execução local histórica: 16 testes aprovados em 6,098 segundos |
+| EV05 | GitHub Actions do commit 250f9b2 aprovado em 21 segundos |
 | EV06 | Cadastro manual da Sala 202 confirmado na interface |
 | EV07 | Pull Request nº 1 aberto; revisão por outro integrante pendente |
 | EV08 | Commit 940a392: criação de reservas e testes de conflito, horários consecutivos e concorrência |
 | EV09 | Execução local do commit 940a392: 22 testes aprovados em 7,883 segundos |
-| EV10 | GitHub Actions: execuções #13 (push) e #14 (Pull Request) aprovadas |
+| EV10 | GitHub Actions: execuções #13 de push e #14 de Pull Request aprovadas |
+| EV11 | Commit ecb0eb7: cancelamento de reservas; execução local de 31 testes aprovada em 9,850 segundos |
+| EV12 | Teste manual: reserva nº 3 cancelada e reserva nº 4 aprovada para o mesmo recurso e período em 30/10/2026, das 15:30 às 16:30 |
+| EV13 | Commit 7ae60b7: testes HTTP de cancelamento |
+| EV14 | Commit cca4432: aprovação por responsável, vínculo com recurso e identificação visual dos perfis |
+| EV15 | Commit 9946585: testes HTTP de aprovação; execução local de 56 testes aprovada |
+| EV16 | GitHub Actions: execução #27 aprovada em 21 segundos e execução #28 do Pull Request aprovada em 22 segundos |
+| EV17 | Testes manuais: reserva nº 6 aprovada pelo responsável e depois cancelada pelo próprio solicitante; reserva nº 7 rejeitada |
+| EV18 | Commit 1515dcd: tabela de auditoria, registro no serviço e testes automatizados |
+| EV19 | Commit 0fc4cf5: consulta de auditoria e filtros da listagem de reservas; execução local de 62 testes aprovada em 15,956 segundos; CI confirmado pelo integrante |
+| EV20 | Commit 6ac9d65: botão de auditoria no menu do administrador |
+| EV21 | Teste manual: administrador consultou os eventos de criação e cancelamento, com autor, data, horário e situações anterior e nova |
+| EV22 | Teste manual: acesso direto de responsável a /auditoria bloqueado com a mensagem “Acesso negado. Área exclusiva do administrador.” |
+| EV23 | Commit db1e5e8: testes HTTP de acesso à auditoria; execução local de 65 testes aprovada em 15,054 segundos; confirmação do CI desse commit pendente |
 
-Pull Request:
-https://github.com/Arthurmrsilva/organizacao-recursos/pull/1
+### Links
 
-Execuções de CI:
-https://github.com/Arthurmrsilva/organizacao-recursos/actions
+- [Pull Request nº 1](https://github.com/Arthurmrsilva/organizacao-recursos/pull/1)
+- [Execuções do GitHub Actions](https://github.com/Arthurmrsilva/organizacao-recursos/actions)
 
-Os prints de evidência ainda precisam ser organizados e adicionados
-ao pacote de entrega do repositório.
+Os prints ainda precisam ser organizados no pacote de entrega,
+com identificação do cenário, data e resultado.
+As evidências históricas mantêm suas contagens originais.
 
 ## Metas e verificações de qualidade
 
@@ -94,97 +120,115 @@ ao pacote de entrega do repositório.
 | --- | --- | --- |
 | Cobertura de linhas | Pelo menos 80% | Ainda não medida |
 | Cobertura de branches | Pelo menos 70% | Ainda não medida |
-| Rastreabilidade crítica | 100% dos requisitos críticos ligados a testes e evidências | Regras listadas; testes e evidências pendentes |
+| Rastreabilidade crítica | 100% das regras críticas ligadas a testes e evidências | Parcial: regras mapeadas; implementação e verificações restantes pendentes |
 | Defeitos e vulnerabilidades críticas | Nenhum conhecido pendente na entrega | Verificação completa ainda não realizada |
-| Testes unitários isolados | Regras de negócio verificadas | Pendente |
-| Testes de integração | Persistência real | Parcial: SQLite temporário |
+| Testes unitários isolados | Regras de negócio verificadas isoladamente | Pendente: testes de serviço atuais utilizam persistência real |
+| Testes de integração | Persistência real e integração das camadas | Parcial: SQLite temporário e cliente de testes do Flask |
 | Testes em container | Banco com Testcontainers | Pendente |
 | Integrações externas | WireMock quando aplicável | Pendente de definição e implementação |
-| Testes de API em caixa-preta | Aplicação acessada externamente por HTTP | Pendente |
-| Testes ponta a ponta | Fluxos no navegador | Pendente |
-| Concorrência | Uma única reserva aceita | Pendente |
-| TDD ou BDD | Pelo menos uma funcionalidade com evidências | RED e GREEN registrados para acesso ao cadastro; documentação do ciclo em andamento |
-| CI | Execução em Pull Requests | Workflow configurado e primeira execução por push aprovada; conferir resultado do PR |
+| API em caixa-preta | Aplicação acessada externamente por HTTP | Pendente |
+| Testes ponta a ponta | Fluxos no navegador | Pendente: verificações manuais não substituem automação |
+| Concorrência | Uma única reserva aceita para o mesmo período | Verificado no serviço; concorrência por HTTP e carga pendentes |
+| TDD ou BDD | Pelo menos uma funcionalidade com evidências | RED e GREEN registrados para acesso ao cadastro; consolidar documentação do ciclo |
+| CI | Execução em push e Pull Requests | Workflow ativo com execuções aprovadas; conferir execução do commit db1e5e8 |
 | Análise estática | Projeto integrado ao SonarCloud | Pendente |
 | Carga | Plano e resultados com JMeter | Pendente |
 | Revisão por pares | Revisão real de outro integrante | Pendente |
 | Arquitetura | C4, sequências críticas, utility tree, riscos, trade-offs e ADRs | Pendente |
-| Gestão de defeitos | Registro, prioridade, correção e reteste | Pendente |
+| Gestão de defeitos | Registro, prioridade, correção e reteste | Pendente de consolidação |
 | Relatório final | Evidências, métricas e decisão de qualidade | Pendente |
 | Apresentação | Demonstração e domínio do projeto pelo grupo | Pendente |
 
-## Atualização — Cancelamento de reservas — 25/10/2026
+## Histórico — Cancelamento de reservas — 25/10/2026
 
 ### Funcionalidades implementadas
 
-- Consulta das próprias reservas na tela "Minhas reservas".
+- Consulta das próprias reservas.
 - Cancelamento pelo proprietário da reserva.
-- Cancelamento permitido nos estados SOLICITADA e APROVADA,
-  desde que o horário de início ainda não tenha chegado.
+- Cancelamento permitido em SOLICITADA e APROVADA antes do início.
 - Preservação da reserva cancelada no histórico.
-- Liberação do horário após o cancelamento.
+- Liberação do período após cancelamento.
 
-### Evidências de validação
+### Evidências da etapa
 
-- Execução local: 31 testes aprovados em 9,850 segundos.
-- Commit do cancelamento: `ecb0eb7`.
-- Teste manual: reserva nº 3 cancelada e reserva nº 4 aprovada
-  para o mesmo recurso e período, em 30/10/2026, das 15:30 às 16:30.
-- Testes automatizados em `tests/test_reservas.py` verificam:
-  cancelamento de reservas aprovadas e solicitadas,
-  bloqueio de outro usuário, bloqueio após o início,
-  rejeição de estados não permitidos e liberação do horário.
+- Execução local de 31 testes aprovada em 9,850 segundos.
+- Commit ecb0eb7.
+- Reserva nº 3 cancelada e reserva nº 4 aprovada para o mesmo
+  recurso e período em 30/10/2026, das 15:30 às 16:30.
 
-### Situação do requisito RF04
+### Evolução posterior
 
-Parcialmente implementado: criação, consulta das próprias reservas
-e cancelamento disponíveis. Alteração de reservas ainda pendente.
+Os testes HTTP de cancelamento e a auditoria foram acrescentados
+em etapas posteriores. A alteração de reservas continua pendente.
 
-### Validações pendentes desta etapa
-
-- Testes HTTP específicos da rota de cancelamento:
-  autenticação, proteção CSRF e autorização.
-- Confirmação da execução da integração contínua no GitHub
-  para o commit `ecb0eb7`.
-- Registro de auditoria das mudanças de situação.
-
-## Atualização — Aprovação de reservas — 25/10/2026
+## Histórico — Aprovação de reservas — 25/10/2026
 
 ### Funcionalidades implementadas
 
-- Vinculação de um responsável a cada recurso.
-- Listagem de solicitações dos recursos do responsável conectado.
-- Aprovação e rejeição de reservas no estado SOLICITADA.
-- Bloqueio de avaliação por outros perfis ou responsáveis
-  não vinculados ao recurso.
-- Bloqueio de avaliação após o início da reserva.
-- Verificação de recurso ativo e conflito de horário na aprovação.
-- Liberação do horário após rejeição.
-- Identificação visual por perfil: administrador azul,
-  responsável roxo e solicitante verde.
+- Vinculação de responsável ao recurso por script local.
+- Consulta das solicitações dos recursos do responsável conectado.
+- Aprovação e rejeição de reservas em SOLICITADA.
+- Bloqueio de outros perfis e de responsáveis sem vínculo.
+- Bloqueio da avaliação após o início.
+- Verificação de recurso ativo e conflitos na aprovação.
+- Liberação do período após rejeição.
+- Temas por perfil: administrador azul, responsável roxo
+  e solicitante verde.
 
-### Evidências
+### Evidências da etapa
 
-- Teste manual: reserva nº 6 aprovada pelo responsável
-  e posteriormente cancelada pelo próprio solicitante.
-- Teste manual: reserva nº 7 rejeitada pelo responsável.
+- Reserva nº 6 aprovada e posteriormente cancelada pelo solicitante.
+- Reserva nº 7 rejeitada pelo responsável.
 - Execução local de 56 testes aprovada.
-- Commit da funcionalidade: `cca4432`.
-- Commit dos testes HTTP: `9946585`.
-- GitHub Actions: execução #27 aprovada em 21 segundos.
-- GitHub Actions: execução #28 do pull request aprovada
-  em 22 segundos.
+- Commits cca4432 e 9946585.
+- GitHub Actions #27 e #28 aprovados.
 
-### Testes relacionados
+### Pendências atuais relacionadas
 
-- `tests/test_aprovacoes.py`: regras de aprovação e rejeição.
-- `tests/test_aprovacoes_http.py`: autenticação, perfis,
-  proteção CSRF e isolamento por responsável.
-
-### Pendências relacionadas
-
-- Interface administrativa para vincular responsáveis;
-  atualmente a vinculação utiliza um script local.
-- Auditoria das mudanças de situação.
+- Interface administrativa para vincular responsáveis.
 - Notificações de aprovação e rejeição.
-- Medição de cobertura das regras críticas.
+- Medição da cobertura das regras críticas.
+
+A auditoria das operações atuais foi implementada posteriormente.
+
+## Atualização — Auditoria e organização das reservas — 25/10/2026
+
+### Funcionalidades implementadas
+
+- Registro de criação, cancelamento, aprovação e rejeição.
+- Identificação da reserva, autor, ação, data e horário.
+- Registro das situações anterior e nova.
+- Gravação da auditoria na mesma transação da operação.
+- Rollback conjunto se a gravação falhar.
+- Consulta dos 100 eventos mais recentes pelo administrador.
+- Botão de auditoria visível apenas ao administrador.
+- Bloqueio de acesso direto para os outros perfis.
+- Filtros Ativas, Histórico e Todas em Minhas reservas.
+
+### Critério dos filtros
+
+- Ativas: reservas em SOLICITADA, APROVADA ou EM_USO,
+  com término posterior ao momento da consulta.
+- Histórico: reservas que não atendem ao critério de Ativas.
+- Todas: todas as reservas do usuário conectado.
+
+O fim do período não altera automaticamente a situação da reserva.
+Uma reserva aprovada com período encerrado aparece no Histórico,
+mantendo a situação APROVADA até existir uma operação que a altere.
+
+### Limitações atuais
+
+- Eventos anteriores à implantação da auditoria não são reconstruídos.
+- Os horários seguem o relógio local do servidor.
+- A consulta apresenta os 100 eventos mais recentes, sem paginação.
+- Operações futuras deverão acrescentar seus próprios eventos.
+- Testes de acesso HTTP não comprovam, por si só, o limite e a
+  ordenação dos eventos.
+- Cobertura de linhas e branches ainda não foi medida.
+
+### Resultado mais recente
+
+Execução local: 65 testes aprovados em 15,054 segundos.
+
+Commit dos testes de acesso à auditoria: db1e5e8.
+Confirmação da execução do CI desse commit ainda pendente.
