@@ -17,7 +17,7 @@ Esta matriz acompanha requisitos, riscos, testes e evidências.
 | --- | --- | --- | --- | --- |
 | RF01 | Autenticação e autorização por perfil | Acesso indevido | Login correto/incorreto, usuário inativo, acesso e envio do cadastro por perfil | Parcial: testes em tests/test_consulta.py; demais permissões pendentes |
 | RF02 | Cadastro e consulta de salas, professores e materiais | Dados inválidos ou perda de informação | Cadastro dos três tipos, campos inválidos e consulta de ativos | Implementado e testado nesta etapa; revisão por colega pendente |
-| RF03 | Pesquisa por tipo, capacidade, localização, competência e disponibilidade | Resultado incorreto ou recurso indisponível listado | Filtro por tipo existente; demais filtros planejados | Parcial: filtro por tipo aprovado |
+| RF03 | Pesquisa por tipo, capacidade, localização, competência e disponibilidade | Resultado incorreto ou recurso indisponível listado | test_filtrar_por_tipo, test_tipo_invalido_mostra_todos_os_ativos, test_filtros_de_pesquisa e test_filtros_invalidos | Parcial: filtros de tipo, capacidade, localização e competência implementados e testados; disponibilidade pendente. Evidência: commit c82a46e e execução #7 do GitHub Actions aprovada |
 | RF04 | Criar, alterar e cancelar reservas | Reserva incorreta ou alteração indevida | Fluxos de reserva e controle de proprietário planejados | Pendente |
 | RF05 | Detectar sobreposição, inclusive na agenda do professor | Dois usos do mesmo recurso no mesmo horário | Casos de sobreposição e horários adjacentes planejados | Pendente |
 | RF06 | Impedir dupla reserva simultânea | Duas solicitações aceitas para o mesmo horário | Requisições concorrentes com exatamente uma aceita | Pendente |
