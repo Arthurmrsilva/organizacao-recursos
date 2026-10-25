@@ -22,7 +22,7 @@ class TestMinhasReservas(unittest.TestCase):
         inicio = datetime.now() + timedelta(days=7)
 
         with self.engine.begin() as conexao:
-            for usuario_id in (1, 2):
+            for usuario_id in (1, 2, 3):
                 conexao.execute(
                     insert(usuarios).values(
                         id=usuario_id,
@@ -71,8 +71,8 @@ class TestMinhasReservas(unittest.TestCase):
 
     def autenticar(self, usuario_id):
         # Simula uma sessão autenticada para testar a listagem.
-        # Os testes de login permanecem em test_consulta.py.
         with self.cliente.session_transaction() as sessao:
+            sessao.clear()
             sessao["usuario_id"] = usuario_id
 
     def test_listagem_exige_login(self):
@@ -100,26 +100,25 @@ class TestMinhasReservas(unittest.TestCase):
                 )
 
     def test_usuario_sem_reservas_ve_mensagem(self):
-        with self.engine.begin() as conexao:
-            conexao.execute(
-                insert(usuarios).values(
-                    id=3,
-                    nome="Usuário sem reservas",
-                    login="usuario3",
-                    senha_hash="nao-utilizado-neste-teste",
-                    perfil="SOLICITANTE",
-                    ativo=True,
-                )
-            )
-
         self.autenticar(3)
 
-        resposta = self.cliente.get("/reservas")
-        pagina = resposta.get_data(as_text=True)
+        casos = (
+            ("ativas", "Nenhuma reserva ativa no momento."),
+            ("historico", "Nenhuma reserva no histórico."),
+            ("todas", "Você ainda não possui reservas."),
+        )
 
-        self.assertEqual(resposta.status_code, 200)
-        self.assertIn("Você ainda não possui reservas.", pagina)
-        self.assertNotIn("Finalidade exclusiva", pagina)
+        for filtro, mensagem in casos:
+            with self.subTest(filtro=filtro):
+                resposta = self.cliente.get(
+                    "/reservas",
+                    query_string={"filtro": filtro},
+                )
+                pagina = resposta.get_data(as_text=True)
+
+                self.assertEqual(resposta.status_code, 200)
+                self.assertIn(mensagem, pagina)
+                self.assertNotIn("Finalidade exclusiva", pagina)
 
 
 if __name__ == "__main__":

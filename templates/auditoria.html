@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Auditoria — Organização de Recursos</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body class="perfil-{{ g.usuario.perfil|lower if g.usuario else 'visitante' }}">
+    <header>
+        <h1>Organização de Recursos</h1>
+        <p>Histórico de ações nas reservas</p>
+    </header>
+
+    <main>
+        <section class="lista-recursos">
+            <h2>Auditoria de reservas</h2>
+
+            <p>
+                Consulte os 100 eventos mais recentes,
+                apresentados do mais novo para o mais antigo.
+                Os horários seguem o relógio local do servidor.
+            </p>
+
+            <p>
+                O histórico registra as ações realizadas após
+                a implantação da auditoria.
+            </p>
+
+            {% set acoes = {
+                "CRIACAO": "Criação",
+                "CANCELAMENTO": "Cancelamento",
+                "APROVACAO": "Aprovação",
+                "REJEICAO": "Rejeição"
+            } %}
+
+            {% set situacoes = {
+                "SOLICITADA": "Aguardando aprovação",
+                "APROVADA": "Aprovada",
+                "EM_USO": "Em uso",
+                "CONCLUIDA": "Concluída",
+                "REJEITADA": "Rejeitada",
+                "CANCELADA": "Cancelada",
+                "NAO_COMPARECEU": "Não compareceu"
+            } %}
+
+            <div class="grade-recursos">
+                {% for evento in eventos %}
+                <article class="recurso">
+                    <h3>{{ acoes.get(evento.acao, evento.acao) }}</h3>
+
+                    <p>
+                        <strong>Evento:</strong>
+                        nº {{ evento.id }}
+                    </p>
+
+                    <p>
+                        <strong>Reserva:</strong>
+                        nº {{ evento.reserva_id }}
+                    </p>
+
+                    <p>
+                        <strong>Recurso:</strong>
+                        {{ evento.recurso_nome }}
+                    </p>
+
+                    <p>
+                        <strong>Realizado por:</strong>
+                        {{ evento.usuario_nome }}
+                    </p>
+
+                    <p>
+                        <strong>Data e horário:</strong>
+                        {{ evento.data_hora.strftime("%d/%m/%Y às %H:%M:%S") }}
+                    </p>
+
+                    <p>
+                        <strong>Situação anterior:</strong>
+                        {% if evento.status_anterior is none %}
+                            Não se aplica — criação da reserva
+                        {% else %}
+                            {{ situacoes.get(
+                                evento.status_anterior,
+                                evento.status_anterior
+                            ) }}
+                        {% endif %}
+                    </p>
+
+                    <p>
+                        <strong>Nova situação:</strong>
+                        {{ situacoes.get(
+                            evento.status_novo,
+                            evento.status_novo
+                        ) }}
+                    </p>
+                </article>
+                {% else %}
+                <p>Nenhum evento de auditoria registrado ainda.</p>
+                {% endfor %}
+            </div>
+
+            <p>
+                <a class="botao botao-secundario"
+                   href="{{ url_for('inicio') }}">
+                    Voltar ao início
+                </a>
+            </p>
+        </section>
+    </main>
+
+    <footer>
+        <p>Projeto de Qualidade de Software — ADS, 4º semestre</p>
+        <p>
+            Arthur Mendes, Robert Oliveira,
+            Nicolas Ferreira e Murilo Henrique
+        </p>
+    </footer>
+</body>
+</html>

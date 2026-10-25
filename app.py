@@ -1,5 +1,6 @@
 import os
 import secrets
+from datetime import datetime
 
 from flask import (
     Flask,
@@ -13,7 +14,14 @@ from flask import (
 from sqlalchemy import insert, select
 from werkzeug.security import check_password_hash
 
-from banco import criar_tabelas, engine, recursos, reservas, usuarios
+from banco import (
+    auditoria_reservas,
+    criar_tabelas,
+    engine,
+    recursos,
+    reservas,
+    usuarios,
+)
 from servico_reservas import (
     avaliar_reserva,
     cancelar_reserva,
@@ -40,7 +48,7 @@ def preparar_requisicao():
     if "csrf_token" not in session:
         session["csrf_token"] = secrets.token_hex(32)
 
-    # Verifica a proteção dos formulários que alteram dados.
+    # Verifica os formulários que alteram dados.
     if request.method == "POST":
         token = request.form.get("csrf_token", "")
 
@@ -310,10 +318,27 @@ def nova_reserva():
         dados=dados,
         reserva_criada=reserva_criada,
     ), status
+
+
 @app.route("/reservas")
 def minhas_reservas():
     if g.usuario is None:
         return redirect(url_for("login"))
+
+    filtro = request.args.get("filtro", "ativas").strip().lower()
+
+    if filtro not in ("ativas", "historico", "todas"):
+        filtro = "ativas"
+
+    agora = datetime.now()
+
+    # Ativas: pendentes, aprovadas ou em uso, ainda não encerradas.
+    condicao_ativa = (
+        reservas.c.status.in_(
+            ("SOLICITADA", "APROVADA", "EM_USO")
+        )
+        & (reservas.c.fim > agora)
+    )
 
     consulta = (
         select(
@@ -330,8 +355,22 @@ def minhas_reservas():
             reservas.c.recurso_id == recursos.c.id,
         )
         .where(reservas.c.usuario_id == g.usuario["id"])
-        .order_by(reservas.c.inicio.desc(), reservas.c.id.desc())
     )
+
+    if filtro == "ativas":
+        consulta = consulta.where(condicao_ativa)
+        consulta = consulta.order_by(
+            reservas.c.inicio,
+            reservas.c.id,
+        )
+    else:
+        if filtro == "historico":
+            consulta = consulta.where(~condicao_ativa)
+
+        consulta = consulta.order_by(
+            reservas.c.inicio.desc(),
+            reservas.c.id.desc(),
+        )
 
     with engine.connect() as conexao:
         lista_reservas = conexao.execute(
@@ -341,7 +380,11 @@ def minhas_reservas():
     return render_template(
         "minhas_reservas.html",
         reservas=lista_reservas,
+        filtro_selecionado=filtro,
+        agora=agora,
     )
+
+
 @app.route("/reservas/<int:reserva_id>/cancelar", methods=["POST"])
 def cancelar_minha_reserva(reserva_id):
     if g.usuario is None:
@@ -361,6 +404,8 @@ def cancelar_minha_reserva(reserva_id):
         )
 
     return redirect(url_for("minhas_reservas"))
+
+
 @app.route("/aprovacoes")
 def aprovacoes():
     if g.usuario is None:
@@ -439,5 +484,59 @@ def avaliar_minha_solicitacao(reserva_id):
         )
 
     return redirect(url_for("aprovacoes"))
+
+
+@app.route("/auditoria")
+def consultar_auditoria():
+    if g.usuario is None:
+        return redirect(url_for("login"))
+
+    if g.usuario["perfil"] != "ADMIN":
+        return (
+            "Acesso negado. Área exclusiva do administrador.",
+            403,
+        )
+
+    consulta = (
+        select(
+            auditoria_reservas.c.id,
+            auditoria_reservas.c.reserva_id,
+            auditoria_reservas.c.acao,
+            auditoria_reservas.c.data_hora,
+            auditoria_reservas.c.status_anterior,
+            auditoria_reservas.c.status_novo,
+            usuarios.c.nome.label("usuario_nome"),
+            recursos.c.nome.label("recurso_nome"),
+        )
+        .select_from(
+            auditoria_reservas.join(
+                usuarios,
+                auditoria_reservas.c.usuario_id == usuarios.c.id,
+            ).join(
+                reservas,
+                auditoria_reservas.c.reserva_id == reservas.c.id,
+            ).join(
+                recursos,
+                reservas.c.recurso_id == recursos.c.id,
+            )
+        )
+        .order_by(
+            auditoria_reservas.c.data_hora.desc(),
+            auditoria_reservas.c.id.desc(),
+        )
+        .limit(100)
+    )
+
+    with engine.connect() as conexao:
+        eventos = conexao.execute(
+            consulta
+        ).mappings().all()
+
+    return render_template(
+        "auditoria.html",
+        eventos=eventos,
+    )
+
+
 if __name__ == "__main__":
     app.run(debug=False)

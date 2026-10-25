@@ -42,6 +42,37 @@
                 </a>
             </p>
 
+            <nav class="filtros" aria-label="Filtrar minhas reservas">
+                {% for valor, rotulo in [
+                    ("ativas", "Ativas"),
+                    ("historico", "Histórico"),
+                    ("todas", "Todas")
+                ] %}
+                <a class="botao{% if filtro_selecionado != valor %} botao-secundario{% endif %}"
+                   href="{{ url_for('minhas_reservas', filtro=valor) }}"
+                   {% if filtro_selecionado == valor %}
+                   aria-current="page"
+                   {% endif %}>
+                    {{ rotulo }}
+                </a>
+                {% endfor %}
+            </nav>
+
+            {% if filtro_selecionado == "ativas" %}
+            <p>
+                Reservas aguardando aprovação, aprovadas ou em uso,
+                cujo horário de término ainda não passou.
+            </p>
+            {% elif filtro_selecionado == "historico" %}
+            <p>
+                Reservas canceladas, rejeitadas, concluídas,
+                com não comparecimento ou cujo período já terminou.
+                O término do período não altera automaticamente a situação.
+            </p>
+            {% else %}
+            <p>Todas as suas reservas, incluindo o histórico.</p>
+            {% endif %}
+
             {% set situacoes = {
                 "SOLICITADA": "Aguardando aprovação",
                 "APROVADA": "Aprovada",
@@ -87,7 +118,8 @@
                         {{ situacoes.get(reserva.status, reserva.status) }}
                     </p>
 
-                    {% if reserva.status in ("SOLICITADA", "APROVADA") %}
+                    {% if reserva.status in ("SOLICITADA", "APROVADA")
+                          and reserva.inicio > agora %}
                     <form method="post"
                           action="{{ url_for(
                               'cancelar_minha_reserva',
@@ -107,7 +139,17 @@
                     {% endif %}
                 </article>
                 {% else %}
-                <p>Você ainda não possui reservas.</p>
+                    {% if filtro_selecionado == "ativas" %}
+                    <p>
+                        Nenhuma reserva ativa no momento.
+                        Consulte Histórico ou Todas para ver
+                        os registros anteriores.
+                    </p>
+                    {% elif filtro_selecionado == "historico" %}
+                    <p>Nenhuma reserva no histórico.</p>
+                    {% else %}
+                    <p>Você ainda não possui reservas.</p>
+                    {% endif %}
                 {% endfor %}
             </div>
 
