@@ -147,3 +147,44 @@ e cancelamento disponíveis. Alteração de reservas ainda pendente.
 - Confirmação da execução da integração contínua no GitHub
   para o commit `ecb0eb7`.
 - Registro de auditoria das mudanças de situação.
+
+## Atualização — Aprovação de reservas — 25/10/2026
+
+### Funcionalidades implementadas
+
+- Vinculação de um responsável a cada recurso.
+- Listagem de solicitações dos recursos do responsável conectado.
+- Aprovação e rejeição de reservas no estado SOLICITADA.
+- Bloqueio de avaliação por outros perfis ou responsáveis
+  não vinculados ao recurso.
+- Bloqueio de avaliação após o início da reserva.
+- Verificação de recurso ativo e conflito de horário na aprovação.
+- Liberação do horário após rejeição.
+- Identificação visual por perfil: administrador azul,
+  responsável roxo e solicitante verde.
+
+### Evidências
+
+- Teste manual: reserva nº 6 aprovada pelo responsável
+  e posteriormente cancelada pelo próprio solicitante.
+- Teste manual: reserva nº 7 rejeitada pelo responsável.
+- Execução local de 56 testes aprovada.
+- Commit da funcionalidade: `cca4432`.
+- Commit dos testes HTTP: `9946585`.
+- GitHub Actions: execução #27 aprovada em 21 segundos.
+- GitHub Actions: execução #28 do pull request aprovada
+  em 22 segundos.
+
+### Testes relacionados
+
+- `tests/test_aprovacoes.py`: regras de aprovação e rejeição.
+- `tests/test_aprovacoes_http.py`: autenticação, perfis,
+  proteção CSRF e isolamento por responsável.
+
+### Pendências relacionadas
+
+- Interface administrativa para vincular responsáveis;
+  atualmente a vinculação utiliza um script local.
+- Auditoria das mudanças de situação.
+- Notificações de aprovação e rejeição.
+- Medição de cobertura das regras críticas.
