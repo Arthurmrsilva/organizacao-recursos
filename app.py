@@ -14,7 +14,7 @@ from sqlalchemy import insert, select
 from werkzeug.security import check_password_hash
 
 from banco import criar_tabelas, engine, recursos, reservas, usuarios
-from servico_reservas import criar_reserva
+from servico_reservas import criar_reserva, cancelar_reserva
 
 app = Flask(__name__)
 
@@ -338,6 +338,25 @@ def minhas_reservas():
         "minhas_reservas.html",
         reservas=lista_reservas,
     )
+@app.route("/reservas/<int:reserva_id>/cancelar", methods=["POST"])
+def cancelar_minha_reserva(reserva_id):
+    if g.usuario is None:
+        return redirect(url_for("login"))
+
+    try:
+        cancelar_reserva(
+            engine,
+            g.usuario["id"],
+            reserva_id,
+        )
+    except ValueError as erro:
+        session["erro_reserva"] = str(erro)
+    else:
+        session["mensagem_reserva"] = (
+            f"Reserva nº {reserva_id} cancelada com sucesso!"
+        )
+
+    return redirect(url_for("minhas_reservas"))
 
 if __name__ == "__main__":
     app.run(debug=False)

@@ -1,14 +1,14 @@
 from concurrent.futures import ThreadPoolExecutor
+from datetime import datetime, timedelta
+from pathlib import Path
 from threading import Barrier
 import tempfile
 import unittest
-from datetime import datetime, timedelta
-from pathlib import Path
 
-from sqlalchemy import create_engine, insert, select
+from sqlalchemy import create_engine, insert, select, update
 
 from banco import metadata, recursos, reservas, usuarios
-from servico_reservas import criar_reserva
+from servico_reservas import cancelar_reserva, criar_reserva
 
 
 class TestReservas(unittest.TestCase):
@@ -22,16 +22,17 @@ class TestReservas(unittest.TestCase):
         metadata.create_all(self.engine)
 
         with self.engine.begin() as conexao:
-            conexao.execute(
-                insert(usuarios).values(
-                    id=1,
-                    nome="Usuário de teste",
-                    login="teste",
-                    senha_hash="nao-utilizado-neste-teste",
-                    perfil="SOLICITANTE",
-                    ativo=True,
+            for usuario_id in (1, 2):
+                conexao.execute(
+                    insert(usuarios).values(
+                        id=usuario_id,
+                        nome=f"Usuário de teste {usuario_id}",
+                        login=f"teste{usuario_id}",
+                        senha_hash="nao-utilizado-neste-teste",
+                        perfil="SOLICITANTE",
+                        ativo=True,
+                    )
                 )
-            )
 
             conexao.execute(
                 insert(recursos).values(
@@ -64,8 +65,18 @@ class TestReservas(unittest.TestCase):
     def listar_reservas(self):
         with self.engine.connect() as conexao:
             return conexao.execute(
-                select(reservas)
+                select(reservas).order_by(reservas.c.id)
             ).mappings().all()
+
+    def criar_reserva_de_teste(self):
+        return criar_reserva(
+            self.engine,
+            1,
+            self.dados_reserva(
+                self.inicio,
+                self.inicio + timedelta(hours=1),
+            ),
+        )
 
     def test_criar_reserva_valida(self):
         fim = self.inicio + timedelta(hours=1)
@@ -87,14 +98,7 @@ class TestReservas(unittest.TestCase):
         self.assertEqual(registros[0]["status"], "APROVADA")
 
     def test_bloquear_horarios_sobrepostos(self):
-        criar_reserva(
-            self.engine,
-            1,
-            self.dados_reserva(
-                self.inicio,
-                self.inicio + timedelta(hours=1),
-            ),
-        )
+        self.criar_reserva_de_teste()
 
         with self.assertRaisesRegex(
             ValueError,
@@ -164,6 +168,167 @@ class TestReservas(unittest.TestCase):
             ["ACEITA", "CONFLITO"],
         )
         self.assertEqual(len(self.listar_reservas()), 1)
+
+    def test_dono_pode_cancelar_reserva_aprovada(self):
+        reserva_id = self.criar_reserva_de_teste()
+        registro_original = dict(self.listar_reservas()[0])
+
+        cancelar_reserva(self.engine, 1, reserva_id)
+
+        registros = self.listar_reservas()
+        esperado = {
+            **registro_original,
+            "status": "CANCELADA",
+        }
+
+        self.assertEqual(len(registros), 1)
+        self.assertEqual(dict(registros[0]), esperado)
+
+    def test_dono_pode_cancelar_reserva_solicitada(self):
+        # Recursos restritos precisam de aprovação.
+        with self.engine.begin() as conexao:
+            conexao.execute(
+                update(recursos)
+                .where(recursos.c.id == 1)
+                .values(restrito=True)
+            )
+
+        reserva_id = self.criar_reserva_de_teste()
+
+        self.assertEqual(
+            self.listar_reservas()[0]["status"],
+            "SOLICITADA",
+        )
+
+        cancelar_reserva(self.engine, 1, reserva_id)
+
+        self.assertEqual(
+            self.listar_reservas()[0]["status"],
+            "CANCELADA",
+        )
+
+    def test_outro_usuario_nao_pode_cancelar(self):
+        reserva_id = self.criar_reserva_de_teste()
+        registro_original = dict(self.listar_reservas()[0])
+
+        with self.assertRaisesRegex(
+            ValueError,
+            "Reserva não encontrada",
+        ):
+            cancelar_reserva(self.engine, 2, reserva_id)
+
+        self.assertEqual(
+            dict(self.listar_reservas()[0]),
+            registro_original,
+        )
+
+    def test_nao_cancelar_reserva_que_ja_comecou(self):
+        reserva_id = self.criar_reserva_de_teste()
+
+        # Simula uma reserva cujo início já passou.
+        agora = datetime.now()
+
+        with self.engine.begin() as conexao:
+            conexao.execute(
+                update(reservas)
+                .where(reservas.c.id == reserva_id)
+                .values(
+                    inicio=agora - timedelta(hours=1),
+                    fim=agora + timedelta(hours=1),
+                )
+            )
+
+        registro_original = dict(self.listar_reservas()[0])
+
+        with self.assertRaisesRegex(
+            ValueError,
+            "já começou",
+        ):
+            cancelar_reserva(self.engine, 1, reserva_id)
+
+        self.assertEqual(
+            dict(self.listar_reservas()[0]),
+            registro_original,
+        )
+
+    def test_nao_cancelar_situacoes_nao_permitidas(self):
+        reserva_id = self.criar_reserva_de_teste()
+
+        situacoes = (
+            "EM_USO",
+            "CONCLUIDA",
+            "REJEITADA",
+            "CANCELADA",
+            "NAO_COMPARECEU",
+        )
+
+        for situacao in situacoes:
+            with self.subTest(situacao=situacao):
+                with self.engine.begin() as conexao:
+                    conexao.execute(
+                        update(reservas)
+                        .where(reservas.c.id == reserva_id)
+                        .values(status=situacao)
+                    )
+
+                with self.assertRaisesRegex(
+                    ValueError,
+                    "situação atual",
+                ):
+                    cancelar_reserva(
+                        self.engine,
+                        1,
+                        reserva_id,
+                    )
+
+                self.assertEqual(
+                    self.listar_reservas()[0]["status"],
+                    situacao,
+                )
+
+    def test_cancelamento_libera_horario(self):
+        reserva_cancelada_id = self.criar_reserva_de_teste()
+
+        cancelar_reserva(
+            self.engine,
+            1,
+            reserva_cancelada_id,
+        )
+
+        # Outro usuário reserva o mesmo recurso e período.
+        nova_reserva_id = criar_reserva(
+            self.engine,
+            2,
+            self.dados_reserva(
+                self.inicio,
+                self.inicio + timedelta(hours=1),
+            ),
+        )
+
+        registros = self.listar_reservas()
+
+        self.assertEqual(len(registros), 2)
+        self.assertNotEqual(
+            reserva_cancelada_id,
+            nova_reserva_id,
+        )
+        self.assertEqual(
+            registros[0]["status"],
+            "CANCELADA",
+        )
+        self.assertEqual(
+            registros[1]["status"],
+            "APROVADA",
+        )
+        self.assertEqual(registros[1]["usuario_id"], 2)
+        self.assertEqual(
+            registros[0]["inicio"],
+            registros[1]["inicio"],
+        )
+        self.assertEqual(
+            registros[0]["fim"],
+            registros[1]["fim"],
+        )
 
 
 if __name__ == "__main__":

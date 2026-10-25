@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>Minhas reservas — Organização de Recursos</title>
+    <title>Minhas reservas</title>
 
     <link rel="stylesheet"
           href="{{ url_for('static', filename='style.css') }}">
@@ -13,71 +13,101 @@
 <body>
     <header>
         <h1>Organização de Recursos</h1>
-        <p>Reserva de salas, professores e materiais</p>
+        <p>Consulta e acompanhamento das suas reservas</p>
     </header>
 
     <main>
-        <section>
+        <section class="lista-recursos">
             <h2>Minhas reservas</h2>
+            <p>Acompanhe os horários e a situação das suas reservas.</p>
+
+            {% set mensagem = session.pop("mensagem_reserva", None) %}
+            {% set erro = session.pop("erro_reserva", None) %}
+
+            {% if mensagem %}
+            <div role="status">
+                <p>{{ mensagem }}</p>
+            </div>
+            {% endif %}
+
+            {% if erro %}
+            <div role="alert">
+                <p>{{ erro }}</p>
+            </div>
+            {% endif %}
 
             <p>
-                Consulte os recursos e os períodos que você reservou.
-            </p>
-
-            <p>
-                <a class="botao"
-                   href="{{ url_for('nova_reserva') }}">
+                <a class="botao" href="{{ url_for('nova_reserva') }}">
                     + Fazer reserva
                 </a>
             </p>
 
             {% set situacoes = {
-                'SOLICITADA': 'Aguardando aprovação',
-                'APROVADA': 'Aprovada',
-                'EM_USO': 'Em uso',
-                'CONCLUIDA': 'Concluída',
-                'REJEITADA': 'Rejeitada',
-                'CANCELADA': 'Cancelada',
-                'NAO_COMPARECEU': 'Não compareceu'
+                "SOLICITADA": "Aguardando aprovação",
+                "APROVADA": "Aprovada",
+                "EM_USO": "Em uso",
+                "CONCLUIDA": "Concluída",
+                "REJEITADA": "Rejeitada",
+                "CANCELADA": "Cancelada",
+                "NAO_COMPARECEU": "Não compareceu"
             } %}
 
             <div class="grade-recursos">
                 {% for reserva in reservas %}
-                    <article class="recurso">
-                        <h3>{{ reserva.recurso_nome }}</h3>
+                <article class="recurso">
+                    <h3>{{ reserva.recurso_nome }}</h3>
 
-                        <p>
-                            <strong>Reserva:</strong>
-                            nº {{ reserva.id }}
-                        </p>
+                    <p>
+                        <strong>Reserva:</strong>
+                        nº {{ reserva.id }}
+                    </p>
 
-                        <p>
-                            <strong>Tipo:</strong>
-                            {{ reserva.recurso_tipo }}
-                        </p>
+                    <p>
+                        <strong>Tipo:</strong>
+                        {{ reserva.recurso_tipo }}
+                    </p>
 
-                        <p>
-                            <strong>Início:</strong>
-                            {{ reserva.inicio.strftime('%d/%m/%Y às %H:%M') }}
-                        </p>
+                    <p>
+                        <strong>Início:</strong>
+                        {{ reserva.inicio.strftime("%d/%m/%Y às %H:%M") }}
+                    </p>
 
-                        <p>
-                            <strong>Término:</strong>
-                            {{ reserva.fim.strftime('%d/%m/%Y às %H:%M') }}
-                        </p>
+                    <p>
+                        <strong>Término:</strong>
+                        {{ reserva.fim.strftime("%d/%m/%Y às %H:%M") }}
+                    </p>
 
-                        <p>
-                            <strong>Finalidade:</strong>
-                            {{ reserva.finalidade }}
-                        </p>
+                    <p>
+                        <strong>Finalidade:</strong>
+                        {{ reserva.finalidade }}
+                    </p>
 
-                        <p>
-                            <strong>Situação:</strong>
-                            {{ situacoes.get(reserva.status, reserva.status) }}
-                        </p>
-                    </article>
+                    <p>
+                        <strong>Situação:</strong>
+                        {{ situacoes.get(reserva.status, reserva.status) }}
+                    </p>
+
+                    {% if reserva.status in ("SOLICITADA", "APROVADA") %}
+                    <form method="post"
+                          action="{{ url_for(
+                              'cancelar_minha_reserva',
+                              reserva_id=reserva.id
+                          ) }}"
+                          onsubmit="return confirm('Deseja cancelar esta reserva?');">
+
+                        <input type="hidden"
+                               name="csrf_token"
+                               value="{{ session['csrf_token'] }}">
+
+                        <button class="botao botao-secundario"
+                                type="submit">
+                            Cancelar reserva
+                        </button>
+                    </form>
+                    {% endif %}
+                </article>
                 {% else %}
-                    <p>Você ainda não possui reservas.</p>
+                <p>Você ainda não possui reservas.</p>
                 {% endfor %}
             </div>
 
@@ -89,5 +119,13 @@
             </p>
         </section>
     </main>
+
+    <footer>
+        <p>Projeto de Qualidade de Software — ADS, 4º semestre</p>
+        <p>
+            Arthur Mendes, Robert Oliveira,
+            Nicolas Ferreira e Murilo Henrique
+        </p>
+    </footer>
 </body>
 </html>

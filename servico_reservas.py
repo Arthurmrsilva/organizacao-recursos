@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from sqlalchemy import insert, select
+from sqlalchemy import insert, select, update
 
 from banco import recursos, reservas
 
@@ -105,6 +105,50 @@ def criar_reserva(engine, usuario_id, dados):
             conexao.commit()
 
             return reserva_id
+
+        except Exception:
+            conexao.rollback()
+            raise
+
+def cancelar_reserva(engine, usuario_id, reserva_id):
+    with engine.connect() as conexao:
+        try:
+            conexao.exec_driver_sql("BEGIN IMMEDIATE")
+
+            reserva = conexao.execute(
+                select(reservas).where(
+                    reservas.c.id == reserva_id,
+                    reservas.c.usuario_id == usuario_id,
+                )
+            ).mappings().first()
+
+            if reserva is None:
+                raise ValueError(
+                    "Reserva não encontrada para este usuário."
+                )
+
+            if reserva["status"] not in ("SOLICITADA", "APROVADA"):
+                raise ValueError(
+                    "Esta reserva não pode ser cancelada "
+                    "na situação atual."
+                )
+
+            if reserva["inicio"] <= datetime.now():
+                raise ValueError(
+                    "Não é possível cancelar uma reserva "
+                    "que já começou."
+                )
+
+            conexao.execute(
+                update(reservas)
+                .where(
+                    reservas.c.id == reserva_id,
+                    reservas.c.usuario_id == usuario_id,
+                )
+                .values(status="CANCELADA")
+            )
+
+            conexao.commit()
 
         except Exception:
             conexao.rollback()
