@@ -4,13 +4,14 @@ from sqlalchemy import (
     Boolean,
     CheckConstraint,
     Column,
+    DateTime,
+    ForeignKey,
     Integer,
     MetaData,
     String,
     Table,
     create_engine,
 )
-
 # Salva o banco na mesma pasta deste arquivo.
 PASTA_PROJETO = Path(__file__).resolve().parent
 CAMINHO_BANCO = PASTA_PROJETO / "recursos.db"
@@ -54,6 +55,45 @@ usuarios = Table(
     CheckConstraint(
         "perfil IN ('SOLICITANTE', 'RESPONSAVEL', 'ADMIN')",
         name="perfil_usuario_valido",
+    ),
+)
+reservas = Table(
+    "reservas",
+    metadata,
+    Column("id", Integer, primary_key=True),
+    Column(
+        "recurso_id",
+        Integer,
+        ForeignKey("recursos.id"),
+        nullable=False,
+        index=True,
+    ),
+    Column(
+        "usuario_id",
+        Integer,
+        ForeignKey("usuarios.id"),
+        nullable=False,
+        index=True,
+    ),
+    Column("inicio", DateTime, nullable=False),
+    Column("fim", DateTime, nullable=False),
+    Column("finalidade", String(200), nullable=False),
+    Column(
+        "status",
+        String(20),
+        nullable=False,
+        default="SOLICITADA",
+    ),
+    CheckConstraint(
+        "fim > inicio",
+        name="periodo_reserva_valido",
+    ),
+    CheckConstraint(
+        "status IN ("
+        "'SOLICITADA', 'APROVADA', 'EM_USO', 'CONCLUIDA', "
+        "'REJEITADA', 'CANCELADA', 'NAO_COMPARECEU'"
+        ")",
+        name="status_reserva_valido",
     ),
 )
 def criar_tabelas():

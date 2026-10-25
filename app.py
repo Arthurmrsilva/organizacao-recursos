@@ -43,7 +43,10 @@ def preparar_requisicao():
             token.encode("utf-8"),
             session["csrf_token"].encode("utf-8"),
         ):
-            return "Formulário expirado. Atualize a página e tente novamente.", 400
+            return (
+                "Formulário expirado. Atualize a página e tente novamente.",
+                400,
+            )
 
     usuario_id = session.get("usuario_id")
 
@@ -175,13 +178,17 @@ def sair():
     session.clear()
     return redirect(url_for("login"))
 
+
 @app.route("/recursos/novo", methods=["GET", "POST"])
 def novo_recurso():
     if g.usuario is None:
         return redirect(url_for("login"))
 
     if g.usuario["perfil"] != "ADMIN":
-        return "Acesso negado. Somente administradores podem cadastrar recursos.", 403
+        return (
+            "Acesso negado. Somente administradores podem cadastrar recursos.",
+            403,
+        )
 
     erros = []
     dados = {}
@@ -250,6 +257,25 @@ def novo_recurso():
         erros=erros,
         dados=dados,
     ), status
+
+
+@app.route("/reservas/nova", methods=["GET"])
+def nova_reserva():
+    if g.usuario is None:
+        return redirect(url_for("login"))
+
+    with engine.connect() as conexao:
+        lista_recursos = conexao.execute(
+            select(recursos)
+            .where(recursos.c.ativo.is_(True))
+            .order_by(recursos.c.nome)
+        ).mappings().all()
+
+    return render_template(
+        "nova_reserva.html",
+        recursos=lista_recursos,
+    )
+
 
 if __name__ == "__main__":
     app.run(debug=False)

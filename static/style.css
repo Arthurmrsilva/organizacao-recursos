@@ -245,3 +245,58 @@ button.botao:disabled {
     opacity: 0.65;
     cursor: wait;
 }
+/* Formulário de reserva */
+.formulario-reserva {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    width: 100%;
+    max-width: 600px;
+    margin-top: 24px;
+}
+
+.formulario-reserva > div {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.formulario-reserva label {
+    font-weight: 600;
+    color: #163f50;
+}
+
+.formulario-reserva input,
+.formulario-reserva select,
+.formulario-reserva textarea {
+    box-sizing: border-box;
+    width: 100%;
+    min-width: 0;
+    padding: 12px;
+    border: 1px solid #aab8c0;
+    border-radius: 8px;
+    background-color: #ffffff;
+    color: #243746;
+    font: inherit;
+}
+
+.formulario-reserva textarea {
+    min-height: 100px;
+    resize: vertical;
+}
+
+.formulario-reserva input:focus,
+.formulario-reserva select:focus,
+.formulario-reserva textarea:focus {
+    outline: 2px solid #126782;
+    outline-offset: 2px;
+}
+
+.formulario-reserva .botao {
+    align-self: flex-start;
+}
+
+.formulario-reserva .botao:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
