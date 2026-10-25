@@ -105,6 +105,48 @@ reservas = Table(
     ),
 )
 
+auditoria_reservas = Table(
+    "auditoria_reservas",
+    metadata,
+    Column("id", Integer, primary_key=True),
+    Column(
+        "reserva_id",
+        Integer,
+        ForeignKey("reservas.id"),
+        nullable=False,
+        index=True,
+    ),
+    Column(
+        "usuario_id",
+        Integer,
+        ForeignKey("usuarios.id"),
+        nullable=False,
+        index=True,
+    ),
+    Column("acao", String(30), nullable=False),
+    Column("data_hora", DateTime, nullable=False),
+    Column("status_anterior", String(20), nullable=True),
+    Column("status_novo", String(20), nullable=False),
+    CheckConstraint(
+        "acao IN ('CRIACAO', 'CANCELAMENTO', 'APROVACAO', 'REJEICAO')",
+        name="acao_auditoria_valida",
+    ),
+    CheckConstraint(
+        "status_anterior IS NULL OR status_anterior IN ("
+        "'SOLICITADA', 'APROVADA', 'EM_USO', 'CONCLUIDA', "
+        "'REJEITADA', 'CANCELADA', 'NAO_COMPARECEU'"
+        ")",
+        name="status_anterior_auditoria_valido",
+    ),
+    CheckConstraint(
+        "status_novo IN ("
+        "'SOLICITADA', 'APROVADA', 'EM_USO', 'CONCLUIDA', "
+        "'REJEITADA', 'CANCELADA', 'NAO_COMPARECEU'"
+        ")",
+        name="status_novo_auditoria_valido",
+    ),
+)
+
 
 def criar_tabelas():
     metadata.create_all(engine)
@@ -112,4 +154,4 @@ def criar_tabelas():
 
 if __name__ == "__main__":
     criar_tabelas()
-    print("Banco de dados criado com sucesso!")
+    print("Tabelas do banco verificadas e criadas com sucesso!")

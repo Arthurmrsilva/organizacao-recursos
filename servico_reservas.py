@@ -2,7 +2,29 @@ from datetime import datetime
 
 from sqlalchemy import insert, select, update
 
-from banco import recursos, reservas, usuarios
+from banco import auditoria_reservas, recursos, reservas, usuarios
+
+
+def registrar_auditoria(
+    conexao,
+    reserva_id,
+    usuario_id,
+    acao,
+    status_anterior,
+    status_novo,
+):
+    # Usa a conexão da operação, sem fazer um commit separado.
+    conexao.execute(
+        insert(auditoria_reservas).values(
+            reserva_id=reserva_id,
+            usuario_id=usuario_id,
+            acao=acao,
+            data_hora=datetime.now(),
+            status_anterior=status_anterior,
+            status_novo=status_novo,
+        )
+    )
+
 
 def criar_reserva(engine, usuario_id, dados):
     finalidade = dados.get("finalidade", "").strip()
@@ -36,7 +58,7 @@ def criar_reserva(engine, usuario_id, dados):
             "O término deve ser posterior ao início."
         )
 
-    # Nesta etapa, os horários seguem o relógio local do servidor.
+    # Os horários seguem o relógio local do servidor.
     if inicio <= datetime.now():
         raise ValueError(
             "O início da reserva deve estar no futuro."
@@ -44,8 +66,7 @@ def criar_reserva(engine, usuario_id, dados):
 
     with engine.connect() as conexao:
         try:
-            # No SQLite, serializa as gravações antes da consulta.
-            # Assim, outra solicitação aguarda esta transação terminar.
+            # Serializa as gravações no SQLite.
             conexao.exec_driver_sql("BEGIN IMMEDIATE")
 
             recurso = conexao.execute(
@@ -77,7 +98,6 @@ def criar_reserva(engine, usuario_id, dados):
                     "no período informado."
                 )
 
-            # Recursos restritos e professores precisam de aprovação.
             precisa_aprovacao = (
                 recurso["restrito"]
                 or recurso["tipo"] == "PROFESSOR"
@@ -101,13 +121,23 @@ def criar_reserva(engine, usuario_id, dados):
             )
 
             reserva_id = resultado.inserted_primary_key[0]
-            conexao.commit()
 
+            registrar_auditoria(
+                conexao=conexao,
+                reserva_id=reserva_id,
+                usuario_id=usuario_id,
+                acao="CRIACAO",
+                status_anterior=None,
+                status_novo=status,
+            )
+
+            conexao.commit()
             return reserva_id
 
         except Exception:
             conexao.rollback()
             raise
+
 
 def cancelar_reserva(engine, usuario_id, reserva_id):
     with engine.connect() as conexao:
@@ -147,11 +177,22 @@ def cancelar_reserva(engine, usuario_id, reserva_id):
                 .values(status="CANCELADA")
             )
 
+            registrar_auditoria(
+                conexao=conexao,
+                reserva_id=reserva_id,
+                usuario_id=usuario_id,
+                acao="CANCELAMENTO",
+                status_anterior=reserva["status"],
+                status_novo="CANCELADA",
+            )
+
             conexao.commit()
 
         except Exception:
             conexao.rollback()
             raise
+
+
 def avaliar_reserva(engine, usuario_id, reserva_id, decisao):
     if decisao not in ("APROVADA", "REJEITADA"):
         raise ValueError("Selecione uma decisão válida.")
@@ -235,6 +276,21 @@ def avaliar_reserva(engine, usuario_id, reserva_id, decisao):
                 update(reservas)
                 .where(reservas.c.id == reserva_id)
                 .values(status=decisao)
+            )
+
+            acao = (
+                "APROVACAO"
+                if decisao == "APROVADA"
+                else "REJEICAO"
+            )
+
+            registrar_auditoria(
+                conexao=conexao,
+                reserva_id=reserva_id,
+                usuario_id=usuario_id,
+                acao=acao,
+                status_anterior=reserva["status"],
+                status_novo=decisao,
             )
 
             conexao.commit()
