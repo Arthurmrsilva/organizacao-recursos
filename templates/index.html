@@ -68,6 +68,15 @@
             </p>
             {% endif %}
 
+            {% if g.usuario.perfil in ("ADMIN", "RESPONSAVEL") %}
+            <p>
+                <a class="botao botao-secundario"
+                   href="{{ url_for('movimentacoes_materiais') }}">
+                    Gestão de materiais
+                </a>
+            </p>
+            {% endif %}
+
             <p>
                 <a class="botao"
                    href="{{ url_for('nova_reserva') }}">
@@ -146,8 +155,9 @@
                 O administrador pode acessar a auditoria e cadastrar
                 períodos de manutenção, que impedem reservas
                 nos horários bloqueados.
-                Retirada e devolução serão implementadas
-                nas próximas etapas.
+                Administradores e responsáveis podem registrar
+                retiradas e devoluções de materiais, conforme
+                suas permissões.
             </p>
         </section>
 

@@ -128,7 +128,10 @@ auditoria_reservas = Table(
     Column("status_anterior", String(20), nullable=True),
     Column("status_novo", String(20), nullable=False),
     CheckConstraint(
-        "acao IN ('CRIACAO', 'CANCELAMENTO', 'APROVACAO', 'REJEICAO')",
+        "acao IN ("
+        "'CRIACAO', 'CANCELAMENTO', 'APROVACAO', 'REJEICAO', "
+        "'RETIRADA', 'DEVOLUCAO'"
+        ")",
         name="acao_auditoria_valida",
     ),
     CheckConstraint(

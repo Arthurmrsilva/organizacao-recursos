@@ -23,6 +23,10 @@ from banco import (
     reservas,
     usuarios,
 )
+from servico_materiais import (
+    registrar_devolucao,
+    registrar_retirada,
+)
 from servico_reservas import (
     avaliar_reserva,
     cancelar_reserva,
@@ -623,6 +627,110 @@ def gerenciar_manutencoes():
         mensagem=session.pop("mensagem_manutencao", None),
         agora=datetime.now(),
     ), status
+
+
+@app.route("/materiais")
+def movimentacoes_materiais():
+    if g.usuario is None:
+        return redirect(url_for("login"))
+
+    if g.usuario["perfil"] not in ("ADMIN", "RESPONSAVEL"):
+        return "Acesso negado. Área de gestão de materiais.", 403
+
+    consulta = (
+        select(
+            reservas.c.id,
+            reservas.c.inicio,
+            reservas.c.fim,
+            reservas.c.finalidade,
+            reservas.c.status,
+            recursos.c.nome.label("recurso_nome"),
+            recursos.c.ativo.label("recurso_ativo"),
+            usuarios.c.nome.label("solicitante_nome"),
+        )
+        .select_from(
+            reservas.join(
+                recursos,
+                reservas.c.recurso_id == recursos.c.id,
+            ).join(
+                usuarios,
+                reservas.c.usuario_id == usuarios.c.id,
+            )
+        )
+        .where(
+            recursos.c.tipo == "MATERIAL",
+            reservas.c.status.in_(("APROVADA", "EM_USO")),
+        )
+    )
+
+    if g.usuario["perfil"] == "RESPONSAVEL":
+        consulta = consulta.where(
+            recursos.c.responsavel_id == g.usuario["id"]
+        )
+
+    # Materiais em uso continuam visíveis mesmo após o prazo.
+    consulta = consulta.order_by(
+        reservas.c.inicio,
+        reservas.c.id,
+    )
+
+    with engine.connect() as conexao:
+        lista = conexao.execute(
+            consulta
+        ).mappings().all()
+
+    return render_template(
+        "materiais.html",
+        reservas=lista,
+        agora=datetime.now(),
+        mensagem=session.pop("mensagem_material", None),
+        erro=session.pop("erro_material", None),
+    )
+
+
+@app.route(
+    "/materiais/<int:reserva_id>/movimentar",
+    methods=["POST"],
+)
+def movimentar_material_reservado(reserva_id):
+    if g.usuario is None:
+        return redirect(url_for("login"))
+
+    if g.usuario["perfil"] not in ("ADMIN", "RESPONSAVEL"):
+        return "Acesso negado. Área de gestão de materiais.", 403
+
+    acao = request.form.get("acao", "").strip()
+
+    try:
+        if acao == "RETIRADA":
+            registrar_retirada(
+                engine,
+                g.usuario["id"],
+                reserva_id,
+            )
+            mensagem = (
+                f"Retirada da reserva nº {reserva_id} registrada!"
+            )
+
+        elif acao == "DEVOLUCAO":
+            registrar_devolucao(
+                engine,
+                g.usuario["id"],
+                reserva_id,
+            )
+            mensagem = (
+                f"Devolução da reserva nº {reserva_id} registrada!"
+            )
+
+        else:
+            raise ValueError("Selecione uma operação válida.")
+
+    except ValueError as erro:
+        session["erro_material"] = str(erro)
+    else:
+        session["mensagem_material"] = mensagem
+
+    return redirect(url_for("movimentacoes_materiais"))
 
 
 if __name__ == "__main__":

@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Retirada e devolução — Organização de Recursos</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body class="perfil-{{ g.usuario.perfil|lower }}">
+    <header>
+        <h1>Organização de Recursos</h1>
+        <p>Retirada e devolução de materiais</p>
+    </header>
+
+    <main>
+        <section class="lista-recursos">
+            <h2>Gestão de materiais</h2>
+
+            <p>
+                Registre a entrega do material ao solicitante
+                e confirme sua devolução.
+                A retirada deve ocorrer durante o período reservado.
+            </p>
+
+            {% if mensagem %}
+            <div role="status">
+                <p>{{ mensagem }}</p>
+            </div>
+            {% endif %}
+
+            {% if erro %}
+            <div role="alert">
+                <p>{{ erro }}</p>
+            </div>
+            {% endif %}
+
+            <div class="grade-recursos">
+                {% for reserva in reservas %}
+                <article class="recurso">
+                    <h3>{{ reserva.recurso_nome }}</h3>
+
+                    <p>
+                        <strong>Reserva:</strong>
+                        nº {{ reserva.id }}
+                    </p>
+
+                    <p>
+                        <strong>Solicitante:</strong>
+                        {{ reserva.solicitante_nome }}
+                    </p>
+
+                    <p>
+                        <strong>Início:</strong>
+                        {{ reserva.inicio.strftime("%d/%m/%Y às %H:%M") }}
+                    </p>
+
+                    <p>
+                        <strong>Término:</strong>
+                        {{ reserva.fim.strftime("%d/%m/%Y às %H:%M") }}
+                    </p>
+
+                    <p>
+                        <strong>Finalidade:</strong>
+                        {{ reserva.finalidade }}
+                    </p>
+
+                    <p>
+                        <strong>Situação:</strong>
+                        {{ "Em uso" if reserva.status == "EM_USO" else "Aprovada" }}
+                    </p>
+
+                    {% if reserva.status == "EM_USO" %}
+                        {% if reserva.fim <= agora %}
+                        <p role="alert">Devolução em atraso.</p>
+                        {% endif %}
+
+                        <form method="post"
+                              action="{{ url_for(
+                                  'movimentar_material_reservado',
+                                  reserva_id=reserva.id
+                              ) }}"
+                              onsubmit="return confirm('Confirma que o material foi devolvido?');">
+
+                            <input type="hidden"
+                                   name="csrf_token"
+                                   value="{{ session['csrf_token'] }}">
+
+                            <button class="botao"
+                                    type="submit"
+                                    name="acao"
+                                    value="DEVOLUCAO">
+                                Registrar devolução
+                            </button>
+                        </form>
+
+                    {% elif not reserva.recurso_ativo %}
+                        <p>Material inativo. Retirada indisponível.</p>
+
+                    {% elif agora < reserva.inicio %}
+                        <p>Aguardando o início do período para retirada.</p>
+
+                    {% elif agora >= reserva.fim %}
+                        <p>O período para retirada terminou.</p>
+
+                    {% else %}
+                        <form method="post"
+                              action="{{ url_for(
+                                  'movimentar_material_reservado',
+                                  reserva_id=reserva.id
+                              ) }}"
+                              onsubmit="return confirm('Confirma a entrega do material ao solicitante?');">
+
+                            <input type="hidden"
+                                   name="csrf_token"
+                                   value="{{ session['csrf_token'] }}">
+
+                            <button class="botao"
+                                    type="submit"
+                                    name="acao"
+                                    value="RETIRADA">
+                                Registrar retirada
+                            </button>
+                        </form>
+                    {% endif %}
+                </article>
+                {% else %}
+                <p>
+                    Nenhuma reserva de material aprovada ou em uso
+                    disponível para sua gestão.
+                </p>
+                {% endfor %}
+            </div>
+        </section>
+
+        <p>
+            <a class="botao botao-secundario"
+               href="{{ url_for('inicio') }}">
+                Voltar ao início
+            </a>
+        </p>
+    </main>
+
+    <footer>
+        <p>Projeto de Qualidade de Software — ADS, 4º semestre</p>
+        <p>
+            Arthur Mendes, Robert Oliveira,
+            Nicolas Ferreira e Murilo Henrique
+        </p>
+    </footer>
+</body>
+</html>
