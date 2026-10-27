@@ -396,3 +396,20 @@ Os horários informados correspondem aos registros apresentados na auditoria.
 - Rótulos amigáveis para RETIRADA e DEVOLUCAO na auditoria.
 - Revisão do filtro Ativas para reservas EM_USO com prazo encerrado.
 - Registro de não comparecimento.
+
+## 12. Medição de cobertura — 26/10/2026
+
+- Ferramenta: coverage.py 7.17.0.
+- Execução: 103 testes aprovados em 26,625 segundos.
+- Escopo: app.py, banco.py, servico_reservas.py e servico_materiais.py.
+- Linhas executadas: 417 de 464 — 89,87%.
+- Branches executados: 155 de 182 — 85,16%.
+- Metas de 80% de linhas e 70% de branches atingidas no escopo medido.
+- Relatórios gerados: coverage.json e htmlcov/index.html.
+
+Esta medição não inclui templates, CSS, JavaScript nem scripts
+administrativos e de migração. Não representa percentual de
+conclusão do projeto nem comprova ausência de defeitos.
+
+As referências anteriores a “cobertura ainda não medida”
+descrevem as etapas históricas anteriores a esta medição.
