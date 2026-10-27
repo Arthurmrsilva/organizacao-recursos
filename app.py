@@ -91,9 +91,13 @@ def inicio():
     localizacao = request.args.get("localizacao", "").strip()
     competencia = request.args.get("competencia", "").strip()
     capacidade_texto = request.args.get("capacidade", "").strip()
+    inicio_texto = request.args.get("inicio", "").strip()
+    fim_texto = request.args.get("fim", "").strip()
 
     erros = []
     capacidade = None
+    inicio_periodo = None
+    fim_periodo = None
 
     if tipo not in ("SALA", "PROFESSOR", "MATERIAL"):
         tipo = ""
@@ -112,6 +116,30 @@ def inicio():
                 erros.append("A capacidade deve estar entre 1 e 10000.")
         except ValueError:
             erros.append("A capacidade deve ser um número inteiro.")
+
+    # O período é opcional, mas os dois campos devem ser preenchidos.
+    if inicio_texto or fim_texto:
+        if not inicio_texto or not fim_texto:
+            erros.append(
+                "Informe o início e o término para consultar a disponibilidade."
+            )
+        else:
+            try:
+                inicio_periodo = datetime.strptime(
+                    inicio_texto,
+                    "%Y-%m-%dT%H:%M",
+                )
+                fim_periodo = datetime.strptime(
+                    fim_texto,
+                    "%Y-%m-%dT%H:%M",
+                )
+            except ValueError:
+                erros.append("Informe datas e horários válidos.")
+            else:
+                if fim_periodo <= inicio_periodo:
+                    erros.append(
+                        "O término deve ser posterior ao início."
+                    )
 
     consulta = select(recursos).where(
         recursos.c.ativo.is_(True)
@@ -141,6 +169,38 @@ def inicio():
             recursos.c.capacidade >= capacidade
         )
 
+    if inicio_periodo is not None and fim_periodo is not None and not erros:
+        # Horários consecutivos são permitidos.
+        # Somente períodos sobrepostos bloqueiam a disponibilidade.
+        reserva_conflitante = (
+            select(reservas.c.id)
+            .where(
+                reservas.c.recurso_id == recursos.c.id,
+                reservas.c.status.in_(
+                    ("SOLICITADA", "APROVADA", "EM_USO")
+                ),
+                reservas.c.inicio < fim_periodo,
+                reservas.c.fim > inicio_periodo,
+            )
+            .exists()
+        )
+
+        manutencao_conflitante = (
+            select(manutencoes.c.id)
+            .where(
+                manutencoes.c.recurso_id == recursos.c.id,
+                manutencoes.c.ativo.is_(True),
+                manutencoes.c.inicio < fim_periodo,
+                manutencoes.c.fim > inicio_periodo,
+            )
+            .exists()
+        )
+
+        consulta = consulta.where(
+            ~reserva_conflitante,
+            ~manutencao_conflitante,
+        )
+
     lista_recursos = []
 
     if not erros:
@@ -156,6 +216,8 @@ def inicio():
         localizacao=localizacao,
         competencia=competencia,
         capacidade=capacidade_texto,
+        inicio=inicio_texto,
+        fim=fim_texto,
         erros=erros,
     ), 400 if erros else 200
 
