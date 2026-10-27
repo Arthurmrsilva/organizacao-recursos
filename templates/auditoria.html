@@ -29,13 +29,18 @@
             <p>
                 O histórico registra as ações realizadas após
                 a implantação da auditoria.
+                Nas alterações, consulte os dados anteriores
+                e os dados salvos.
             </p>
 
             {% set acoes = {
                 "CRIACAO": "Criação",
                 "CANCELAMENTO": "Cancelamento",
                 "APROVACAO": "Aprovação",
-                "REJEICAO": "Rejeição"
+                "REJEICAO": "Rejeição",
+                "RETIRADA": "Retirada",
+                "DEVOLUCAO": "Devolução",
+                "ALTERACAO": "Alteração"
             } %}
 
             {% set situacoes = {
@@ -64,7 +69,7 @@
                     </p>
 
                     <p>
-                        <strong>Recurso:</strong>
+                        <strong>Recurso atual da reserva:</strong>
                         {{ evento.recurso_nome }}
                     </p>
 
@@ -97,6 +102,22 @@
                             evento.status_novo
                         ) }}
                     </p>
+
+                    {% if evento.acao == "ALTERACAO" %}
+                        {% if evento.detalhes %}
+                        <details class="detalhes-alteracao"
+                                 data-detalhes="{{ evento.detalhes }}">
+                            <summary>Ver dados antes e depois</summary>
+
+                            <div class="conteudo-alteracao"></div>
+                        </details>
+                        {% else %}
+                        <p>
+                            Os detalhes desta alteração
+                            não estão disponíveis.
+                        </p>
+                        {% endif %}
+                    {% endif %}
                 </article>
                 {% else %}
                 <p>Nenhum evento de auditoria registrado ainda.</p>
@@ -119,5 +140,107 @@
             Nicolas Ferreira e Murilo Henrique
         </p>
     </footer>
+
+    <script>
+        const situacoes = {
+            SOLICITADA: "Aguardando aprovação",
+            APROVADA: "Aprovada",
+            EM_USO: "Em uso",
+            CONCLUIDA: "Concluída",
+            REJEITADA: "Rejeitada",
+            CANCELADA: "Cancelada",
+            NAO_COMPARECEU: "Não compareceu"
+        };
+
+        function formatarHorario(valor) {
+            if (typeof valor !== "string") {
+                return "Não informado";
+            }
+
+            // Mantém o horário local registrado, sem converter o fuso.
+            const partes = valor.split("T");
+
+            if (partes.length !== 2) {
+                return valor;
+            }
+
+            const data = partes[0].split("-");
+
+            if (data.length !== 3) {
+                return valor;
+            }
+
+            return (
+                data[2] + "/" + data[1] + "/" + data[0] +
+                " às " + partes[1].slice(0, 5)
+            );
+        }
+
+        function adicionarCampo(bloco, rotulo, valor) {
+            const paragrafo = document.createElement("p");
+            const titulo = document.createElement("strong");
+
+            titulo.textContent = rotulo + ": ";
+            paragrafo.appendChild(titulo);
+            paragrafo.appendChild(
+                document.createTextNode(String(valor ?? "Não informado"))
+            );
+
+            bloco.appendChild(paragrafo);
+        }
+
+        function criarBloco(titulo, dados) {
+            const bloco = document.createElement("div");
+            const cabecalho = document.createElement("h4");
+
+            cabecalho.textContent = titulo;
+            bloco.appendChild(cabecalho);
+
+            adicionarCampo(bloco, "Código do recurso", dados.recurso_id);
+            adicionarCampo(bloco, "Início", formatarHorario(dados.inicio));
+            adicionarCampo(bloco, "Término", formatarHorario(dados.fim));
+            adicionarCampo(bloco, "Finalidade", dados.finalidade);
+            adicionarCampo(
+                bloco,
+                "Situação",
+                situacoes[dados.status] ?? dados.status
+            );
+
+            return bloco;
+        }
+
+        document.querySelectorAll(".detalhes-alteracao").forEach(
+            function (elemento) {
+                const conteudo = elemento.querySelector(
+                    ".conteudo-alteracao"
+                );
+
+                try {
+                    const dados = JSON.parse(elemento.dataset.detalhes);
+
+                    if (
+                        !dados ||
+                        typeof dados.antes !== "object" ||
+                        dados.antes === null ||
+                        typeof dados.depois !== "object" ||
+                        dados.depois === null
+                    ) {
+                        throw new Error("Detalhes inválidos.");
+                    }
+
+                    conteudo.appendChild(
+                        criarBloco("Antes da alteração", dados.antes)
+                    );
+
+                    conteudo.appendChild(
+                        criarBloco("Depois da alteração", dados.depois)
+                    );
+                } catch (erro) {
+                    conteudo.textContent =
+                        "Não foi possível apresentar os detalhes deste evento.";
+                }
+            }
+        );
+    </script>
 </body>
 </html>

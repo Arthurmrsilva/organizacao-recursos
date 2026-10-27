@@ -28,6 +28,7 @@ from servico_materiais import (
     registrar_retirada,
 )
 from servico_reservas import (
+    alterar_reserva,
     avaliar_reserva,
     cancelar_reserva,
     criar_manutencao,
@@ -388,6 +389,92 @@ def nova_reserva():
     ), status
 
 
+@app.route(
+    "/reservas/<int:reserva_id>/editar",
+    methods=["GET", "POST"],
+)
+def editar_minha_reserva(reserva_id):
+    if g.usuario is None:
+        return redirect(url_for("login"))
+
+    # O usuário só pode consultar o formulário das próprias reservas.
+    with engine.connect() as conexao:
+        reserva = conexao.execute(
+            select(reservas).where(
+                reservas.c.id == reserva_id,
+                reservas.c.usuario_id == g.usuario["id"],
+            )
+        ).mappings().first()
+
+    if reserva is None:
+        return "Reserva não encontrada para este usuário.", 404
+
+    if reserva["status"] not in ("SOLICITADA", "APROVADA"):
+        return (
+            "Esta reserva não pode ser alterada na situação atual.",
+            400,
+        )
+
+    if reserva["inicio"] <= datetime.now():
+        return (
+            "Não é possível alterar uma reserva que já começou.",
+            400,
+        )
+
+    erros = []
+    status = 200
+
+    # Preenche o formulário com os dados atuais.
+    dados = {
+        "recurso_id": str(reserva["recurso_id"]),
+        "inicio": reserva["inicio"].strftime("%Y-%m-%dT%H:%M"),
+        "fim": reserva["fim"].strftime("%Y-%m-%dT%H:%M"),
+        "finalidade": reserva["finalidade"],
+    }
+
+    if request.method == "POST":
+        dados = {
+            "recurso_id": request.form.get("recurso_id", "").strip(),
+            "inicio": request.form.get("inicio", "").strip(),
+            "fim": request.form.get("fim", "").strip(),
+            "finalidade": request.form.get("finalidade", "").strip(),
+        }
+
+        try:
+            # O serviço confere novamente dono, estado e prazo
+            # dentro da transação, além de verificar conflitos.
+            alterar_reserva(
+                engine,
+                g.usuario["id"],
+                reserva_id,
+                dados,
+            )
+        except ValueError as erro:
+            erros.append(str(erro))
+            status = 400
+        else:
+            session["mensagem_reserva"] = (
+                f"Reserva nº {reserva_id} alterada com sucesso! "
+                "Recursos restritos e professores aguardam nova aprovação."
+            )
+            return redirect(url_for("minhas_reservas"))
+
+    with engine.connect() as conexao:
+        lista_recursos = conexao.execute(
+            select(recursos)
+            .where(recursos.c.ativo.is_(True))
+            .order_by(recursos.c.nome)
+        ).mappings().all()
+
+    return render_template(
+        "editar_reserva.html",
+        reserva=reserva,
+        recursos=lista_recursos,
+        dados=dados,
+        erros=erros,
+    ), status
+
+
 @app.route("/reservas")
 def minhas_reservas():
     if g.usuario is None:
@@ -572,6 +659,7 @@ def consultar_auditoria():
             auditoria_reservas.c.data_hora,
             auditoria_reservas.c.status_anterior,
             auditoria_reservas.c.status_novo,
+            auditoria_reservas.c.detalhes,
             usuarios.c.nome.label("usuario_nome"),
             recursos.c.nome.label("recurso_nome"),
         )

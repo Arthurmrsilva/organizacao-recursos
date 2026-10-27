@@ -1,3 +1,4 @@
+import json
 from datetime import datetime
 
 from sqlalchemy import insert, select, update
@@ -18,6 +19,7 @@ def registrar_auditoria(
     acao,
     status_anterior,
     status_novo,
+    detalhes=None,
 ):
     # Usa a conexão da operação, sem fazer um commit separado.
     conexao.execute(
@@ -28,6 +30,11 @@ def registrar_auditoria(
             data_hora=datetime.now(),
             status_anterior=status_anterior,
             status_novo=status_novo,
+            detalhes=(
+                json.dumps(detalhes, ensure_ascii=False)
+                if detalhes is not None
+                else None
+            ),
         )
     )
 
@@ -87,7 +94,6 @@ def criar_manutencao(engine, usuario_id, dados):
 
     with engine.connect() as conexao:
         try:
-            # Usa a mesma estratégia de bloqueio das reservas.
             conexao.exec_driver_sql("BEGIN IMMEDIATE")
 
             usuario = conexao.execute(
@@ -272,6 +278,199 @@ def criar_reserva(engine, usuario_id, dados):
                 status_novo=status,
             )
 
+            conexao.commit()
+            return reserva_id
+
+        except Exception:
+            conexao.rollback()
+            raise
+
+
+def alterar_reserva(engine, usuario_id, reserva_id, dados):
+    finalidade = dados.get("finalidade", "").strip()
+
+    if not 1 <= len(finalidade) <= 200:
+        raise ValueError(
+            "Informe a finalidade com até 200 caracteres."
+        )
+
+    try:
+        recurso_id = int(dados.get("recurso_id", ""))
+    except (TypeError, ValueError):
+        raise ValueError("Selecione um recurso válido.") from None
+
+    try:
+        inicio = datetime.strptime(
+            dados.get("inicio", ""),
+            "%Y-%m-%dT%H:%M",
+        )
+        fim = datetime.strptime(
+            dados.get("fim", ""),
+            "%Y-%m-%dT%H:%M",
+        )
+    except (TypeError, ValueError):
+        raise ValueError(
+            "Informe datas e horários válidos."
+        ) from None
+
+    if fim <= inicio:
+        raise ValueError(
+            "O término deve ser posterior ao início."
+        )
+
+    if inicio <= datetime.now():
+        raise ValueError(
+            "O início da reserva deve estar no futuro."
+        )
+
+    with engine.connect() as conexao:
+        try:
+            # Impede que outra gravação ocupe o período
+            # entre a verificação e a alteração.
+            conexao.exec_driver_sql("BEGIN IMMEDIATE")
+
+            usuario = conexao.execute(
+                select(usuarios).where(
+                    usuarios.c.id == usuario_id,
+                    usuarios.c.ativo.is_(True),
+                )
+            ).mappings().first()
+
+            if usuario is None:
+                raise ValueError(
+                    "Usuário não encontrado ou inativo."
+                )
+
+            reserva = conexao.execute(
+                select(reservas).where(
+                    reservas.c.id == reserva_id,
+                    reservas.c.usuario_id == usuario_id,
+                )
+            ).mappings().first()
+
+            if reserva is None:
+                raise ValueError(
+                    "Reserva não encontrada para este usuário."
+                )
+
+            if reserva["status"] not in ("SOLICITADA", "APROVADA"):
+                raise ValueError(
+                    "Esta reserva não pode ser alterada "
+                    "na situação atual."
+                )
+
+            if reserva["inicio"] <= datetime.now():
+                raise ValueError(
+                    "Não é possível alterar uma reserva "
+                    "que já começou."
+                )
+
+            recurso = conexao.execute(
+                select(recursos).where(
+                    recursos.c.id == recurso_id,
+                    recursos.c.ativo.is_(True),
+                )
+            ).mappings().first()
+
+            if recurso is None:
+                raise ValueError(
+                    "O recurso selecionado não está disponível."
+                )
+
+            verificar_manutencao(
+                conexao,
+                recurso_id,
+                inicio,
+                fim,
+            )
+
+            conflito = conexao.execute(
+                select(reservas.c.id).where(
+                    # A reserva não pode conflitar com ela mesma.
+                    reservas.c.id != reserva_id,
+                    reservas.c.recurso_id == recurso_id,
+                    reservas.c.status.in_(
+                        ("SOLICITADA", "APROVADA", "EM_USO")
+                    ),
+                    reservas.c.inicio < fim,
+                    reservas.c.fim > inicio,
+                ).limit(1)
+            ).first()
+
+            if conflito is not None:
+                raise ValueError(
+                    "Já existe uma reserva para esse recurso "
+                    "no período informado."
+                )
+
+            houve_alteracao = (
+                reserva["recurso_id"] != recurso_id
+                or reserva["inicio"] != inicio
+                or reserva["fim"] != fim
+                or reserva["finalidade"] != finalidade
+            )
+
+            if not houve_alteracao:
+                raise ValueError(
+                    "Nenhuma alteração foi informada."
+                )
+
+            precisa_aprovacao = (
+                recurso["restrito"]
+                or recurso["tipo"] == "PROFESSOR"
+            )
+
+            # Alterações em recursos restritos e professores
+            # precisam passar novamente pela aprovação.
+            status_novo = (
+                "SOLICITADA"
+                if precisa_aprovacao
+                else "APROVADA"
+            )
+
+            detalhes = {
+                "antes": {
+                    "recurso_id": reserva["recurso_id"],
+                    "inicio": reserva["inicio"].isoformat(),
+                    "fim": reserva["fim"].isoformat(),
+                    "finalidade": reserva["finalidade"],
+                    "status": reserva["status"],
+                },
+                "depois": {
+                    "recurso_id": recurso_id,
+                    "inicio": inicio.isoformat(),
+                    "fim": fim.isoformat(),
+                    "finalidade": finalidade,
+                    "status": status_novo,
+                },
+            }
+
+            conexao.execute(
+                update(reservas)
+                .where(
+                    reservas.c.id == reserva_id,
+                    reservas.c.usuario_id == usuario_id,
+                )
+                .values(
+                    recurso_id=recurso_id,
+                    inicio=inicio,
+                    fim=fim,
+                    finalidade=finalidade,
+                    status=status_novo,
+                )
+            )
+
+            registrar_auditoria(
+                conexao=conexao,
+                reserva_id=reserva_id,
+                usuario_id=usuario_id,
+                acao="ALTERACAO",
+                status_anterior=reserva["status"],
+                status_novo=status_novo,
+                detalhes=detalhes,
+            )
+
+            # Alteração e auditoria são confirmadas juntas.
             conexao.commit()
             return reserva_id
 

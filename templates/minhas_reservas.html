@@ -120,6 +120,17 @@
 
                     {% if reserva.status in ("SOLICITADA", "APROVADA")
                           and reserva.inicio > agora %}
+
+                    <p>
+                        <a class="botao"
+                           href="{{ url_for(
+                               'editar_minha_reserva',
+                               reserva_id=reserva.id
+                           ) }}">
+                            Editar reserva
+                        </a>
+                    </p>
+
                     <form method="post"
                           action="{{ url_for(
                               'cancelar_minha_reserva',

@@ -10,6 +10,7 @@ from sqlalchemy import (
     MetaData,
     String,
     Table,
+    Text,
     create_engine,
 )
 
@@ -127,10 +128,15 @@ auditoria_reservas = Table(
     Column("data_hora", DateTime, nullable=False),
     Column("status_anterior", String(20), nullable=True),
     Column("status_novo", String(20), nullable=False),
+
+    # Guarda os dados anteriores e novos nas alterações.
+    # Eventos antigos podem permanecer sem detalhes.
+    Column("detalhes", Text, nullable=True),
+
     CheckConstraint(
         "acao IN ("
         "'CRIACAO', 'CANCELAMENTO', 'APROVACAO', 'REJEICAO', "
-        "'RETIRADA', 'DEVOLUCAO'"
+        "'RETIRADA', 'DEVOLUCAO', 'ALTERACAO'"
         ")",
         name="acao_auditoria_valida",
     ),

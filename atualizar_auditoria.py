@@ -37,9 +37,78 @@ def atualizar_auditoria():
                 "A tabela de auditoria não foi encontrada."
             )
 
-        if "'RETIRADA'" in tabela[0] and "'DEVOLUCAO'" in tabela[0]:
+        colunas_existentes = [
+            coluna[1]
+            for coluna in conexao.execute(
+                "PRAGMA table_info(auditoria_reservas)"
+            ).fetchall()
+        ]
+
+        acoes_necessarias = (
+            "'CRIACAO'",
+            "'CANCELAMENTO'",
+            "'APROVACAO'",
+            "'REJEICAO'",
+            "'RETIRADA'",
+            "'DEVOLUCAO'",
+            "'ALTERACAO'",
+        )
+
+        estrutura_atualizada = (
+            "detalhes" in colunas_existentes
+            and all(
+                acao in tabela[0]
+                for acao in acoes_necessarias
+            )
+        )
+
+        if estrutura_atualizada:
             print("A auditoria já está atualizada.")
             return
+
+        # Confere a definição antes de modificar o banco.
+        colunas_novas = [
+            coluna.name
+            for coluna in auditoria_reservas.columns
+        ]
+
+        if "detalhes" not in colunas_novas:
+            raise RuntimeError(
+                "Atualize o banco.py antes de executar este script."
+            )
+
+        # Evita descartar colunas desconhecidas.
+        colunas_desconhecidas = (
+            set(colunas_existentes) - set(colunas_novas)
+        )
+
+        if colunas_desconhecidas:
+            raise RuntimeError(
+                "A auditoria possui colunas não previstas: "
+                + ", ".join(sorted(colunas_desconhecidas))
+            )
+
+        sql_tabela = str(
+            CreateTable(auditoria_reservas).compile(
+                dialect=engine.dialect
+            )
+        )
+
+        if "'ALTERACAO'" not in sql_tabela:
+            raise RuntimeError(
+                "A definição em banco.py ainda não permite ALTERACAO."
+            )
+
+        sql_temporaria = sql_tabela.replace(
+            "CREATE TABLE auditoria_reservas",
+            "CREATE TABLE auditoria_reservas_nova",
+            1,
+        )
+
+        if sql_temporaria == sql_tabela:
+            raise RuntimeError(
+                "Não foi possível preparar a estrutura da auditoria."
+            )
 
         # Backup completo antes da migração.
         pasta_backups = PASTA_PROJETO / "backups"
@@ -59,43 +128,31 @@ def atualizar_auditoria():
 
         print(f"Backup criado em: {caminho_backup}")
 
-        # Guarda índices e gatilhos existentes para recriá-los.
-        objetos = conexao.execute(
-            """
-            SELECT sql
-            FROM sqlite_master
-            WHERE tbl_name = 'auditoria_reservas'
-              AND type IN ('index', 'trigger')
-              AND sql IS NOT NULL
-            """
-        ).fetchall()
-
-        # Obtém a estrutura nova definida em banco.py.
-        sql_tabela = str(
-            CreateTable(auditoria_reservas).compile(
-                dialect=engine.dialect
-            )
-        )
-
-        sql_temporaria = sql_tabela.replace(
-            "CREATE TABLE auditoria_reservas",
-            "CREATE TABLE auditoria_reservas_nova",
-            1,
-        )
-
-        if sql_temporaria == sql_tabela:
-            raise RuntimeError(
-                "Não foi possível preparar a estrutura da auditoria."
-            )
-
-        # A troca inteira acontece em uma única transação.
         conexao.execute("PRAGMA foreign_keys = ON")
         conexao.execute("BEGIN IMMEDIATE")
 
         try:
-            registros_antes = conexao.execute(
+            # Guarda índices e gatilhos para recriá-los.
+            objetos = conexao.execute(
                 """
-                SELECT *
+                SELECT sql
+                FROM sqlite_master
+                WHERE tbl_name = 'auditoria_reservas'
+                  AND type IN ('index', 'trigger')
+                  AND sql IS NOT NULL
+                """
+            ).fetchall()
+
+            # Copia as colunas existentes, incluindo detalhes
+            # caso uma versão anterior já tenha criado esse campo.
+            nomes_colunas = ", ".join(
+                f'"{nome}"'
+                for nome in colunas_existentes
+            )
+
+            registros_antes = conexao.execute(
+                f"""
+                SELECT {nomes_colunas}
                 FROM auditoria_reservas
                 ORDER BY id
                 """
@@ -104,31 +161,20 @@ def atualizar_auditoria():
             conexao.execute(sql_temporaria)
 
             conexao.execute(
-                """
+                f"""
                 INSERT INTO auditoria_reservas_nova (
-                    id,
-                    reserva_id,
-                    usuario_id,
-                    acao,
-                    data_hora,
-                    status_anterior,
-                    status_novo
+                    {nomes_colunas}
                 )
-                SELECT
-                    id,
-                    reserva_id,
-                    usuario_id,
-                    acao,
-                    data_hora,
-                    status_anterior,
-                    status_novo
+                SELECT {nomes_colunas}
                 FROM auditoria_reservas
                 """
             )
 
+            # Compara somente as colunas originais.
+            # O novo campo detalhes fica NULL nos eventos antigos.
             registros_copiados = conexao.execute(
-                """
-                SELECT *
+                f"""
+                SELECT {nomes_colunas}
                 FROM auditoria_reservas_nova
                 ORDER BY id
                 """
