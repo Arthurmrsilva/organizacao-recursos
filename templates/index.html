@@ -101,6 +101,13 @@
 
             <p>
                 <a class="botao botao-secundario"
+                   href="{{ url_for('consultar_relatorios') }}">
+                    Relatórios
+                </a>
+            </p>
+
+            <p>
+                <a class="botao botao-secundario"
                    href="{{ url_for('consultar_auditoria') }}">
                     Auditoria de reservas
                 </a>
@@ -162,8 +169,9 @@
                 Consulte suas reservas por situação e acompanhe
                 os avisos de criação, alteração, cancelamento,
                 aprovação e rejeição em Notificações.
-                O administrador pode consultar a auditoria
-                e cadastrar períodos de manutenção.
+                O administrador pode consultar a auditoria,
+                cadastrar períodos de manutenção e acessar relatórios
+                de reservas e horas previstas por período.
                 Administradores e responsáveis podem registrar
                 retiradas e devoluções de materiais, conforme
                 suas permissões.

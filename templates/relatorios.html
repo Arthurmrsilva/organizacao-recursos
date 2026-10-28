@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Relatórios — Organização de Recursos</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body class="perfil-{{ g.usuario.perfil|lower if g.usuario else 'visitante' }}">
+    <header>
+        <h1>Organização de Recursos</h1>
+        <p>Relatórios de reservas e horas previstas</p>
+    </header>
+
+    <main>
+        <section>
+            <h2>Relatórios</h2>
+
+            <p>
+                Consulte as reservas e as horas previstas por recurso.
+                Deixe as duas datas vazias para consultar todo o histórico.
+            </p>
+
+            <form method="get"
+                  action="{{ url_for('consultar_relatorios') }}"
+                  class="filtros">
+
+                <div>
+                    <label for="inicio">Data inicial</label>
+                    <input type="date"
+                           id="inicio"
+                           name="inicio"
+                           value="{{ inicio }}"
+                           aria-describedby="ajuda-periodo">
+                </div>
+
+                <div>
+                    <label for="fim">Data final</label>
+                    <input type="date"
+                           id="fim"
+                           name="fim"
+                           value="{{ fim }}"
+                           aria-describedby="ajuda-periodo">
+                </div>
+
+                <button class="botao" type="submit">
+                    Consultar
+                </button>
+
+                <a class="botao botao-secundario"
+                   href="{{ url_for('consultar_relatorios') }}">
+                    Limpar datas
+                </a>
+            </form>
+
+            <p id="ajuda-periodo">
+                Ao filtrar, preencha as duas datas.
+                O dia final é incluído por inteiro.
+                Reservas que atravessam o período também são consideradas.
+            </p>
+
+            {% if erros %}
+            <div role="alert">
+                <ul>
+                    {% for erro in erros %}
+                    <li>{{ erro }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+            {% endif %}
+
+            {% if relatorio is not none %}
+            <section class="aviso">
+                <h2>Como interpretar os dados</h2>
+                <p>
+                    A quantidade de reservas inclui todas as situações.
+                    As horas previstas consideram somente reservas
+                    aprovadas, em uso ou concluídas.
+                    Quando há filtro de datas, somente as horas
+                    dentro do período escolhido entram no cálculo.
+                </p>
+                <p>
+                    Horas previstas representam o período reservado,
+                    não o tempo real de utilização.
+                    Recursos inativos também aparecem quando possuem
+                    reservas no período consultado.
+                    Os valores em horas são arredondados para duas casas
+                    decimais após a soma.
+                </p>
+            </section>
+
+            <section class="lista-recursos">
+                <h2>Resumo geral</h2>
+
+                <div class="grade-recursos">
+                    <article class="recurso">
+                        <h3>Total de reservas</h3>
+                        <p>
+                            <strong>{{ relatorio.total_reservas }}</strong>
+                        </p>
+                    </article>
+
+                    <article class="recurso">
+                        <h3>Horas previstas</h3>
+                        <p>
+                            <strong>
+                                {{ "%.2f"|format(
+                                    relatorio.horas_previstas
+                                )|replace(".", ",") }} h
+                            </strong>
+                        </p>
+                    </article>
+
+                    <article class="recurso">
+                        <h3>Conflitos evitados</h3>
+
+                        {% if relatorio.conflitos_evitados is none %}
+                        <p>Indicador ainda indisponível.</p>
+                        <p>
+                            O registro das tentativas bloqueadas
+                            será implementado em uma próxima etapa.
+                        </p>
+                        {% else %}
+                        <p>
+                            <strong>
+                                {{ relatorio.conflitos_evitados }}
+                            </strong>
+                        </p>
+                        {% endif %}
+                    </article>
+                </div>
+            </section>
+
+            <section class="lista-recursos">
+                <h2>Reservas por situação</h2>
+
+                <div class="grade-recursos">
+                    {% for situacao in relatorio.situacoes %}
+                    <article class="recurso">
+                        <h3>{{ situacao.rotulo }}</h3>
+                        <p>
+                            <strong>Quantidade:</strong>
+                            {{ situacao.quantidade }}
+                        </p>
+                    </article>
+                    {% endfor %}
+                </div>
+            </section>
+
+            <section class="lista-recursos">
+                <h2>Resumo por recurso</h2>
+
+                <div class="grade-recursos">
+                    {% for recurso in relatorio.recursos %}
+                    <article class="recurso">
+                        <h3>{{ recurso.nome }}</h3>
+
+                        <p>
+                            <strong>Código:</strong>
+                            {{ recurso.id }}
+                        </p>
+
+                        <p>
+                            <strong>Tipo:</strong>
+                            {{ recurso.tipo }}
+                        </p>
+
+                        <p>
+                            <strong>Total de reservas:</strong>
+                            {{ recurso.total_reservas }}
+                        </p>
+
+                        <p>
+                            <strong>Reservas consideradas nas horas:</strong>
+                            {{ recurso.reservas_com_horas }}
+                        </p>
+
+                        <p>
+                            <strong>Horas previstas:</strong>
+                            {{ "%.2f"|format(
+                                recurso.horas_previstas
+                            )|replace(".", ",") }} h
+                        </p>
+                    </article>
+                    {% else %}
+                    <p>
+                        Nenhum recurso com reservas
+                        no período consultado.
+                    </p>
+                    {% endfor %}
+                </div>
+            </section>
+            {% endif %}
+
+            <p>
+                <a class="botao botao-secundario"
+                   href="{{ url_for('inicio') }}">
+                    Voltar ao início
+                </a>
+            </p>
+        </section>
+    </main>
+
+    <footer>
+        <p>Projeto de Qualidade de Software — ADS, 4º semestre</p>
+        <p>
+            Arthur Mendes, Robert Oliveira,
+            Nicolas Ferreira e Murilo Henrique
+        </p>
+    </footer>
+</body>
+</html>

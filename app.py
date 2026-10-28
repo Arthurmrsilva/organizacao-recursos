@@ -28,6 +28,7 @@ from servico_materiais import (
     registrar_devolucao,
     registrar_retirada,
 )
+from servico_relatorios import gerar_relatorio
 from servico_reservas import (
     alterar_reserva,
     avaliar_reserva,
@@ -935,6 +936,46 @@ def marcar_notificacao_lida(notificacao_id):
 
     session["mensagem_notificacao"] = "Notificação marcada como lida."
     return redirect(url_for("minhas_notificacoes"))
+
+
+@app.route("/relatorios")
+def consultar_relatorios():
+    if g.usuario is None:
+        return redirect(url_for("login"))
+
+    if g.usuario["perfil"] != "ADMIN":
+        return (
+            "Acesso negado. Área exclusiva do administrador.",
+            403,
+        )
+
+    inicio_texto = request.args.get("inicio", "").strip()
+    fim_texto = request.args.get("fim", "").strip()
+
+    erros = []
+    relatorio = None
+    status = 200
+
+    try:
+        relatorio = gerar_relatorio(
+            engine,
+            g.usuario["id"],
+            {
+                "inicio": inicio_texto,
+                "fim": fim_texto,
+            },
+        )
+    except ValueError as erro:
+        erros.append(str(erro))
+        status = 400
+
+    return render_template(
+        "relatorios.html",
+        relatorio=relatorio,
+        inicio=inicio_texto,
+        fim=fim_texto,
+        erros=erros,
+    ), status
 
 
 if __name__ == "__main__":
