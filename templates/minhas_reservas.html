@@ -60,13 +60,17 @@
 
             {% if filtro_selecionado == "ativas" %}
             <p>
-                Reservas aguardando aprovação, aprovadas ou em uso,
-                cujo horário de término ainda não passou.
+                Reservas aguardando aprovação ou aprovadas cujo
+                horário de término ainda não passou.
+                Reservas em uso continuam aqui até a devolução,
+                mesmo após o prazo previsto.
             </p>
             {% elif filtro_selecionado == "historico" %}
             <p>
-                Reservas canceladas, rejeitadas, concluídas,
-                com não comparecimento ou cujo período já terminou.
+                Reservas canceladas, rejeitadas, concluídas ou
+                com não comparecimento, além das solicitações
+                e reservas aprovadas cujo período já terminou.
+                Reservas em uso permanecem nas Ativas.
                 O término do período não altera automaticamente a situação.
             </p>
             {% else %}
@@ -118,9 +122,20 @@
                         {{ situacoes.get(reserva.status, reserva.status) }}
                     </p>
 
+                    {% if reserva.status == "EM_USO"
+                          and reserva.fim <= agora %}
+                    <div class="aviso">
+                        <p>
+                            <strong>Prazo de utilização encerrado.</strong>
+                            A devolução ainda não foi registrada.
+                            Procure o responsável pelo material
+                            ou o administrador.
+                        </p>
+                    </div>
+                    {% endif %}
+
                     {% if reserva.status in ("SOLICITADA", "APROVADA")
                           and reserva.inicio > agora %}
-
                     <p>
                         <a class="botao"
                            href="{{ url_for(

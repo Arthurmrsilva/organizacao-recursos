@@ -424,7 +424,6 @@ def editar_minha_reserva(reserva_id):
     erros = []
     status = 200
 
-    # Preenche o formulário com os dados atuais.
     dados = {
         "recurso_id": str(reserva["recurso_id"]),
         "inicio": reserva["inicio"].strftime("%Y-%m-%dT%H:%M"),
@@ -441,8 +440,7 @@ def editar_minha_reserva(reserva_id):
         }
 
         try:
-            # O serviço confere novamente dono, estado e prazo
-            # dentro da transação, além de verificar conflitos.
+            # O serviço confere novamente as regras na transação.
             alterar_reserva(
                 engine,
                 g.usuario["id"],
@@ -487,11 +485,14 @@ def minhas_reservas():
 
     agora = datetime.now()
 
+    # Em uso continua ativo até a devolução, mesmo após o prazo.
+    # Solicitadas e aprovadas ficam ativas enquanto o prazo não terminou.
     condicao_ativa = (
-        reservas.c.status.in_(
-            ("SOLICITADA", "APROVADA", "EM_USO")
+        (reservas.c.status == "EM_USO")
+        | (
+            reservas.c.status.in_(("SOLICITADA", "APROVADA"))
+            & (reservas.c.fim > agora)
         )
-        & (reservas.c.fim > agora)
     )
 
     consulta = (
