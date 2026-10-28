@@ -1,7 +1,7 @@
 # Matriz de Rastreabilidade — RTM
 
 **Projeto:** Organização de Recursos  
-**Última atualização:** 27/10/2026  
+**Última atualização:** 28/10/2026  
 **Integrantes:** Arthur Mendes, Robert Oliveira, Nicolas Ferreira e Murilo Henrique.
 
 Esta matriz relaciona os requisitos aos riscos, testes e evidências do projeto.
@@ -20,17 +20,17 @@ As tabelas apresentam a situação atual. Os registros históricos preservam os 
 
 | ID | Requisito | Risco | Testes e verificações | Situação atual |
 | --- | --- | --- | --- | --- |
-| RF01 | Autenticação e autorização por perfil | Acesso indevido | Testes de consulta, cancelamento, aprovação, auditoria, manutenção, edição HTTP e permissões no serviço de materiais | Parcial: testes HTTP específicos de materiais pendentes |
+| RF01 | Autenticação e autorização por perfil | Acesso indevido | Testes de consulta, cancelamento, aprovação, auditoria, manutenção, edição, notificações e permissões no serviço de materiais | Parcial: testes HTTP específicos de materiais pendentes |
 | RF02 | Cadastro e consulta de salas, professores e materiais | Dados inválidos | Cadastro, validação, autorização e consulta em test_consulta.py | Implementado e verificado; revisão por colega pendente |
-| RF03 | Pesquisa por tipo, capacidade, localização, competência e disponibilidade | Resultado incorreto | test_consulta.py, test_disponibilidade.py e verificações manuais | Implementado e verificado no serviço HTTP interno e manualmente; automação de navegador pendente |
-| RF04 | Criar, alterar e cancelar reservas | Reserva incorreta ou alteração indevida | test_reservas.py, test_minhas_reservas.py, test_cancelamento_http.py, test_edicao_reservas.py e test_edicao_http.py | Implementado e verificado nos serviços, cliente Flask e verificações manuais |
+| RF03 | Pesquisa por tipo, capacidade, localização, competência e disponibilidade | Resultado incorreto | test_consulta.py, test_disponibilidade.py e verificações manuais | Implementado e verificado com cliente Flask e manualmente; navegador automatizado pendente |
+| RF04 | Criar, alterar e cancelar reservas | Reserva incorreta ou alteração indevida | Testes de reservas, listagem, cancelamento e edição nos serviços e rotas | Implementado e verificado no escopo atual |
 | RF05 | Detectar sobreposição, inclusive na agenda do professor | Dois usos simultâneos do mesmo recurso | Testes de criação, aprovação, disponibilidade e edição | Parcial: ampliar cenários explícitos de criação e edição por tipo |
 | RF06 | Impedir dupla reserva simultânea | Duas solicitações aceitas para o mesmo período | test_duas_solicitacoes_simultaneas em test_reservas.py | Verificado no serviço com SQLite; concorrência por HTTP pendente |
-| RF07 | Exigir aprovação para recursos restritos | Uso sem autorização | test_aprovacoes.py, test_aprovacoes_http.py e testes de nova aprovação após edição | Implementado e verificado; interface para vincular responsáveis pendente |
+| RF07 | Exigir aprovação para recursos restritos | Uso sem autorização | Testes de aprovação e nova aprovação após edição | Implementado e verificado; interface para vincular responsáveis pendente |
 | RF08 | Bloquear recursos em manutenção | Reserva de recurso indisponível | Testes de manutenção, disponibilidade, edição e verificações manuais | Implementado e verificado; concorrência entre manutenção e reserva pendente |
 | RF09 | Registrar retirada e devolução de materiais | Perda de controle dos equipamentos | test_materiais.py e fluxo manual da reserva nº 11 | Implementado e verificado no serviço e manualmente; testes HTTP específicos e navegador pendentes |
-| RF10 | Manter histórico auditável | Mudanças sem rastreio | Testes de auditoria, materiais e edição; conferência manual dos detalhes | Parcial: operações atuais auditadas; ampliar para futuras transições |
-| RF11 | Notificação simulada ou integração externa | Usuário não informado | Testes a definir durante a implementação | Pendente |
+| RF10 | Manter histórico auditável | Mudanças sem rastreio | Testes de auditoria, materiais, edição e rollback; conferência manual | Parcial: operações atuais auditadas; ampliar para futuras transições |
+| RF11 | Notificação simulada ou integração externa | Usuário não informado | test_notificacoes.py e verificação manual de geração e leitura | Implementado como avisos internos para criação, edição, cancelamento, aprovação e rejeição |
 | RF12 | Relatórios de utilização, horas e conflitos evitados | Indicadores incorretos | Planejado: comparar resultados com dados conhecidos | Pendente |
 | RF13 | Interface responsiva e erros compreensíveis | Dificuldade de uso | Testes HTTP existentes e verificações manuais | Parcial: avaliação em diferentes telas e testes de navegador pendentes |
 | RF14 | Documentação da API ou dos fluxos públicos | Dificuldade de instalar e utilizar | README inicial e esta matriz | Parcial: ampliar instalação, fluxos e interfaces |
@@ -47,20 +47,22 @@ As tabelas apresentam a situação atual. Os registros históricos preservam os 
 | RC06 | Estados alternativos REJEITADA, CANCELADA e NAO_COMPARECEU | Histórico incorreto | Rejeição e cancelamento testados | Parcial: registro de não comparecimento pendente |
 | RC07 | Somente responsável vinculado aprova recurso restrito | Aprovação indevida | Testes de perfil, vínculo, prazo e estado | Implementado e verificado |
 | RC08 | Reservas iniciadas não podem ser apagadas | Perda de histórico | Sem exclusão física disponível; cancelamento e edição após início bloqueados | Verificado nas operações existentes; revisar futuras funções administrativas |
-| RC09 | Toda mudança de estado gera auditoria | Ausência de rastreabilidade | Operações atuais registram autor, horário e situações; rollback conjunto testado | Parcial: ampliar para futuras transições |
+| RC09 | Toda mudança de estado gera auditoria | Ausência de rastreabilidade | Autor, horário, situações e rollback conjunto testados | Parcial: ampliar para futuras transições |
 
 ## 4. Testes automatizados
 
-### Resultados da etapa atual
+### Resultado local mais recente
 
-- Data: 27/10/2026.
-- Suíte completa com edição no serviço: 142 testes aprovados, conforme execução local informada.
-- Testes HTTP de edição: 12 testes aprovados em execução isolada.
-- Total esperado após incluir os testes HTTP: 154 métodos.
-- A confirmação explícita do resultado final da suíte de 154 testes deve ser registrada antes de considerá-la evidência consolidada.
-- O tempo da execução completa de 154 testes ainda não foi registrado nesta matriz.
+- Data: 28/10/2026.
+- Suíte completa: 185 testes aprovados, conforme confirmação do executor.
+- Resultado informado: OK.
+- Tempo da execução de 185 testes: não registrado nesta matriz.
+- Testes específicos de notificações: 24 métodos aprovados isoladamente.
+- Execução anterior documentada por imagem: 161 testes aprovados em 54,707 segundos.
 
 Alguns métodos utilizam `subTest` para verificar vários cenários.
+
+Os testes de serviço com persistência real verificam integração com SQLite. Não devem ser classificados integralmente como testes unitários isolados.
 
 ### Arquivos de teste
 
@@ -68,7 +70,7 @@ Alguns métodos utilizam `subTest` para verificar vários cenários.
 | --- | --- |
 | tests/test_consulta.py | Login, logout, usuário inativo, CSRF, autorização, cadastro, validação, persistência e filtros |
 | tests/test_reservas.py | Criação, conflitos, horários consecutivos, concorrência e cancelamento |
-| tests/test_minhas_reservas.py | Login obrigatório, isolamento entre usuários e lista vazia |
+| tests/test_minhas_reservas.py | Login, isolamento, lista vazia, distribuição dos filtros, prazo, aviso de atraso e ordenação |
 | tests/test_cancelamento_http.py | Autenticação, autorização e CSRF no cancelamento |
 | tests/test_aprovacoes.py | Aprovação, rejeição, vínculo, prazo, estado e conflito |
 | tests/test_aprovacoes_http.py | Rotas, perfis, CSRF e isolamento por responsável |
@@ -80,6 +82,7 @@ Alguns métodos utilizam `subTest` para verificar vários cenários.
 | tests/test_disponibilidade.py | Períodos, sobreposição, estados, manutenção, limites consecutivos e filtros combinados |
 | tests/test_edicao_reservas.py | Edição, permissões, validações, conflitos, manutenção, nova aprovação, auditoria e rollback |
 | tests/test_edicao_http.py | Acesso à edição, formulário preenchido, persistência, auditoria, CSRF e recusas |
+| tests/test_notificacoes.py | Geração, destinatário, leitura, isolamento, CSRF, ordenação, escape de HTML e rollback |
 
 ### Como executar
 
@@ -93,16 +96,15 @@ Na raiz do projeto:
 
 - Os testes de persistência utilizam bancos SQLite temporários.
 - Os testes HTTP atuais utilizam o cliente de testes do Flask.
-- A autenticação é simulada nos testes HTTP de edição; login e senha possuem testes próprios.
+- A autenticação é simulada em vários testes de rotas; login e senha possuem testes próprios.
 - O cliente Flask não executa o JavaScript dos templates.
-- A apresentação dos detalhes de auditoria foi conferida manualmente.
+- Os detalhes de auditoria foram conferidos manualmente na interface.
 - Testes externos por HTTP, navegador e carga permanecem pendentes.
 - Verificação com banco em container permanece pendente.
-- Filtros Ativas, Histórico e Todas precisam de testes específicos de distribuição e ordenação.
-- A cobertura precisa ser medida novamente após disponibilidade e edição.
-- A migração da auditoria foi executada manualmente; testes automatizados da migração permanecem pendentes.
+- A cobertura precisa ser medida novamente na versão atual.
+- A migração da auditoria foi executada manualmente; seus testes automatizados permanecem pendentes.
 
-## 5. Evidências históricas
+## 5. Evidências
 
 | ID | Evidência |
 | --- | --- |
@@ -144,32 +146,49 @@ Na raiz do projeto:
 | EV36 | Busca manual excluiu Sala 101 durante manutenção e permitiu período consecutivo |
 | EV37 | Busca com término anterior ao início apresentou erro |
 | EV38 | Migração da auditoria para detalhes de alteração executada com backup e preservação de 9 registros |
-| EV39 | Reserva nº 9: finalidade alterada com sucesso, mantendo período de 01/11/2026, das 16h às 17h |
-| EV40 | Tentativa de editar reserva nº 9 para 14:30–15:30 recusada por manutenção; horário original preservado |
-| EV41 | Evento nº 10 da auditoria apresentou autor, horário e finalidade antes e depois da alteração |
+| EV39 | Reserva nº 9: finalidade alterada, mantendo período de 01/11/2026, das 16h às 17h |
+| EV40 | Edição da reserva nº 9 para 14:30–15:30 recusada por manutenção; horário original preservado |
+| EV41 | Evento nº 10 apresentou autor, horário e finalidade antes e depois da alteração |
 | EV42 | Suíte anterior de 118 testes aprovada em 32,354 segundos após mudanças de edição |
-| EV43 | 24 testes de edição no serviço aprovados; suíte completa de 142 testes informada como aprovada |
-| EV44 | Commit 35b5fe5: edição de reservas com auditoria e 24 testes; push confirmado |
-| EV45 | GitHub Actions #53 do commit 35b5fe5 aprovado em 24 segundos |
-| EV46 | GitHub Actions #54 do Pull Request aprovado em 23 segundos |
-| EV47 | 12 testes HTTP de edição informados como aprovados em execução isolada; commit próprio ainda pendente |
+| EV43 | 24 testes de edição aprovados; suíte completa de 142 testes informada como aprovada |
+| EV44 | Commit 35b5fe5: edição com auditoria e 24 testes; push confirmado |
+| EV45 | Actions #53 do commit 35b5fe5 aprovado em 24 segundos |
+| EV46 | Actions #54 do Pull Request aprovado em 23 segundos |
+| EV47 | 12 testes HTTP de edição aprovados isoladamente |
+| EV48 | Commit b9d752d: testes HTTP de edição e RTM; push confirmado |
+| EV49 | Actions #55 aprovado em 23 segundos e #56 aprovado em 25 segundos |
+| EV50 | Filtros: 10 testes aprovados, incluindo 7 métodos novos |
+| EV51 | Suíte completa de 161 testes aprovada em 54,707 segundos |
+| EV52 | Commit 9e94725: correção de EM_USO nas Ativas e 7 testes; push confirmado |
+| EV53 | Actions #57 e #58 aprovados, conforme imagem apresentada |
+| EV54 | Tabela notificacoes criada com sucesso no banco local |
+| EV55 | Tela de notificações sem avisos apresentada corretamente |
+| EV56 | Edição da reserva nº 9 gerou aviso não lido em 28/10/2026, às 19:10:08 |
+| EV57 | Marcação de leitura apresentou situação Lida, preservou o aviso e removeu o botão |
+| EV58 | Botão Notificações acrescentado ao menu inicial; funcionamento confirmado pelo executor |
+| EV59 | 24 testes de notificações aprovados isoladamente |
+| EV60 | Suíte completa de 185 testes informada como aprovada em 28/10/2026 |
+| EV61 | Commit 5a18890: notificações internas com leitura e 24 testes; push confirmado e árvore limpa |
+| EV62 | GitHub Actions do commit 5a18890 informado como aprovado; número e duração não registrados |
 
 ### Links
 
 - [Repositório](https://github.com/Arthurmrsilva/organizacao-recursos)
 - [Pull Request nº 1](https://github.com/Arthurmrsilva/organizacao-recursos/pull/1)
 - [GitHub Actions](https://github.com/Arthurmrsilva/organizacao-recursos/actions)
-- [Commit de materiais](https://github.com/Arthurmrsilva/organizacao-recursos/commit/22014eb)
-- [Commit de disponibilidade](https://github.com/Arthurmrsilva/organizacao-recursos/commit/6b8d472)
-- [Commit de edição](https://github.com/Arthurmrsilva/organizacao-recursos/commit/35b5fe5)
+- [Materiais](https://github.com/Arthurmrsilva/organizacao-recursos/commit/22014eb)
+- [Disponibilidade](https://github.com/Arthurmrsilva/organizacao-recursos/commit/6b8d472)
+- [Edição](https://github.com/Arthurmrsilva/organizacao-recursos/commit/35b5fe5)
+- [Testes HTTP de edição](https://github.com/Arthurmrsilva/organizacao-recursos/commit/b9d752d)
+- [Correção dos filtros](https://github.com/Arthurmrsilva/organizacao-recursos/commit/9e94725)
+- [Notificações](https://github.com/Arthurmrsilva/organizacao-recursos/commit/5a18890)
 
 ### Organização das evidências
 
 Os prints do pacote de entrega devem informar:
 
 - Cenário e data.
-- Resultado esperado.
-- Resultado observado.
+- Resultado esperado e observado.
 - Requisito ou regra relacionado.
 - Commit associado, quando aplicável.
 
@@ -188,17 +207,17 @@ A aprovação do workflow não substitui revisão por outro integrante.
 | Testes unitários isolados | Regras sem dependências reais | Pendente de ampliação; testes de serviço utilizam persistência real |
 | Testes de integração | Persistência e integração das camadas | Parcial: SQLite temporário e cliente Flask |
 | Testes em container | Banco com Testcontainers | Pendente |
-| Integrações externas | WireMock quando aplicável | Pendente de definição |
+| Integrações externas | WireMock quando aplicável | Sem integração externa implementada; avisos internos adotados para RF11 |
 | HTTP em caixa-preta | Acesso externo por HTTP | Pendente |
 | Testes ponta a ponta | Automação no navegador | Pendente |
 | Concorrência | Uma única reserva aceita para o mesmo período | Verificado no serviço; HTTP e carga pendentes |
 | TDD ou BDD | Funcionalidade com evidências | RED e GREEN registrados; consolidar documentação |
-| CI | Execução em push e Pull Requests | Confirmado até o commit 35b5fe5; execuções #53 e #54 aprovadas |
+| CI | Execução em push e Pull Requests | Verificada em etapas anteriores; execução de notificações informada como aprovada |
 | Análise estática | Integração ao SonarCloud | Pendente |
 | Carga | Plano e resultados com JMeter | Pendente |
 | Revisão por pares | Revisão de outro integrante | Pendente |
 | Arquitetura | C4, sequências, utility tree, riscos, trade-offs e ADRs | Pendente |
-| Gestão de defeitos | Registro, prioridade, correção e reteste | Pendente de consolidação |
+| Gestão de defeitos | Registro, prioridade, correção e reteste | Parcial: correção do filtro documentada; consolidar registro de defeitos |
 | Relatório final | Evidências, métricas e decisão de qualidade | Pendente |
 | Apresentação | Demonstração e domínio pelo grupo | Pendente |
 
@@ -211,59 +230,67 @@ A confirmação de aceitação de Python e das ferramentas equivalentes às cita
 - Consulta das próprias reservas.
 - Cancelamento pelo proprietário antes do início.
 - Situações permitidas: SOLICITADA e APROVADA.
-- Preservação do registro cancelado.
-- Liberação do período após cancelamento.
+- Preservação do registro e liberação do período.
 - 31 testes aprovados em 9,850 segundos.
 - Commit ecb0eb7.
 
-Naquela etapa, edição e auditoria ainda não estavam implementadas. Ambas foram acrescentadas posteriormente.
+Edição, auditoria e notificações foram acrescentadas posteriormente.
 
 ## 8. Histórico — Aprovação
 
 **Data:** 25/10/2026.
 
 - Responsável vinculado ao recurso por script local.
-- Aprovação e rejeição de solicitações dos recursos vinculados.
+- Aprovação e rejeição das solicitações vinculadas.
 - Verificações de perfil, vínculo, prazo, recurso ativo e conflito.
-- Temas por perfil: administrador azul, responsável roxo e solicitante verde.
+- Temas: administrador azul, responsável roxo e solicitante verde.
 - 56 testes aprovados.
 - Commits cca4432 e 9946585.
 - Actions #27 e #28 aprovados.
 
-Pendências: interface para vincular responsáveis e notificações.
+A interface para vincular responsáveis continua pendente.
 
-## 9. Histórico — Auditoria e filtros de reservas
+Avisos ao solicitante sobre aprovação e rejeição foram acrescentados em 28/10/2026.
 
-**Data inicial:** 25/10/2026.
+## 9. Auditoria e filtros de reservas
+
+**Implantação inicial:** 25/10/2026.
 
 - Auditoria de criação, cancelamento, aprovação e rejeição.
+- Posteriormente ampliada para retirada, devolução e alteração.
 - Autor, reserva, ação, horário e situações.
 - Gravação na mesma transação da operação.
 - Rollback conjunto em caso de falha.
 - Consulta dos 100 eventos mais recentes pelo administrador.
 - Acesso dos demais perfis bloqueado.
-- Filtros Ativas, Histórico e Todas.
-- Resultado histórico: 65 testes aprovados.
+- Resultado histórico inicial: 65 testes aprovados.
 - Commit db1e5e8; Actions #37 aprovado.
 
 ### Critério atual dos filtros
 
-- **Ativas:** SOLICITADA, APROVADA ou EM_USO com término posterior à consulta.
+Atualizado em 28/10/2026:
+
+- **Ativas:** todas as reservas EM_USO, mesmo após o prazo; SOLICITADA e APROVADA somente com término posterior à consulta.
 - **Histórico:** reservas que não atendem ao critério de Ativas.
 - **Todas:** todas as reservas do usuário conectado.
 
 O encerramento do período não altera automaticamente a situação.
 
-**Pendência conhecida:** manter EM_USO em Ativas mesmo após o término previsto, enquanto a devolução não ocorrer.
+Uma reserva EM_USO permanece ativa até a devolução. Quando o prazo termina, a tela apresenta um aviso de devolução pendente.
+
+### Ordenação
+
+- Ativas: início crescente e ID crescente.
+- Histórico e Todas: início decrescente e ID decrescente.
 
 ### Limitações da auditoria
 
 - Eventos anteriores à implantação não são reconstruídos.
 - Horários seguem o relógio local do servidor.
 - Consulta limitada a 100 eventos, sem paginação.
-- O nome do recurso exibido corresponde ao recurso atual da reserva.
-- Em alterações, os códigos anterior e novo do recurso ficam nos detalhes.
-- Testes HTTP atuais não comprovam sozinhos limite e ordenação.
+- O nome exibido corresponde ao recurso atual da reserva.
+- Em alterações, os códigos anterior e novo ficam nos detalhes.
+- Limite e ordenação da auditoria precisam de testes específicos.
 - Novas operações precisam registrar seus eventos.
 
 ## 10. Histórico — Manutenção
@@ -280,7 +307,7 @@ O encerramento do período não altera automaticamente a situação.
 - 12 testes de serviço e 9 testes HTTP.
 - Suíte histórica: 86 testes aprovados em 21,313 segundos.
 
-Autor e data de criação são registrados na tabela de manutenção. O cadastro não gera evento na auditoria de reservas.
+Autor e data ficam na tabela de manutenção. O cadastro não gera evento na auditoria de reservas.
 
 Pendências: edição e desativação pela interface, manutenção imediata e concorrência específica.
 
@@ -288,18 +315,17 @@ Pendências: edição e desativação pela interface, manutenção imediata e co
 
 **Data:** 26/10/2026.
 
-- Administrador gerencia movimentações de materiais.
+- Administrador gerencia movimentações.
 - Responsável gerencia materiais vinculados.
 - Retirada de reserva APROVADA durante o período permitido.
 - Bloqueio de recurso inativo, em manutenção ou já em uso.
 - Retirada: APROVADA → EM_USO.
 - Devolução: EM_USO → CONCLUIDA.
 - Devolução permitida após o prazo e com recurso inativo.
-- Auditoria de retirada e devolução.
+- Auditoria das movimentações.
 - 17 testes específicos.
 - Suíte histórica: 103 testes aprovados em 28,560 segundos.
-- Commit 22014eb.
-- Actions #45 e #46 aprovados.
+- Commit 22014eb; Actions #45 e #46 aprovados.
 
 ### Fluxo manual
 
@@ -315,7 +341,7 @@ Reserva nº 11 do Projetor 01, em 26/10/2026, das 20:15 às 21:15:
 8. Cartão removido das movimentações em andamento.
 9. Eventos nº 8 e nº 9 conferidos na auditoria.
 
-Os rótulos amigáveis Retirada e Devolução foram acrescentados posteriormente e conferidos na interface.
+Os rótulos Retirada e Devolução foram acrescentados posteriormente.
 
 Pendências: testes HTTP específicos, navegador, não comparecimento e revisão por colega.
 
@@ -330,13 +356,11 @@ Pendências: testes HTTP específicos, navegador, não comparecimento e revisão
 - Branches executados: 155 de 182 — 85,16%.
 - Metas atingidas no escopo e na versão medidos.
 - Relatórios: coverage.json e htmlcov/index.html.
-- Registro versionado no commit 400b119.
+- Commit 400b119.
 
 Esta medição não inclui templates, CSS, JavaScript nem scripts administrativos e de migração.
 
-Os resultados não representam conclusão do projeto nem comprovam ausência de defeitos.
-
-A versão atual possui alterações posteriores à medição. É necessário gerar novos relatórios para avaliar sua cobertura.
+A versão atual possui alterações posteriores. Os valores históricos não comprovam a cobertura atual, a conclusão do projeto ou a ausência de defeitos.
 
 ### Como medir novamente
 
@@ -356,12 +380,11 @@ A versão atual possui alterações posteriores à medição. É necessário ger
 .\.venv\Scripts\python.exe -m coverage html
 ```
 
-## 13. Atualização — Pesquisa por disponibilidade
+## 13. Pesquisa por disponibilidade
 
 **Data:** 27/10/2026.
 
-- Filtros opcionais de início e término.
-- Preenchimento dos dois campos quando houver pesquisa por período.
+- Filtros opcionais de início e término, preenchidos em conjunto.
 - Validação das datas e da ordem do período.
 - Exclusão de recursos com reservas sobrepostas em SOLICITADA, APROVADA ou EM_USO.
 - Exclusão de recursos com manutenção ativa sobreposta.
@@ -376,11 +399,11 @@ A versão atual possui alterações posteriores à medição. É necessário ger
 - 15 testes em test_disponibilidade.py.
 - Suíte de 118 testes aprovada em 48,257 segundos.
 - Commit 6b8d472.
-- Sala 101 excluída durante a manutenção.
-- Período consecutivo à manutenção permitido.
-- Período com término anterior ao início recusado.
+- Sala 101 excluída durante manutenção.
+- Período consecutivo permitido.
+- Término anterior ao início recusado.
 
-## 14. Atualização — Edição e detalhes de auditoria
+## 14. Edição e detalhes de auditoria
 
 **Data:** 27/10/2026.
 
@@ -388,89 +411,160 @@ A versão atual possui alterações posteriores à medição. É necessário ger
 
 - Edição pelo proprietário autenticado.
 - Permitida em SOLICITADA ou APROVADA antes do início.
-- Alteração de recurso, início, término e finalidade.
+- Alteração de recurso, período e finalidade.
 - Validação de usuário ativo, recurso ativo, datas e finalidade.
 - Verificação de conflitos e manutenção.
 - A própria reserva não é tratada como conflito.
 - Recursos restritos e professores voltam para SOLICITADA.
 - Recursos comuns ficam em APROVADA.
 - Solicitação sem mudança é recusada.
-- Edição e auditoria ocorrem na mesma transação.
+- Edição e auditoria na mesma transação.
 - Falha na auditoria desfaz a edição.
-- Evento ALTERACAO registra dados anteriores e novos.
-- Interface de auditoria apresenta antes e depois.
+- Evento ALTERACAO com dados anteriores e novos.
+- Interface apresenta antes e depois.
 
 ### Banco e migração
 
-- Coluna detalhes adicionada à auditoria.
-- Ação ALTERACAO incluída na restrição de ações válidas.
+- Coluna detalhes e ação ALTERACAO adicionadas à auditoria.
 - Backup criado antes da migração.
 - Migração executada com 9 registros preservados.
-- Registros antigos permanecem sem detalhes de alteração.
-- Testes automatizados da migração ainda pendentes.
+- Registros antigos permanecem sem detalhes.
+- Testes automatizados da migração pendentes.
 
-### Testes de serviço
+### Testes
 
-Arquivo: tests/test_edicao_reservas.py.
-
-24 métodos aprovados, incluindo:
-
-- Edição válida e detalhes de auditoria.
-- Mudança de período e recurso.
-- Liberação do recurso anterior.
-- Nova aprovação de recurso restrito ou professor.
-- Bloqueio de outro usuário e usuário inativo.
-- Reserva inexistente.
-- Estados não editáveis e reserva iniciada.
-- Finalidade, recurso e datas inválidos.
-- Conflitos e horários consecutivos.
-- Manutenção ativa e inativa.
-- Ausência de alterações.
-- Rollback quando a auditoria falha.
-
-### Testes HTTP
-
-Arquivo: tests/test_edicao_http.py.
-
-12 métodos aprovados em execução isolada, incluindo:
-
-- Login obrigatório em GET e POST.
-- Formulário preenchido para o proprietário.
-- Edição válida, redirecionamento e auditoria.
-- Bloqueio de outro usuário.
-- Reserva inexistente.
-- CSRF ausente e incorreto.
-- Dados inválidos preservados no formulário.
-- Bloqueio de reserva cancelada ou iniciada.
-- Perda de acesso de usuário inativo.
+- tests/test_edicao_reservas.py: 24 métodos.
+- tests/test_edicao_http.py: 12 métodos.
+- Validações, permissões, conflitos, manutenção, nova aprovação, auditoria e rollback.
+- Rotas com login obrigatório, isolamento, CSRF e recusas.
 
 ### Verificação manual
 
-- Reserva nº 9 aberta com os dados preenchidos.
+- Reserva nº 9 aberta com dados preenchidos.
 - Finalidade alterada para “Teste de edição da reserva.”
-- Mensagem de sucesso apresentada.
 - Tentativa para 01/11/2026, das 14:30 às 15:30, recusada por manutenção.
 - Período original das 16h às 17h preservado.
 - Evento nº 10 apresentou finalidade anterior e nova, autor e horário.
 
-### Versionamento e CI
+### Versionamento
 
-- Commit 35b5fe5: edição com auditoria e 24 testes de serviço.
-- Push confirmado na branch funcionalidade/login.
+- Commit 35b5fe5: edição com auditoria e testes de serviço.
 - Actions #53 e #54 aprovados.
-- Os 12 testes HTTP foram acrescentados depois desse commit.
-- Commit e CI dos testes HTTP ainda precisam ser registrados.
+- Commit b9d752d: testes HTTP e atualização do RTM.
+- Actions #55 e #56 aprovados.
 
-## 15. Próximas verificações
+## 15. Correção — Reservas em uso após o prazo
 
-- Consolidar resultado da suíte completa de 154 testes.
-- Versionar testes HTTP e esta atualização.
-- Confirmar CI do próximo commit.
-- Medir novamente cobertura.
-- Revisar filtro de materiais EM_USO com prazo encerrado.
-- Acrescentar testes HTTP de materiais.
-- Implementar notificações e relatórios.
+**Data:** 28/10/2026.
+
+### Problema
+
+O filtro Ativas exigia término futuro também para EM_USO. Assim, um material ainda não devolvido aparecia no Histórico após o prazo.
+
+### Correção
+
+- EM_USO permanece em Ativas independentemente do prazo.
+- SOLICITADA e APROVADA dependem de término futuro.
+- Histórico utiliza o complemento da condição de Ativas.
+- A interface apresenta aviso quando EM_USO atinge o término previsto.
+- A consulta não altera o estado nem registra uma devolução automática.
+
+### Verificação
+
+- 7 métodos acrescentados a test_minhas_reservas.py.
+- Arquivo passou de 3 para 10 métodos.
+- Testes de distribuição por estado e prazo.
+- Teste do instante exato do término com relógio fixo.
+- Testes de aviso, filtro inválido e ordenação.
+- Suíte de 161 testes aprovada em 54,707 segundos.
+- Commit 9e94725.
+- Actions #57 e #58 aprovados.
+
+## 16. Notificações internas
+
+**Data:** 28/10/2026.
+
+### Escopo
+
+Avisos internos persistidos no banco simulam notificações ao dono da reserva.
+
+Não há envio de e-mail, SMS, mensagem externa ou atualização automática em tempo real.
+
+### Eventos implementados
+
+| Operação | Aviso ao dono da reserva |
+| --- | --- |
+| Criação comum | Reserva criada e aprovada automaticamente |
+| Criação restrita ou professor | Solicitação aguardando aprovação |
+| Edição comum | Reserva alterada e aprovada |
+| Edição restrita ou professor | Solicitação aguardando nova aprovação |
+| Cancelamento | Reserva cancelada |
+| Aprovação | Reserva aprovada pelo responsável |
+| Rejeição | Reserva rejeitada pelo responsável |
+
+Retirada e devolução continuam registradas na auditoria, mas ainda não geram notificações internas.
+
+### Persistência e transação
+
+- Tabela notificacoes.
+- Destinatário, reserva, mensagem, data e leitura.
+- Avisos novos começam como não lidos.
+- Reserva, auditoria e aviso usam a mesma transação.
+- Falha na notificação desfaz a operação e a auditoria.
+- Operações recusadas não geram avisos de sucesso.
+- Avisos anteriores à implantação não são reconstruídos.
+
+### Consulta e leitura
+
+- GET /notificacoes exige autenticação.
+- Lista somente os avisos do usuário conectado.
+- Ordenação por data decrescente e ID decrescente.
+- POST /notificacoes/<id>/ler exige autenticação e CSRF.
+- O vínculo com o destinatário faz parte do UPDATE.
+- Outros usuários, responsáveis e administradores não marcam avisos alheios.
+- Aviso inexistente ou de outra pessoa retorna 404.
+- GET não marca leitura.
+- Repetir a marcação mantém o mesmo registro.
+- Avisos lidos permanecem na lista.
+- Botão Notificações disponível para todos os perfis autenticados.
+
+### Testes e evidências
+
+- tests/test_notificacoes.py: 24 métodos.
+- Geração dos avisos e destinatário correto.
+- Aprovação e rejeição notificam o solicitante.
+- Conflito não cria aviso extra.
+- Rollback de criação, edição, cancelamento, aprovação e rejeição quando o aviso falha.
+- Login, isolamento, CSRF e leitura persistida.
+- Repetição da leitura sem duplicação.
+- Ordenação e escape de HTML.
+- Botão na página inicial para os três perfis.
+- Verificação manual de aviso da edição da reserva nº 9.
+- Verificação manual de mudança para Lida e remoção do botão.
+- Suíte completa de 185 testes informada como aprovada.
+- Commit 5a18890 enviado.
+- GitHub Actions informado como aprovado.
+
+### Limitações atuais
+
+- Sem paginação ou filtro de leitura.
+- Sem contador de não lidas no menu.
+- Sem aviso ao responsável sobre nova solicitação.
+- Sem avisos de retirada, devolução ou lembrete de prazo.
+- Consulta da página não marca avisos automaticamente.
+- Testes de usuário inativo específicos dessas rotas podem ser ampliados.
+
+## 17. Próximas verificações
+
+- Implementar relatórios de utilização, horas e conflitos evitados.
+- Definir como registrar conflitos recusados para produzir indicadores verificáveis.
 - Implementar registro de não comparecimento.
-- Ampliar documentação de instalação e fluxos.
-- Completar verificações de arquitetura, segurança, carga e navegador.
+- Acrescentar testes HTTP de materiais.
+- Medir novamente a cobertura.
+- Testar a migração da auditoria.
+- Ampliar instalação e fluxos no README.
+- Consolidar evidências TDD ou BDD.
+- Completar arquitetura, análise estática, segurança, carga e navegador.
+- Consolidar registro de defeitos e retestes.
 - Obter revisão por outro integrante.
+- Preparar relatório final e apresentação.
