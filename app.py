@@ -11,7 +11,7 @@ from flask import (
     session,
     url_for,
 )
-from sqlalchemy import insert, select
+from sqlalchemy import insert, select, update
 from werkzeug.security import check_password_hash
 
 from banco import (
@@ -19,6 +19,7 @@ from banco import (
     criar_tabelas,
     engine,
     manutencoes,
+    notificacoes,
     recursos,
     reservas,
     usuarios,
@@ -172,7 +173,6 @@ def inicio():
 
     if inicio_periodo is not None and fim_periodo is not None and not erros:
         # Horários consecutivos são permitidos.
-        # Somente períodos sobrepostos bloqueiam a disponibilidade.
         reserva_conflitante = (
             select(reservas.c.id)
             .where(
@@ -397,7 +397,6 @@ def editar_minha_reserva(reserva_id):
     if g.usuario is None:
         return redirect(url_for("login"))
 
-    # O usuário só pode consultar o formulário das próprias reservas.
     with engine.connect() as conexao:
         reserva = conexao.execute(
             select(reservas).where(
@@ -440,7 +439,6 @@ def editar_minha_reserva(reserva_id):
         }
 
         try:
-            # O serviço confere novamente as regras na transação.
             alterar_reserva(
                 engine,
                 g.usuario["id"],
@@ -486,7 +484,6 @@ def minhas_reservas():
     agora = datetime.now()
 
     # Em uso continua ativo até a devolução, mesmo após o prazo.
-    # Solicitadas e aprovadas ficam ativas enquanto o prazo não terminou.
     condicao_ativa = (
         (reservas.c.status == "EM_USO")
         | (
@@ -882,6 +879,62 @@ def movimentar_material_reservado(reserva_id):
         session["mensagem_material"] = mensagem
 
     return redirect(url_for("movimentacoes_materiais"))
+
+
+@app.route("/notificacoes")
+def minhas_notificacoes():
+    if g.usuario is None:
+        return redirect(url_for("login"))
+
+    # Todos os perfis consultam somente os próprios avisos.
+    consulta = (
+        select(notificacoes)
+        .where(
+            notificacoes.c.usuario_id == g.usuario["id"]
+        )
+        .order_by(
+            notificacoes.c.criado_em.desc(),
+            notificacoes.c.id.desc(),
+        )
+    )
+
+    with engine.connect() as conexao:
+        lista = conexao.execute(
+            consulta
+        ).mappings().all()
+
+    return render_template(
+        "notificacoes.html",
+        notificacoes=lista,
+        mensagem=session.pop("mensagem_notificacao", None),
+    )
+
+
+@app.route(
+    "/notificacoes/<int:notificacao_id>/ler",
+    methods=["POST"],
+)
+def marcar_notificacao_lida(notificacao_id):
+    if g.usuario is None:
+        return redirect(url_for("login"))
+
+    # O vínculo com o usuário faz parte do próprio UPDATE.
+    # Assim, nem o administrador marca avisos de outras pessoas.
+    with engine.begin() as conexao:
+        resultado = conexao.execute(
+            update(notificacoes)
+            .where(
+                notificacoes.c.id == notificacao_id,
+                notificacoes.c.usuario_id == g.usuario["id"],
+            )
+            .values(lida=True)
+        )
+
+        if resultado.rowcount == 0:
+            return "Notificação não encontrada para este usuário.", 404
+
+    session["mensagem_notificacao"] = "Notificação marcada como lida."
+    return redirect(url_for("minhas_notificacoes"))
 
 
 if __name__ == "__main__":

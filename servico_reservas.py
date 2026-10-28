@@ -6,10 +6,29 @@ from sqlalchemy import insert, select, update
 from banco import (
     auditoria_reservas,
     manutencoes,
+    notificacoes,
     recursos,
     reservas,
     usuarios,
 )
+
+
+def registrar_notificacao(
+    conexao,
+    usuario_id,
+    reserva_id,
+    mensagem,
+):
+    # Usa a transação da reserva, sem commit separado.
+    conexao.execute(
+        insert(notificacoes).values(
+            usuario_id=usuario_id,
+            reserva_id=reserva_id,
+            mensagem=mensagem,
+            criado_em=datetime.now(),
+            lida=False,
+        )
+    )
 
 
 def registrar_auditoria(
@@ -278,6 +297,24 @@ def criar_reserva(engine, usuario_id, dados):
                 status_novo=status,
             )
 
+            if precisa_aprovacao:
+                mensagem = (
+                    f"Reserva nº {reserva_id} criada. "
+                    "Sua solicitação está aguardando aprovação."
+                )
+            else:
+                mensagem = (
+                    f"Reserva nº {reserva_id} criada "
+                    "e aprovada automaticamente."
+                )
+
+            registrar_notificacao(
+                conexao=conexao,
+                usuario_id=usuario_id,
+                reserva_id=reserva_id,
+                mensagem=mensagem,
+            )
+
             conexao.commit()
             return reserva_id
 
@@ -325,8 +362,7 @@ def alterar_reserva(engine, usuario_id, reserva_id, dados):
 
     with engine.connect() as conexao:
         try:
-            # Impede que outra gravação ocupe o período
-            # entre a verificação e a alteração.
+            # Impede outra gravação entre a verificação e a alteração.
             conexao.exec_driver_sql("BEGIN IMMEDIATE")
 
             usuario = conexao.execute(
@@ -420,8 +456,7 @@ def alterar_reserva(engine, usuario_id, reserva_id, dados):
                 or recurso["tipo"] == "PROFESSOR"
             )
 
-            # Alterações em recursos restritos e professores
-            # precisam passar novamente pela aprovação.
+            # Recursos restritos e professores passam por nova aprovação.
             status_novo = (
                 "SOLICITADA"
                 if precisa_aprovacao
@@ -470,7 +505,25 @@ def alterar_reserva(engine, usuario_id, reserva_id, dados):
                 detalhes=detalhes,
             )
 
-            # Alteração e auditoria são confirmadas juntas.
+            if precisa_aprovacao:
+                mensagem = (
+                    f"Reserva nº {reserva_id} alterada. "
+                    "Sua solicitação está aguardando nova aprovação."
+                )
+            else:
+                mensagem = (
+                    f"Reserva nº {reserva_id} alterada. "
+                    "A reserva está aprovada."
+                )
+
+            registrar_notificacao(
+                conexao=conexao,
+                usuario_id=reserva["usuario_id"],
+                reserva_id=reserva_id,
+                mensagem=mensagem,
+            )
+
+            # Reserva, auditoria e notificação são confirmadas juntas.
             conexao.commit()
             return reserva_id
 
@@ -524,6 +577,13 @@ def cancelar_reserva(engine, usuario_id, reserva_id):
                 acao="CANCELAMENTO",
                 status_anterior=reserva["status"],
                 status_novo="CANCELADA",
+            )
+
+            registrar_notificacao(
+                conexao=conexao,
+                usuario_id=reserva["usuario_id"],
+                reserva_id=reserva_id,
+                mensagem=f"Reserva nº {reserva_id} cancelada.",
             )
 
             conexao.commit()
@@ -638,6 +698,23 @@ def avaliar_reserva(engine, usuario_id, reserva_id, decisao):
                 acao=acao,
                 status_anterior=reserva["status"],
                 status_novo=decisao,
+            )
+
+            situacao = (
+                "aprovada"
+                if decisao == "APROVADA"
+                else "rejeitada"
+            )
+
+            # O destinatário é o solicitante, não quem avaliou.
+            registrar_notificacao(
+                conexao=conexao,
+                usuario_id=reserva["usuario_id"],
+                reserva_id=reserva_id,
+                mensagem=(
+                    f"Reserva nº {reserva_id} "
+                    f"{situacao} pelo responsável."
+                ),
             )
 
             conexao.commit()

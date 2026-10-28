@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Notificações — Organização de Recursos</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body class="perfil-{{ g.usuario.perfil|lower if g.usuario else 'visitante' }}">
+    <header>
+        <h1>Organização de Recursos</h1>
+        <p>Acompanhe os avisos sobre suas reservas</p>
+    </header>
+
+    <main>
+        <section class="lista-recursos">
+            <h2>Minhas notificações</h2>
+
+            <p>
+                Consulte os avisos do mais recente para o mais antigo.
+                Marcar um aviso como lido mantém o registro nesta lista.
+            </p>
+
+            {% if mensagem %}
+            <div role="status">
+                <p>{{ mensagem }}</p>
+            </div>
+            {% endif %}
+
+            <div class="grade-recursos">
+                {% for notificacao in notificacoes %}
+                <article class="recurso">
+                    <h3>
+                        {% if notificacao.lida %}
+                            Notificação lida
+                        {% else %}
+                            Nova notificação
+                        {% endif %}
+                    </h3>
+
+                    <p>
+                        <strong>Reserva:</strong>
+                        nº {{ notificacao.reserva_id }}
+                    </p>
+
+                    <p>{{ notificacao.mensagem }}</p>
+
+                    <p>
+                        <strong>Recebida em:</strong>
+                        {{ notificacao.criado_em.strftime("%d/%m/%Y às %H:%M:%S") }}
+                    </p>
+
+                    <p>
+                        <strong>Situação:</strong>
+                        {% if notificacao.lida %}
+                            Lida
+                        {% else %}
+                            Não lida
+                        {% endif %}
+                    </p>
+
+                    {% if not notificacao.lida %}
+                    <form method="post"
+                          action="{{ url_for(
+                              'marcar_notificacao_lida',
+                              notificacao_id=notificacao.id
+                          ) }}">
+
+                        <input type="hidden"
+                               name="csrf_token"
+                               value="{{ session['csrf_token'] }}">
+
+                        <button class="botao" type="submit">
+                            Marcar como lida
+                        </button>
+                    </form>
+                    {% endif %}
+                </article>
+                {% else %}
+                <p>Você ainda não possui notificações.</p>
+                {% endfor %}
+            </div>
+
+            <p>
+                <a class="botao"
+                   href="{{ url_for('minhas_reservas') }}">
+                    Minhas reservas
+                </a>
+            </p>
+
+            <p>
+                <a class="botao botao-secundario"
+                   href="{{ url_for('inicio') }}">
+                    Voltar ao início
+                </a>
+            </p>
+        </section>
+    </main>
+
+    <footer>
+        <p>Projeto de Qualidade de Software — ADS, 4º semestre</p>
+        <p>
+            Arthur Mendes, Robert Oliveira,
+            Nicolas Ferreira e Murilo Henrique
+        </p>
+    </footer>
+</body>
+</html>

@@ -190,6 +190,34 @@ manutencoes = Table(
     ),
 )
 
+# Avisos internos que simulam notificações aos usuários.
+notificacoes = Table(
+    "notificacoes",
+    metadata,
+    Column("id", Integer, primary_key=True),
+    Column(
+        "usuario_id",
+        Integer,
+        ForeignKey("usuarios.id"),
+        nullable=False,
+        index=True,
+    ),
+    Column(
+        "reserva_id",
+        Integer,
+        ForeignKey("reservas.id"),
+        nullable=False,
+        index=True,
+    ),
+    Column("mensagem", String(300), nullable=False),
+    Column("criado_em", DateTime, nullable=False),
+    Column("lida", Boolean, nullable=False, default=False),
+    CheckConstraint(
+        "length(trim(mensagem)) BETWEEN 1 AND 300",
+        name="mensagem_notificacao_valida",
+    ),
+)
+
 
 def criar_tabelas():
     metadata.create_all(engine)

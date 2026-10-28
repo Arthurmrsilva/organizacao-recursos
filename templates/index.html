@@ -59,6 +59,13 @@
                 </a>
             </p>
 
+            <p>
+                <a class="botao botao-secundario"
+                   href="{{ url_for('minhas_notificacoes') }}">
+                    Notificações
+                </a>
+            </p>
+
             {% if g.usuario.perfil == "RESPONSAVEL" %}
             <p>
                 <a class="botao"
@@ -149,12 +156,14 @@
         <section class="aviso">
             <h2>Projeto em desenvolvimento</h2>
             <p>
-                Login, cadastro e consulta de recursos, criação,
-                cancelamento e aprovação de reservas estão disponíveis.
-                Também é possível consultar suas reservas por situação.
-                O administrador pode acessar a auditoria e cadastrar
-                períodos de manutenção, que impedem reservas
-                nos horários bloqueados.
+                Login, cadastro e consulta de recursos, pesquisa por
+                disponibilidade, criação, edição, cancelamento
+                e aprovação de reservas estão disponíveis.
+                Consulte suas reservas por situação e acompanhe
+                os avisos de criação, alteração, cancelamento,
+                aprovação e rejeição em Notificações.
+                O administrador pode consultar a auditoria
+                e cadastrar períodos de manutenção.
                 Administradores e responsáveis podem registrar
                 retiradas e devoluções de materiais, conforme
                 suas permissões.
