@@ -14,13 +14,14 @@ As tabelas apresentam a situação atual. Os registros históricos preservam os 
 - **Parcial:** parte do requisito ou da verificação permanece pendente.
 - **Pendente:** implementação ou verificação ainda não realizada.
 - Testes planejados não representam resultados aprovados.
-- Quantidade de testes não representa cobertura nem percentual de conclusão.
+- Quantidade de testes e cobertura não representam percentual de conclusão do projeto.
+- Aprovação dos testes não comprova ausência de defeitos.
 
 ## 2. Requisitos funcionais
 
 | ID | Requisito | Risco | Testes e verificações | Situação atual |
 | --- | --- | --- | --- | --- |
-| RF01 | Autenticação e autorização por perfil | Acesso indevido | Testes de consulta, cancelamento, aprovação, auditoria, manutenção, edição, notificações e permissões no serviço de materiais | Parcial: testes HTTP específicos de materiais pendentes |
+| RF01 | Autenticação e autorização por perfil | Acesso indevido | Testes de consulta, cancelamento, aprovação, auditoria, manutenção, edição, notificações e relatórios; permissões no serviço de materiais | Parcial: testes HTTP específicos de materiais pendentes |
 | RF02 | Cadastro e consulta de salas, professores e materiais | Dados inválidos | Cadastro, validação, autorização e consulta em test_consulta.py | Implementado e verificado; revisão por colega pendente |
 | RF03 | Pesquisa por tipo, capacidade, localização, competência e disponibilidade | Resultado incorreto | test_consulta.py, test_disponibilidade.py e verificações manuais | Implementado e verificado com cliente Flask e manualmente; navegador automatizado pendente |
 | RF04 | Criar, alterar e cancelar reservas | Reserva incorreta ou alteração indevida | Testes de reservas, listagem, cancelamento e edição nos serviços e rotas | Implementado e verificado no escopo atual |
@@ -31,7 +32,7 @@ As tabelas apresentam a situação atual. Os registros históricos preservam os 
 | RF09 | Registrar retirada e devolução de materiais | Perda de controle dos equipamentos | test_materiais.py e fluxo manual da reserva nº 11 | Implementado e verificado no serviço e manualmente; testes HTTP específicos e navegador pendentes |
 | RF10 | Manter histórico auditável | Mudanças sem rastreio | Testes de auditoria, materiais, edição e rollback; conferência manual | Parcial: operações atuais auditadas; ampliar para futuras transições |
 | RF11 | Notificação simulada ou integração externa | Usuário não informado | test_notificacoes.py e verificação manual de geração e leitura | Implementado como avisos internos para criação, edição, cancelamento, aprovação e rejeição |
-| RF12 | Relatórios de utilização, horas e conflitos evitados | Indicadores incorretos | Planejado: comparar resultados com dados conhecidos | Pendente |
+| RF12 | Relatórios de utilização, horas e conflitos evitados | Indicadores incorretos | test_relatorios.py, test_relatorios_http.py e verificações manuais | Parcial: contagens e horas previstas implementadas; indicador de conflitos evitados e tempo real de utilização não implementados |
 | RF13 | Interface responsiva e erros compreensíveis | Dificuldade de uso | Testes HTTP existentes e verificações manuais | Parcial: avaliação em diferentes telas e testes de navegador pendentes |
 | RF14 | Documentação da API ou dos fluxos públicos | Dificuldade de instalar e utilizar | README inicial e esta matriz | Parcial: ampliar instalação, fluxos e interfaces |
 
@@ -54,13 +55,16 @@ As tabelas apresentam a situação atual. Os registros históricos preservam os 
 ### Resultado local mais recente
 
 - Data: 28/10/2026.
-- Suíte completa: 185 testes aprovados, conforme confirmação do executor.
-- Resultado informado: OK.
-- Tempo da execução de 185 testes: não registrado nesta matriz.
-- Testes específicos de notificações: 24 métodos aprovados isoladamente.
-- Execução anterior documentada por imagem: 161 testes aprovados em 54,707 segundos.
+- Suíte completa: **213 testes aprovados**.
+- Resultado: **OK**.
+- Duração: **58,742 segundos**, na execução com cobertura.
+- Evidência: imagem do terminal apresentada pelo executor.
+- Testes específicos do serviço de relatórios: 16 métodos.
+- Testes HTTP de relatórios: 12 métodos.
+- Os 12 testes HTTP passaram isoladamente em 2,484 segundos.
+- Medição atual de cobertura detalhada na seção 12.
 
-Alguns métodos utilizam `subTest` para verificar vários cenários.
+Alguns métodos utilizam `subTest` para verificar vários cenários. A contagem de métodos não corresponde necessariamente à quantidade de cenários.
 
 Os testes de serviço com persistência real verificam integração com SQLite. Não devem ser classificados integralmente como testes unitários isolados.
 
@@ -83,6 +87,8 @@ Os testes de serviço com persistência real verificam integração com SQLite. 
 | tests/test_edicao_reservas.py | Edição, permissões, validações, conflitos, manutenção, nova aprovação, auditoria e rollback |
 | tests/test_edicao_http.py | Acesso à edição, formulário preenchido, persistência, auditoria, CSRF e recusas |
 | tests/test_notificacoes.py | Geração, destinatário, leitura, isolamento, CSRF, ordenação, escape de HTML e rollback |
+| tests/test_relatorios.py | Permissões, datas, contagens por situação, agrupamento, horas previstas, recorte de períodos, arredondamento e indicador indisponível |
+| tests/test_relatorios_http.py | Login, perfis, usuário inativo, filtros, erros, preservação dos campos, resultados vazios e consulta sem alteração dos dados |
 
 ### Como executar
 
@@ -101,7 +107,7 @@ Na raiz do projeto:
 - Os detalhes de auditoria foram conferidos manualmente na interface.
 - Testes externos por HTTP, navegador e carga permanecem pendentes.
 - Verificação com banco em container permanece pendente.
-- A cobertura precisa ser medida novamente na versão atual.
+- A cobertura atual não inclui templates, CSS, JavaScript nem scripts administrativos e de migração.
 - A migração da auditoria foi executada manualmente; seus testes automatizados permanecem pendentes.
 
 ## 5. Evidências
@@ -139,7 +145,7 @@ Na raiz do projeto:
 | EV29 | Commit 22014eb: gestão de materiais com auditoria e testes; push confirmado |
 | EV30 | GitHub Actions #45 aprovado em 17 segundos |
 | EV31 | GitHub Actions #46 aprovado em 23 segundos |
-| EV32 | Medição histórica: 89,87% de linhas e 85,16% de branches nos quatro arquivos principais |
+| EV32 | Medição histórica: 89,87% de linhas e 85,16% de ramificações nos quatro arquivos principais |
 | EV33 | Commit 400b119: registro da medição de cobertura |
 | EV34 | Commit 6b8d472: pesquisa por disponibilidade com 15 testes; push confirmado |
 | EV35 | Suíte de 118 testes aprovada em 48,257 segundos após disponibilidade |
@@ -170,6 +176,17 @@ Na raiz do projeto:
 | EV60 | Suíte completa de 185 testes informada como aprovada em 28/10/2026 |
 | EV61 | Commit 5a18890: notificações internas com leitura e 24 testes; push confirmado e árvore limpa |
 | EV62 | GitHub Actions do commit 5a18890 informado como aprovado; número e duração não registrados |
+| EV63 | 16 testes do serviço de relatórios aprovados; suíte de 201 testes informada como aprovada |
+| EV64 | Consulta manual sem datas apresentou 11 reservas e 4,33 horas previstas |
+| EV65 | Filtro de 01/11/2026 a 01/11/2026 apresentou uma reserva da Sala 101 e 1,00 hora prevista |
+| EV66 | Período de 02/11/2026 a 01/11/2026 recusado com mensagem; campos preservados e indicadores não apresentados |
+| EV67 | 12 testes HTTP de relatórios aprovados em 2,484 segundos |
+| EV68 | Commit 2ae1f0c: relatórios administrativos com filtros e testes; push confirmado e árvore limpa |
+| EV69 | GitHub Actions do commit 2ae1f0c informado como aprovado; número e duração não registrados |
+| EV70 | Execução com cobertura em 28/10/2026: 213 testes aprovados em 58,742 segundos |
+| EV71 | Cobertura atual: 93,31% de linhas e 90,23% de ramificações nos cinco módulos medidos |
+| EV72 | servico_relatorios.py apresentou 100% de cobertura combinada de linhas e ramificações |
+| EV73 | coverage.json atualizado localmente e percentuais separados conferidos no terminal |
 
 ### Links
 
@@ -182,6 +199,7 @@ Na raiz do projeto:
 - [Testes HTTP de edição](https://github.com/Arthurmrsilva/organizacao-recursos/commit/b9d752d)
 - [Correção dos filtros](https://github.com/Arthurmrsilva/organizacao-recursos/commit/9e94725)
 - [Notificações](https://github.com/Arthurmrsilva/organizacao-recursos/commit/5a18890)
+- [Relatórios](https://github.com/Arthurmrsilva/organizacao-recursos/commit/2ae1f0c)
 
 ### Organização das evidências
 
@@ -200,8 +218,8 @@ A aprovação do workflow não substitui revisão por outro integrante.
 
 | Item | Meta ou exigência | Situação |
 | --- | --- | --- |
-| Cobertura de linhas | Pelo menos 80% | Medição histórica de 89,87%; medir novamente a versão atual |
-| Cobertura de branches | Pelo menos 70% | Medição histórica de 85,16%; medir novamente a versão atual |
+| Cobertura de linhas | Pelo menos 80% | Atingida no escopo atual medido: 93,31% |
+| Cobertura de ramificações | Pelo menos 70% | Atingida no escopo atual medido: 90,23% |
 | Rastreabilidade crítica | 100% das regras críticas ligadas a testes e evidências | Parcial |
 | Defeitos e vulnerabilidades críticas | Nenhum conhecido pendente na entrega | Verificação completa pendente |
 | Testes unitários isolados | Regras sem dependências reais | Pendente de ampliação; testes de serviço utilizam persistência real |
@@ -212,7 +230,7 @@ A aprovação do workflow não substitui revisão por outro integrante.
 | Testes ponta a ponta | Automação no navegador | Pendente |
 | Concorrência | Uma única reserva aceita para o mesmo período | Verificado no serviço; HTTP e carga pendentes |
 | TDD ou BDD | Funcionalidade com evidências | RED e GREEN registrados; consolidar documentação |
-| CI | Execução em push e Pull Requests | Verificada em etapas anteriores; execução de notificações informada como aprovada |
+| CI | Execução em push e Pull Requests | Verificada em etapas anteriores; execução do commit de relatórios informada como aprovada |
 | Análise estática | Integração ao SonarCloud | Pendente |
 | Carga | Plano e resultados com JMeter | Pendente |
 | Revisão por pares | Revisão de outro integrante | Pendente |
@@ -222,6 +240,8 @@ A aprovação do workflow não substitui revisão por outro integrante.
 | Apresentação | Demonstração e domínio pelo grupo | Pendente |
 
 A confirmação de aceitação de Python e das ferramentas equivalentes às citadas no enunciado permanece pendente de registro.
+
+As metas de cobertura foram atingidas nos módulos medidos. Isso não significa que todas as exigências de qualidade ou regras críticas estejam concluídas.
 
 ## 7. Histórico — Cancelamento
 
@@ -345,7 +365,40 @@ Os rótulos Retirada e Devolução foram acrescentados posteriormente.
 
 Pendências: testes HTTP específicos, navegador, não comparecimento e revisão por colega.
 
-## 12. Medição histórica de cobertura
+## 12. Cobertura de testes
+
+### Medição atual
+
+**Data:** 28/10/2026.  
+**Base funcional:** commit 2ae1f0c, antes desta atualização documental.
+
+- Ferramenta: coverage.py, com medição de ramificações habilitada.
+- Execução: 213 testes aprovados em 58,742 segundos.
+- Escopo: app.py, banco.py, servico_reservas.py, servico_materiais.py e servico_relatorios.py.
+- Linhas executadas: **628 de 673 — 93,31%**.
+- Ramificações executadas: **231 de 256 — 90,23%**.
+- Cobertura combinada exibida no terminal: **92%**, arredondada pela ferramenta.
+- Relatório JSON atualizado localmente: coverage.json.
+- As metas de 80% de linhas e 70% de ramificações foram atingidas nesse escopo.
+
+| Módulo | Cobertura combinada exibida |
+| --- | --- |
+| app.py | 89% |
+| banco.py | 84% |
+| servico_materiais.py | 97% |
+| servico_relatorios.py | 100% |
+| servico_reservas.py | 95% |
+| Total | 92% |
+
+A coluna de cobertura combinada considera linhas e ramificações. Ela não deve ser confundida com o percentual separado de linhas.
+
+A medição não inclui templates, CSS, JavaScript nem scripts administrativos e de migração.
+
+O resultado de 100% em servico_relatorios.py indica que as linhas e ramificações medidas foram executadas. Não comprova ausência de defeitos nem cobertura de todos os valores de entrada possíveis.
+
+O relatório HTML precisa ser regenerado para representar esta execução. Um HTML de execução anterior não comprova os resultados atuais.
+
+### Medição histórica
 
 **Data:** 26/10/2026.
 
@@ -353,19 +406,16 @@ Pendências: testes HTTP específicos, navegador, não comparecimento e revisão
 - Execução: 103 testes aprovados em 26,625 segundos.
 - Escopo: app.py, banco.py, servico_reservas.py e servico_materiais.py.
 - Linhas executadas: 417 de 464 — 89,87%.
-- Branches executados: 155 de 182 — 85,16%.
-- Metas atingidas no escopo e na versão medidos.
-- Relatórios: coverage.json e htmlcov/index.html.
+- Ramificações executadas: 155 de 182 — 85,16%.
+- Relatórios registrados naquela etapa: coverage.json e htmlcov/index.html.
 - Commit 400b119.
 
-Esta medição não inclui templates, CSS, JavaScript nem scripts administrativos e de migração.
-
-A versão atual possui alterações posteriores. Os valores históricos não comprovam a cobertura atual, a conclusão do projeto ou a ausência de defeitos.
+A medição histórica utilizou uma versão e um escopo diferentes. Seus valores são preservados apenas como histórico.
 
 ### Como medir novamente
 
 ```powershell
-.\.venv\Scripts\python.exe -m coverage run --branch --source=app,banco,servico_reservas,servico_materiais -m unittest discover -s tests -v
+.\.venv\Scripts\python.exe -m coverage run --branch --source=app,banco,servico_reservas,servico_materiais,servico_relatorios -m unittest discover -s tests -v
 ```
 
 ```powershell
@@ -375,6 +425,14 @@ A versão atual possui alterações posteriores. Os valores históricos não com
 ```powershell
 .\.venv\Scripts\python.exe -m coverage json -o coverage.json
 ```
+
+Para exibir os percentuais separados:
+
+```powershell
+.\.venv\Scripts\python.exe -c "import json; t=json.load(open('coverage.json'))['totals']; print('Linhas: {:.2f}%'.format(100*t['covered_lines']/t['num_statements'])); print('Ramificacoes: {:.2f}%'.format(100*t['covered_branches']/t['num_branches']))"
+```
+
+Para gerar o relatório HTML da execução atual:
 
 ```powershell
 .\.venv\Scripts\python.exe -m coverage html
@@ -541,7 +599,7 @@ Retirada e devolução continuam registradas na auditoria, mas ainda não geram 
 - Botão na página inicial para os três perfis.
 - Verificação manual de aviso da edição da reserva nº 9.
 - Verificação manual de mudança para Lida e remoção do botão.
-- Suíte completa de 185 testes informada como aprovada.
+- Suíte histórica de 185 testes informada como aprovada.
 - Commit 5a18890 enviado.
 - GitHub Actions informado como aprovado.
 
@@ -554,14 +612,123 @@ Retirada e devolução continuam registradas na auditoria, mas ainda não geram 
 - Consulta da página não marca avisos automaticamente.
 - Testes de usuário inativo específicos dessas rotas podem ser ampliados.
 
-## 17. Próximas verificações
+## 17. Relatórios administrativos
 
-- Implementar relatórios de utilização, horas e conflitos evitados.
-- Definir como registrar conflitos recusados para produzir indicadores verificáveis.
+**Data:** 28/10/2026.  
+**Commit:** 2ae1f0c.
+
+### Acesso e interface
+
+- Consulta em GET /relatorios.
+- Login obrigatório.
+- Somente administrador ativo pode consultar.
+- Solicitantes e responsáveis recebem HTTP 403.
+- Usuário inativo perde a sessão e é redirecionado ao login.
+- Serviço também verifica o perfil e a situação do usuário.
+- Botão Relatórios acrescentado ao bloco administrativo do menu.
+- Filtros de data inicial e final.
+- Campos vazios consultam todo o histórico.
+- Erros de filtro retornam HTTP 400 e preservam os valores informados.
+- Consulta não altera reservas.
+
+### Critério do período
+
+- As duas datas devem ser preenchidas em conjunto.
+- Data final não pode ser anterior à inicial.
+- O mesmo dia pode ser usado como início e fim.
+- O dia final é incluído por inteiro.
+- Internamente, o limite final corresponde ao início do dia seguinte.
+- Reservas que atravessam o período são consideradas.
+- Reservas que apenas encostam nos limites, sem sobreposição, ficam fora.
+- Para as horas, somente a parte sobreposta ao período entra no cálculo.
+
+### Indicadores implementados
+
+- Quantidade total de reservas encontradas.
+- Quantidade por cada uma das sete situações.
+- Agrupamento por recurso.
+- Quantidade de reservas por recurso.
+- Quantidade de reservas consideradas no cálculo de horas.
+- Horas previstas por recurso e no total.
+- Recursos inativos também aparecem quando possuem reservas no período.
+- Recursos sem reservas no período não aparecem no agrupamento.
+
+### Interpretação das horas
+
+As horas previstas utilizam os períodos das reservas em:
+
+- APROVADA.
+- EM_USO.
+- CONCLUIDA.
+
+SOLICITADA, REJEITADA, CANCELADA e NAO_COMPARECEU entram nas contagens, mas não acrescentam horas previstas.
+
+As horas são somadas antes do arredondamento para duas casas decimais.
+
+O indicador representa tempo reservado, não tempo real entre retirada e devolução. A situação CONCLUIDA também utiliza o período previsto da reserva.
+
+### Conflitos evitados
+
+O indicador permanece indisponível porque as tentativas recusadas por conflito ainda não são persistidas para essa finalidade.
+
+- O serviço retorna ausência de valor para o indicador.
+- A tela apresenta “Indicador ainda indisponível.”
+- Ausência de dados não é apresentada como zero.
+- Tentativas anteriores não podem ser reconstruídas com precisão a partir das reservas aceitas.
+- Registro, definição do período de contagem e testes desse indicador permanecem pendentes.
+
+### Testes
+
+- tests/test_relatorios.py: 16 métodos.
+- tests/test_relatorios_http.py: 12 métodos.
+- Permissões no serviço e na rota.
+- Datas vazias, incompletas, inválidas e invertidas.
+- Limite máximo de data.
+- Contagem das sete situações.
+- Agrupamento de recursos.
+- Inclusão de recurso inativo com reservas.
+- Recorte de horas nos limites do período.
+- Exclusão de períodos sem sobreposição.
+- Arredondamento após a soma.
+- Resultado vazio.
+- Preservação dos campos com erro.
+- Consulta sem alteração dos registros.
+- Indicador de conflitos indisponível.
+
+### Verificação manual
+
+- Sem datas: 11 reservas e 4,33 horas previstas.
+- De 01/11/2026 a 01/11/2026: uma reserva da Sala 101 e 1,00 hora prevista.
+- De 02/11/2026 a 01/11/2026: erro compreensível, campos preservados e indicadores não apresentados.
+- Tela de relatórios aberta corretamente pelo administrador.
+
+### Versionamento e execução
+
+- Commit 2ae1f0c enviado ao GitHub.
+- Árvore de trabalho limpa após o push.
+- GitHub Actions informado como aprovado pelo executor.
+- Número e duração do workflow não registrados.
+- Suíte completa com cobertura: 213 testes aprovados em 58,742 segundos.
+
+### Limitações
+
+- Sem indicador implementado de conflitos evitados.
+- Sem medição de tempo real de utilização.
+- Sem exportação dos resultados.
+- Sem paginação do agrupamento.
+- Horários seguem a convenção local utilizada pelo sistema.
+- Sem automação de navegador para a tela.
+- O requisito RF12 permanece parcial.
+
+## 18. Próximas verificações
+
+- Definir e implementar o registro de conflitos recusados para produzir indicadores verificáveis.
 - Implementar registro de não comparecimento.
 - Acrescentar testes HTTP de materiais.
-- Medir novamente a cobertura.
 - Testar a migração da auditoria.
+- Regenerar o relatório HTML de cobertura e organizar as evidências atuais.
+- Conferir o escopo e as metas de cobertura no workflow.
+- Medir novamente a cobertura após futuras alterações.
 - Ampliar instalação e fluxos no README.
 - Consolidar evidências TDD ou BDD.
 - Completar arquitetura, análise estática, segurança, carga e navegador.
