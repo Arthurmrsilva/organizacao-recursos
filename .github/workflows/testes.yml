@@ -9,7 +9,7 @@ permissions:
 
 jobs:
   testes:
-    name: Testes Python
+    name: Testes Python e cobertura
     runs-on: ubuntu-latest
     timeout-minutes: 10
 
@@ -23,7 +23,64 @@ jobs:
           python-version: "3.14"
 
       - name: Instalar dependencias
-        run: python -m pip install -r requirements.txt
+        run: |
+          python -m pip install -r requirements.txt
+          python -m pip install coverage==7.17.0
 
-      - name: Executar testes
-        run: python -m unittest discover -s tests -v
+      - name: Executar testes com cobertura
+        run: |
+          python -m coverage run --branch --source=app,banco,servico_reservas,servico_materiais,servico_relatorios -m unittest discover -s tests -v
+
+      - name: Mostrar cobertura
+        run: python -m coverage report -m
+
+      - name: Gerar relatorio JSON
+        run: python -m coverage json -o coverage.json
+
+      - name: Verificar metas de cobertura
+        shell: python
+        run: |
+          import json
+          import sys
+
+          with open("coverage.json", encoding="utf-8") as arquivo:
+              totais = json.load(arquivo)["totals"]
+
+          total_linhas = totais["num_statements"]
+          total_ramificacoes = totais["num_branches"]
+
+          if total_linhas == 0 or total_ramificacoes == 0:
+              print("Erro: medicao sem linhas ou ramificacoes.")
+              sys.exit(1)
+
+          linhas = (
+              100 * totais["covered_lines"] / total_linhas
+          )
+          ramificacoes = (
+              100 * totais["covered_branches"]
+              / total_ramificacoes
+          )
+
+          print(f"Cobertura de linhas: {linhas:.2f}%")
+          print(f"Cobertura de ramificacoes: {ramificacoes:.2f}%")
+
+          with open(
+              __import__("os").environ["GITHUB_STEP_SUMMARY"],
+              "a",
+              encoding="utf-8",
+          ) as resumo:
+              resumo.write("## Cobertura dos testes\n\n")
+              resumo.write("| Metrica | Resultado | Meta |\n")
+              resumo.write("| --- | --- | --- |\n")
+              resumo.write(
+                  f"| Linhas | {linhas:.2f}% | 80% |\n"
+              )
+              resumo.write(
+                  f"| Ramificacoes | {ramificacoes:.2f}% | 70% |\n"
+              )
+
+          if linhas < 80 or ramificacoes < 70:
+              print("As metas de cobertura nao foram atingidas.")
+              sys.exit(1)
+
+          print("As duas metas de cobertura foram atingidas.")
