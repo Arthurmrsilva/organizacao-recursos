@@ -652,3 +652,17 @@ A versão anterior, com as evidências EV01 a EV94, está preservada em
 
 Esse arquivo é um registro histórico. Para a situação atual do projeto,
 consulte esta matriz.
+
+## Atualização de cobertura — 29/10/2026
+
+Esta medição substitui as indicações de cobertura pendente da versão
+com 269 testes nas seções anteriores.
+
+- Base funcional: commit d917f69.
+- Suíte: 269 testes aprovados em 90,688 segundos.
+- Linhas: 680 de 696 — 97,70%.
+- Ramificações: 258 de 268 — 96,27%.
+- Cobertura combinada exibida: 97%.
+- coverage.json e relatório HTML regenerados.
+- Escopo: os cinco módulos Python definidos na seção 12.
+- Metas de 80% de linhas e 70% de ramificações atendidas localmente.
