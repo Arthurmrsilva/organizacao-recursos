@@ -91,6 +91,50 @@
                        maxlength="150"
                        value="{{ dados.get('competencia', '') }}">
 
+                <label for="responsavel_id">
+                    Responsável pelo recurso
+                </label>
+                <select id="responsavel_id"
+                        name="responsavel_id"
+                        aria-describedby="ajuda-responsavel">
+
+                    <option value=""
+                        {% if not dados.get('responsavel_id') %}
+                        selected
+                        {% endif %}>
+                        Sem responsável vinculado
+                    </option>
+
+                    {% for responsavel in responsaveis %}
+                    <option value="{{ responsavel.id }}"
+                        {% if dados.get('responsavel_id', '') == responsavel.id|string %}
+                        selected
+                        {% endif %}>
+                        {{ responsavel.nome }} — nº {{ responsavel.id }}
+                    </option>
+                    {% endfor %}
+                </select>
+
+                <p id="ajuda-responsavel">
+                    Somente usuários ativos com perfil de responsável
+                    aparecem nesta lista.
+                    O responsável vinculado poderá avaliar solicitações
+                    deste recurso e, no caso de materiais,
+                    registrar retiradas e devoluções.
+                </p>
+
+                {% if not responsaveis %}
+                <p>
+                    Nenhum responsável ativo disponível para vincular.
+                </p>
+                {% endif %}
+
+                <p>
+                    Professores e recursos restritos precisam de aprovação.
+                    Sem responsável vinculado, essas solicitações
+                    ficarão aguardando avaliação.
+                </p>
+
                 <label>
                     <input type="checkbox"
                            name="restrito"

@@ -286,6 +286,9 @@ def novo_recurso():
             "capacidade": request.form.get("capacidade", "").strip(),
             "competencia": request.form.get("competencia", "").strip(),
             "restrito": request.form.get("restrito") == "sim",
+            "responsavel_id": request.form.get(
+                "responsavel_id", ""
+            ).strip(),
         }
 
         if not 1 <= len(dados["nome"]) <= 120:
@@ -318,28 +321,85 @@ def novo_recurso():
                     "Informe a competência do professor com até 150 caracteres."
                 )
 
-        if not erros:
-            with engine.begin() as conexao:
-                conexao.execute(
-                    insert(recursos).values(
-                        nome=dados["nome"],
-                        tipo=dados["tipo"],
-                        localizacao=dados["localizacao"],
-                        capacidade=capacidade,
-                        competencia=competencia,
-                        restrito=dados["restrito"],
-                        ativo=True,
-                    )
-                )
+        responsavel_id = None
 
-            return redirect(url_for("inicio"))
+        if dados["responsavel_id"]:
+            try:
+                responsavel_id = int(dados["responsavel_id"])
+
+                if responsavel_id <= 0:
+                    erros.append("Selecione um responsável válido.")
+            except ValueError:
+                erros.append("Selecione um responsável válido.")
+
+        if not erros:
+            with engine.connect() as conexao:
+                try:
+                    # Validação do vínculo e cadastro na mesma transação.
+                    conexao.exec_driver_sql("BEGIN IMMEDIATE")
+
+                    if responsavel_id is not None:
+                        responsavel = conexao.execute(
+                            select(usuarios.c.id).where(
+                                usuarios.c.id == responsavel_id,
+                                usuarios.c.perfil == "RESPONSAVEL",
+                                usuarios.c.ativo.is_(True),
+                            )
+                        ).first()
+
+                        if responsavel is None:
+                            erros.append(
+                                "Selecione um responsável ativo "
+                                "com o perfil RESPONSAVEL."
+                            )
+
+                    if erros:
+                        conexao.rollback()
+                    else:
+                        conexao.execute(
+                            insert(recursos).values(
+                                nome=dados["nome"],
+                                tipo=dados["tipo"],
+                                localizacao=dados["localizacao"],
+                                capacidade=capacidade,
+                                competencia=competencia,
+                                restrito=dados["restrito"],
+                                responsavel_id=responsavel_id,
+                                ativo=True,
+                            )
+                        )
+                        conexao.commit()
+
+                except Exception:
+                    conexao.rollback()
+                    raise
+
+            if not erros:
+                return redirect(url_for("inicio"))
 
         status = 400
+
+    with engine.connect() as conexao:
+        lista_responsaveis = conexao.execute(
+            select(
+                usuarios.c.id,
+                usuarios.c.nome,
+            )
+            .where(
+                usuarios.c.perfil == "RESPONSAVEL",
+                usuarios.c.ativo.is_(True),
+            )
+            .order_by(
+                usuarios.c.nome,
+                usuarios.c.id,
+            )
+        ).mappings().all()
 
     return render_template(
         "novo_recurso.html",
         erros=erros,
         dados=dados,
+        responsaveis=lista_responsaveis,
     ), status
 
 
@@ -931,8 +991,7 @@ def marcar_notificacao_lida(notificacao_id):
     if g.usuario is None:
         return redirect(url_for("login"))
 
-    # O vínculo com o usuário faz parte do próprio UPDATE.
-    # Assim, nem o administrador marca avisos de outras pessoas.
+    # Nem o administrador marca avisos de outras pessoas.
     with engine.begin() as conexao:
         resultado = conexao.execute(
             update(notificacoes)
