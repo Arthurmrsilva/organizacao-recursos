@@ -5,6 +5,7 @@ from sqlalchemy import insert, select, update
 
 from banco import (
     auditoria_reservas,
+    conflitos_reservas,
     manutencoes,
     notificacoes,
     recursos,
@@ -40,7 +41,7 @@ def registrar_auditoria(
     status_novo,
     detalhes=None,
 ):
-    # Usa a conexão da operação, sem fazer um commit separado.
+    # Usa a transação da operação, sem commit separado.
     conexao.execute(
         insert(auditoria_reservas).values(
             reserva_id=reserva_id,
@@ -56,6 +57,38 @@ def registrar_auditoria(
             ),
         )
     )
+
+
+def bloquear_por_conflito(
+    conexao,
+    usuario_id,
+    recurso_id,
+    reserva_conflitante_id,
+    operacao,
+    inicio,
+    fim,
+    mensagem,
+):
+    # Chamada antes de qualquer gravação na reserva.
+    # Cada tentativa bloqueada gera um registro, mesmo quando
+    # existem várias reservas sobrepostas.
+    conexao.execute(
+        insert(conflitos_reservas).values(
+            usuario_id=usuario_id,
+            recurso_id=recurso_id,
+            reserva_conflitante_id=reserva_conflitante_id,
+            operacao=operacao,
+            inicio=inicio,
+            fim=fim,
+            criado_em=datetime.now(),
+        )
+    )
+
+    # Confirma somente o registro da tentativa bloqueada.
+    # O rollback do tratamento do erro não apagará esse registro.
+    conexao.commit()
+
+    raise ValueError(mensagem)
 
 
 def verificar_manutencao(conexao, recurso_id, inicio, fim):
@@ -228,6 +261,18 @@ def criar_reserva(engine, usuario_id, dados):
         try:
             conexao.exec_driver_sql("BEGIN IMMEDIATE")
 
+            usuario = conexao.execute(
+                select(usuarios).where(
+                    usuarios.c.id == usuario_id,
+                    usuarios.c.ativo.is_(True),
+                )
+            ).mappings().first()
+
+            if usuario is None:
+                raise ValueError(
+                    "Usuário não encontrado ou inativo."
+                )
+
             recurso = conexao.execute(
                 select(recursos).where(
                     recursos.c.id == recurso_id,
@@ -255,13 +300,22 @@ def criar_reserva(engine, usuario_id, dados):
                     ),
                     reservas.c.inicio < fim,
                     reservas.c.fim > inicio,
-                ).limit(1)
+                ).order_by(reservas.c.id).limit(1)
             ).first()
 
             if conflito is not None:
-                raise ValueError(
-                    "Já existe uma reserva para esse recurso "
-                    "no período informado."
+                bloquear_por_conflito(
+                    conexao=conexao,
+                    usuario_id=usuario_id,
+                    recurso_id=recurso_id,
+                    reserva_conflitante_id=conflito.id,
+                    operacao="CRIACAO",
+                    inicio=inicio,
+                    fim=fim,
+                    mensagem=(
+                        "Já existe uma reserva para esse recurso "
+                        "no período informado."
+                    ),
                 )
 
             precisa_aprovacao = (
@@ -430,13 +484,22 @@ def alterar_reserva(engine, usuario_id, reserva_id, dados):
                     ),
                     reservas.c.inicio < fim,
                     reservas.c.fim > inicio,
-                ).limit(1)
+                ).order_by(reservas.c.id).limit(1)
             ).first()
 
             if conflito is not None:
-                raise ValueError(
-                    "Já existe uma reserva para esse recurso "
-                    "no período informado."
+                bloquear_por_conflito(
+                    conexao=conexao,
+                    usuario_id=usuario_id,
+                    recurso_id=recurso_id,
+                    reserva_conflitante_id=conflito.id,
+                    operacao="ALTERACAO",
+                    inicio=inicio,
+                    fim=fim,
+                    mensagem=(
+                        "Já existe uma reserva para esse recurso "
+                        "no período informado."
+                    ),
                 )
 
             houve_alteracao = (
@@ -670,13 +733,22 @@ def avaliar_reserva(engine, usuario_id, reserva_id, decisao):
                         ),
                         reservas.c.inicio < reserva["fim"],
                         reservas.c.fim > reserva["inicio"],
-                    ).limit(1)
+                    ).order_by(reservas.c.id).limit(1)
                 ).first()
 
                 if conflito is not None:
-                    raise ValueError(
-                        "Existe outra reserva para este recurso "
-                        "no período informado."
+                    bloquear_por_conflito(
+                        conexao=conexao,
+                        usuario_id=usuario_id,
+                        recurso_id=recurso["id"],
+                        reserva_conflitante_id=conflito.id,
+                        operacao="APROVACAO",
+                        inicio=reserva["inicio"],
+                        fim=reserva["fim"],
+                        mensagem=(
+                            "Existe outra reserva para este recurso "
+                            "no período informado."
+                        ),
                     )
 
             conexao.execute(

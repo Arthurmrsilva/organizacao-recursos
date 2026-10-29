@@ -3,9 +3,15 @@ import unittest
 from datetime import datetime
 from pathlib import Path
 
-from sqlalchemy import create_engine, insert
+from sqlalchemy import create_engine, insert, update
 
-from banco import metadata, recursos, reservas, usuarios
+from banco import (
+    conflitos_reservas,
+    metadata,
+    recursos,
+    reservas,
+    usuarios,
+)
 from servico_relatorios import gerar_relatorio
 
 
@@ -65,7 +71,7 @@ class TestRelatorios(unittest.TestCase):
         recurso_id=1,
     ):
         with self.engine.begin() as conexao:
-            conexao.execute(
+            resultado = conexao.execute(
                 insert(reservas).values(
                     recurso_id=recurso_id,
                     usuario_id=2,
@@ -76,6 +82,33 @@ class TestRelatorios(unittest.TestCase):
                 )
             )
 
+            return resultado.inserted_primary_key[0]
+
+    def cadastrar_conflito(
+        self,
+        reserva_id,
+        criado_em,
+        operacao="CRIACAO",
+        recurso_id=1,
+        usuario_id=2,
+        inicio="2030-06-10T10:30",
+        fim="2030-06-10T11:30",
+    ):
+        # Insere uma tentativa já registrada para testar o relatório.
+        # O bloqueio pelo serviço será testado separadamente.
+        with self.engine.begin() as conexao:
+            conexao.execute(
+                insert(conflitos_reservas).values(
+                    usuario_id=usuario_id,
+                    recurso_id=recurso_id,
+                    reserva_conflitante_id=reserva_id,
+                    operacao=operacao,
+                    inicio=datetime.fromisoformat(inicio),
+                    fim=datetime.fromisoformat(fim),
+                    criado_em=datetime.fromisoformat(criado_em),
+                )
+            )
+
     def test_relatorio_vazio(self):
         relatorio = gerar_relatorio(self.engine, 1)
 
@@ -83,6 +116,7 @@ class TestRelatorios(unittest.TestCase):
         self.assertEqual(relatorio["horas_previstas"], 0)
         self.assertEqual(relatorio["recursos"], [])
         self.assertEqual(len(relatorio["situacoes"]), 7)
+        self.assertEqual(relatorio["conflitos_evitados"], 0)
         self.assertTrue(
             all(
                 item["quantidade"] == 0
@@ -339,10 +373,149 @@ class TestRelatorios(unittest.TestCase):
             0.05,
         )
 
-    def test_conflitos_indisponiveis_nao_sao_zero(self):
+    def test_sem_conflitos_registrados_retorna_zero(self):
+        # Ter uma reserva não significa ter uma tentativa bloqueada.
+        self.cadastrar()
+
         relatorio = gerar_relatorio(self.engine, 1)
 
-        self.assertIsNone(relatorio["conflitos_evitados"])
+        self.assertEqual(relatorio["conflitos_evitados"], 0)
+
+    def test_contar_tentativas_das_tres_operacoes(self):
+        reserva_id = self.cadastrar()
+
+        for operacao, usuario_id in (
+            ("CRIACAO", 2),
+            ("ALTERACAO", 2),
+            ("APROVACAO", 3),
+        ):
+            self.cadastrar_conflito(
+                reserva_id=reserva_id,
+                criado_em="2030-06-01T10:00",
+                operacao=operacao,
+                usuario_id=usuario_id,
+            )
+
+        relatorio = gerar_relatorio(self.engine, 1)
+
+        self.assertEqual(relatorio["conflitos_evitados"], 3)
+
+        # Tentativas bloqueadas não aumentam reservas ou horas.
+        self.assertEqual(relatorio["total_reservas"], 1)
+        self.assertEqual(relatorio["horas_previstas"], 2)
+        self.assertEqual(
+            relatorio["recursos"][0]["total_reservas"],
+            1,
+        )
+
+    def test_conflitos_filtrados_pela_data_do_registro(self):
+        reserva_id = self.cadastrar()
+
+        # A tentativa foi registrada em 1º de junho,
+        # mas o horário solicitado é para 10 de junho.
+        self.cadastrar_conflito(
+            reserva_id=reserva_id,
+            criado_em="2030-06-01T15:00",
+        )
+
+        dia_registro = gerar_relatorio(
+            self.engine,
+            1,
+            {"inicio": "2030-06-01", "fim": "2030-06-01"},
+        )
+
+        dia_reserva = gerar_relatorio(
+            self.engine,
+            1,
+            {"inicio": "2030-06-10", "fim": "2030-06-10"},
+        )
+
+        self.assertEqual(dia_registro["conflitos_evitados"], 1)
+        self.assertEqual(dia_registro["total_reservas"], 0)
+        self.assertEqual(dia_registro["horas_previstas"], 0)
+
+        self.assertEqual(dia_reserva["conflitos_evitados"], 0)
+        self.assertEqual(dia_reserva["total_reservas"], 1)
+
+    def test_limites_de_datas_dos_conflitos(self):
+        reserva_id = self.cadastrar()
+
+        for momento in (
+            "2030-06-09T23:59:59.999999",
+            "2030-06-10T00:00:00",
+            "2030-06-10T23:59:59.999999",
+            "2030-06-11T00:00:00",
+        ):
+            self.cadastrar_conflito(
+                reserva_id=reserva_id,
+                criado_em=momento,
+            )
+
+        relatorio = gerar_relatorio(
+            self.engine,
+            1,
+            {"inicio": "2030-06-10", "fim": "2030-06-10"},
+        )
+
+        # Inclui o início e o último instante do dia,
+        # mas exclui os registros dos dias anterior e seguinte.
+        self.assertEqual(relatorio["conflitos_evitados"], 2)
+
+    def test_sem_datas_conta_tentativas_repetidas(self):
+        reserva_id = self.cadastrar()
+
+        for momento in (
+            "2030-05-01T10:00",
+            "2030-06-01T10:00",
+            "2030-06-01T10:00",
+        ):
+            self.cadastrar_conflito(
+                reserva_id=reserva_id,
+                criado_em=momento,
+            )
+
+        for dados in (None, {"inicio": " ", "fim": ""}):
+            with self.subTest(dados=dados):
+                relatorio = gerar_relatorio(
+                    self.engine,
+                    1,
+                    dados,
+                )
+
+                # Cada registro representa uma tentativa,
+                # mesmo quando os dados e o horário se repetem.
+                self.assertEqual(
+                    relatorio["conflitos_evitados"],
+                    3,
+                )
+
+    def test_cancelamento_e_inativacao_preservam_contagem(self):
+        reserva_id = self.cadastrar()
+
+        self.cadastrar_conflito(
+            reserva_id=reserva_id,
+            criado_em="2030-06-01T10:00",
+        )
+
+        with self.engine.begin() as conexao:
+            conexao.execute(
+                update(reservas)
+                .where(reservas.c.id == reserva_id)
+                .values(status="CANCELADA")
+            )
+            conexao.execute(
+                update(recursos)
+                .where(recursos.c.id == 1)
+                .values(ativo=False)
+            )
+
+        relatorio = gerar_relatorio(self.engine, 1)
+
+        # O conflito aconteceu antes dessas alterações
+        # e continua fazendo parte do histórico.
+        self.assertEqual(relatorio["conflitos_evitados"], 1)
+        self.assertEqual(relatorio["total_reservas"], 1)
+        self.assertEqual(relatorio["horas_previstas"], 0)
 
 
 if __name__ == "__main__":

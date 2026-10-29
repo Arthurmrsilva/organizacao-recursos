@@ -1,8 +1,8 @@
 from datetime import datetime, timedelta
 
-from sqlalchemy import select
+from sqlalchemy import func, select
 
-from banco import recursos, reservas, usuarios
+from banco import conflitos_reservas, recursos, reservas, usuarios
 
 
 SITUACOES = {
@@ -111,6 +111,22 @@ def gerar_relatorio(engine, usuario_id, dados=None):
             )
         ).mappings().all()
 
+        consulta_conflitos = select(
+            func.count(conflitos_reservas.c.id)
+        )
+
+        if inicio_periodo is not None:
+            # Para conflitos, o filtro considera quando a tentativa
+            # foi bloqueada, não o horário solicitado para a reserva.
+            consulta_conflitos = consulta_conflitos.where(
+                conflitos_reservas.c.criado_em >= inicio_periodo,
+                conflitos_reservas.c.criado_em < fim_periodo,
+            )
+
+        quantidade_conflitos = conexao.execute(
+            consulta_conflitos
+        ).scalar_one()
+
     contagem_situacoes = {
         situacao: 0
         for situacao in SITUACOES
@@ -195,8 +211,5 @@ def gerar_relatorio(engine, usuario_id, dados=None):
         "horas_previstas": round(segundos_totais / 3600, 2),
         "situacoes": lista_situacoes,
         "recursos": lista_recursos,
-
-        # Ainda não registramos as tentativas recusadas.
-        # None significa indicador indisponível, não zero.
-        "conflitos_evitados": None,
+        "conflitos_evitados": quantidade_conflitos,
     }

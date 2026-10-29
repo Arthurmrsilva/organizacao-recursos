@@ -9,8 +9,10 @@ from sqlalchemy import create_engine, insert, select, update
 
 from banco import (
     auditoria_reservas,
+    conflitos_reservas,
     manutencoes,
     metadata,
+    notificacoes,
     recursos,
     reservas,
     usuarios,
@@ -21,11 +23,14 @@ from servico_reservas import alterar_reserva, criar_reserva
 class TestEdicaoReservas(unittest.TestCase):
     def setUp(self):
         self.pasta = tempfile.TemporaryDirectory()
-        caminho = Path(self.pasta.name) / "teste.db"
+        self.addCleanup(self.pasta.cleanup)
 
+        caminho = Path(self.pasta.name) / "teste.db"
         self.engine = create_engine(
             f"sqlite:///{caminho.as_posix()}"
         )
+        self.addCleanup(self.engine.dispose)
+
         metadata.create_all(self.engine)
 
         self.inicio = (
@@ -60,7 +65,9 @@ class TestEdicaoReservas(unittest.TestCase):
                         tipo=tipo,
                         localizacao="Bloco A",
                         capacidade=30 if tipo == "SALA" else None,
-                        competencia="Python" if tipo == "PROFESSOR" else None,
+                        competencia=(
+                            "Python" if tipo == "PROFESSOR" else None
+                        ),
                         restrito=restrito,
                         ativo=True,
                     )
@@ -71,10 +78,6 @@ class TestEdicaoReservas(unittest.TestCase):
             1,
             self.dados(),
         )
-
-    def tearDown(self):
-        self.engine.dispose()
-        self.pasta.cleanup()
 
     def dados(self, **alteracoes):
         dados = {
@@ -110,16 +113,40 @@ class TestEdicaoReservas(unittest.TestCase):
                 ).mappings().all()
             ]
 
+    def listar_notificacoes(self):
+        with self.engine.connect() as conexao:
+            return [
+                dict(aviso)
+                for aviso in conexao.execute(
+                    select(notificacoes)
+                    .order_by(notificacoes.c.id)
+                ).mappings().all()
+            ]
+
+    def listar_conflitos(self):
+        # Outra conexão confere se o registro foi confirmado.
+        with self.engine.connect() as conexao:
+            return [
+                dict(conflito)
+                for conflito in conexao.execute(
+                    select(conflitos_reservas)
+                    .order_by(conflitos_reservas.c.id)
+                ).mappings().all()
+            ]
+
     def conferir_recusa(
         self,
         dados,
         usuario_id=1,
         reserva_id=None,
+        espera_conflito=False,
     ):
         reserva_antes = self.buscar_reserva()
         eventos_antes = self.listar_eventos()
+        avisos_antes = self.listar_notificacoes()
+        conflitos_antes = self.listar_conflitos()
 
-        with self.assertRaises(ValueError):
+        with self.assertRaises(ValueError) as resultado:
             alterar_reserva(
                 self.engine,
                 usuario_id,
@@ -129,6 +156,25 @@ class TestEdicaoReservas(unittest.TestCase):
 
         self.assertEqual(self.buscar_reserva(), reserva_antes)
         self.assertEqual(self.listar_eventos(), eventos_antes)
+        self.assertEqual(self.listar_notificacoes(), avisos_antes)
+
+        conflitos_depois = self.listar_conflitos()
+
+        if espera_conflito:
+            self.assertIn(
+                "Já existe uma reserva",
+                str(resultado.exception),
+            )
+            self.assertEqual(
+                len(conflitos_depois),
+                len(conflitos_antes) + 1,
+            )
+            self.assertEqual(
+                conflitos_depois[:-1],
+                conflitos_antes,
+            )
+        else:
+            self.assertEqual(conflitos_depois, conflitos_antes)
 
     def cadastrar_manutencao(self, inicio, fim, ativo=True):
         with self.engine.begin() as conexao:
@@ -187,6 +233,7 @@ class TestEdicaoReservas(unittest.TestCase):
             detalhes["depois"]["inicio"],
             self.inicio.isoformat(),
         )
+        self.assertEqual(self.listar_conflitos(), [])
 
     def test_alterar_periodo_da_propria_reserva(self):
         novo_inicio = self.inicio + timedelta(minutes=15)
@@ -207,6 +254,9 @@ class TestEdicaoReservas(unittest.TestCase):
         self.assertEqual(reserva["inicio"], novo_inicio)
         self.assertEqual(reserva["fim"], novo_fim)
 
+        # A reserva não pode gerar conflito com ela mesma.
+        self.assertEqual(self.listar_conflitos(), [])
+
     def test_trocar_recurso_libera_recurso_anterior(self):
         alterar_reserva(
             self.engine,
@@ -223,6 +273,7 @@ class TestEdicaoReservas(unittest.TestCase):
 
         self.assertEqual(self.buscar_reserva()["recurso_id"], 2)
         self.assertNotEqual(nova_id, self.reserva_id)
+        self.assertEqual(self.listar_conflitos(), [])
 
     def test_recurso_restrito_exige_nova_aprovacao(self):
         alterar_reserva(
@@ -396,15 +447,51 @@ class TestEdicaoReservas(unittest.TestCase):
         self.conferir_recusa(self.dados())
 
     def test_conflito_com_outra_reserva(self):
-        criar_reserva(
+        outra_reserva_id = criar_reserva(
             self.engine,
             2,
             self.dados(recurso_id="2"),
         )
 
+        antes = datetime.now()
+
         self.conferir_recusa(
             self.dados(recurso_id="2"),
+            espera_conflito=True,
         )
+
+        depois = datetime.now()
+        conflitos = self.listar_conflitos()
+
+        self.assertEqual(len(conflitos), 1)
+
+        conflito = conflitos[0]
+
+        self.assertEqual(conflito["operacao"], "ALTERACAO")
+        self.assertEqual(conflito["usuario_id"], 1)
+        self.assertEqual(conflito["recurso_id"], 2)
+        self.assertEqual(
+            conflito["reserva_conflitante_id"],
+            outra_reserva_id,
+        )
+        self.assertEqual(conflito["inicio"], self.inicio)
+        self.assertEqual(conflito["fim"], self.fim)
+        self.assertGreaterEqual(conflito["criado_em"], antes)
+        self.assertLessEqual(conflito["criado_em"], depois)
+
+        # Também preserva a reserva que causou o bloqueio.
+        with self.engine.connect() as conexao:
+            outra_reserva = conexao.execute(
+                select(reservas).where(
+                    reservas.c.id == outra_reserva_id
+                )
+            ).mappings().one()
+
+        self.assertEqual(outra_reserva["usuario_id"], 2)
+        self.assertEqual(outra_reserva["recurso_id"], 2)
+        self.assertEqual(outra_reserva["status"], "APROVADA")
+        self.assertEqual(outra_reserva["inicio"], self.inicio)
+        self.assertEqual(outra_reserva["fim"], self.fim)
 
     def test_permitir_horario_consecutivo_a_outra_reserva(self):
         criar_reserva(
@@ -430,10 +517,12 @@ class TestEdicaoReservas(unittest.TestCase):
 
         self.assertEqual(reserva["recurso_id"], 2)
         self.assertEqual(reserva["inicio"], self.fim)
+        self.assertEqual(self.listar_conflitos(), [])
 
     def test_manutencao_bloqueia_edicao(self):
         self.cadastrar_manutencao(self.inicio, self.fim)
 
+        # Manutenção não entra no contador de conflitos entre reservas.
         self.conferir_recusa(
             self.dados(recurso_id="2"),
         )
@@ -453,6 +542,7 @@ class TestEdicaoReservas(unittest.TestCase):
         )
 
         self.assertEqual(self.buscar_reserva()["recurso_id"], 2)
+        self.assertEqual(self.listar_conflitos(), [])
 
     def test_permitir_inicio_no_fim_da_manutencao(self):
         self.cadastrar_manutencao(
@@ -468,10 +558,13 @@ class TestEdicaoReservas(unittest.TestCase):
         )
 
         self.assertEqual(self.buscar_reserva()["recurso_id"], 2)
+        self.assertEqual(self.listar_conflitos(), [])
 
     def test_falha_na_auditoria_desfaz_alteracao(self):
         reserva_antes = self.buscar_reserva()
         eventos_antes = self.listar_eventos()
+        avisos_antes = self.listar_notificacoes()
+        conflitos_antes = self.listar_conflitos()
 
         with patch(
             "servico_reservas.registrar_auditoria",
@@ -487,6 +580,8 @@ class TestEdicaoReservas(unittest.TestCase):
 
         self.assertEqual(self.buscar_reserva(), reserva_antes)
         self.assertEqual(self.listar_eventos(), eventos_antes)
+        self.assertEqual(self.listar_notificacoes(), avisos_antes)
+        self.assertEqual(self.listar_conflitos(), conflitos_antes)
 
 
 if __name__ == "__main__":

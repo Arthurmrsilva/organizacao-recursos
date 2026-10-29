@@ -13,7 +13,7 @@
 <body class="perfil-{{ g.usuario.perfil|lower if g.usuario else 'visitante' }}">
     <header>
         <h1>Organização de Recursos</h1>
-        <p>Relatórios de reservas e horas previstas</p>
+        <p>Relatórios de reservas, horas previstas e conflitos evitados</p>
     </header>
 
     <main>
@@ -21,8 +21,10 @@
             <h2>Relatórios</h2>
 
             <p>
-                Consulte as reservas e as horas previstas por recurso.
-                Deixe as duas datas vazias para consultar todo o histórico.
+                Consulte as reservas, as horas previstas por recurso
+                e as tentativas bloqueadas por conflito de horário.
+                Deixe as duas datas vazias para consultar todo o histórico
+                disponível.
             </p>
 
             <form method="get"
@@ -60,7 +62,10 @@
             <p id="ajuda-periodo">
                 Ao filtrar, preencha as duas datas.
                 O dia final é incluído por inteiro.
-                Reservas que atravessam o período também são consideradas.
+                Para reservas e horas previstas, considera-se o período
+                reservado, incluindo reservas que atravessam as datas.
+                Para conflitos evitados, considera-se a data em que
+                cada tentativa foi bloqueada.
             </p>
 
             {% if erros %}
@@ -76,6 +81,7 @@
             {% if relatorio is not none %}
             <section class="aviso">
                 <h2>Como interpretar os dados</h2>
+
                 <p>
                     A quantidade de reservas inclui todas as situações.
                     As horas previstas consideram somente reservas
@@ -83,6 +89,7 @@
                     Quando há filtro de datas, somente as horas
                     dentro do período escolhido entram no cálculo.
                 </p>
+
                 <p>
                     Horas previstas representam o período reservado,
                     não o tempo real de utilização.
@@ -90,6 +97,22 @@
                     reservas no período consultado.
                     Os valores em horas são arredondados para duas casas
                     decimais após a soma.
+                </p>
+
+                <p>
+                    Conflitos evitados são tentativas de criação,
+                    alteração ou aprovação bloqueadas pela sobreposição
+                    com outra reserva.
+                    Cada tentativa bloqueada conta uma vez.
+                    Repetir a tentativa pode gerar um novo registro.
+                </p>
+
+                <p>
+                    Esse indicador inclui somente tentativas registradas
+                    após a implantação do contador.
+                    Bloqueios por manutenção, erros de preenchimento
+                    e acessos sem permissão não entram na contagem.
+                    Os horários seguem o relógio local do servidor.
                 </p>
             </section>
 
@@ -99,6 +122,7 @@
                 <div class="grade-recursos">
                     <article class="recurso">
                         <h3>Total de reservas</h3>
+
                         <p>
                             <strong>{{ relatorio.total_reservas }}</strong>
                         </p>
@@ -106,6 +130,7 @@
 
                     <article class="recurso">
                         <h3>Horas previstas</h3>
+
                         <p>
                             <strong>
                                 {{ "%.2f"|format(
@@ -118,19 +143,16 @@
                     <article class="recurso">
                         <h3>Conflitos evitados</h3>
 
-                        {% if relatorio.conflitos_evitados is none %}
-                        <p>Indicador ainda indisponível.</p>
-                        <p>
-                            O registro das tentativas bloqueadas
-                            será implementado em uma próxima etapa.
-                        </p>
-                        {% else %}
                         <p>
                             <strong>
                                 {{ relatorio.conflitos_evitados }}
                             </strong>
                         </p>
-                        {% endif %}
+
+                        <p>
+                            Tentativas bloqueadas por sobreposição
+                            com outra reserva.
+                        </p>
                     </article>
                 </div>
             </section>
@@ -142,6 +164,7 @@
                     {% for situacao in relatorio.situacoes %}
                     <article class="recurso">
                         <h3>{{ situacao.rotulo }}</h3>
+
                         <p>
                             <strong>Quantidade:</strong>
                             {{ situacao.quantidade }}

@@ -219,6 +219,46 @@ notificacoes = Table(
     ),
 )
 
+# Cada registro representa uma tentativa bloqueada por outra reserva.
+# Não registra a finalidade nem cria uma reserva para a tentativa.
+conflitos_reservas = Table(
+    "conflitos_reservas",
+    metadata,
+    Column("id", Integer, primary_key=True),
+    Column(
+        "usuario_id",
+        Integer,
+        ForeignKey("usuarios.id"),
+        nullable=False,
+        index=True,
+    ),
+    Column(
+        "recurso_id",
+        Integer,
+        ForeignKey("recursos.id"),
+        nullable=False,
+        index=True,
+    ),
+    Column(
+        "reserva_conflitante_id",
+        Integer,
+        ForeignKey("reservas.id"),
+        nullable=False,
+    ),
+    Column("operacao", String(20), nullable=False),
+    Column("inicio", DateTime, nullable=False),
+    Column("fim", DateTime, nullable=False),
+    Column("criado_em", DateTime, nullable=False, index=True),
+    CheckConstraint(
+        "fim > inicio",
+        name="periodo_conflito_valido",
+    ),
+    CheckConstraint(
+        "operacao IN ('CRIACAO', 'ALTERACAO', 'APROVACAO')",
+        name="operacao_conflito_valida",
+    ),
+)
+
 
 def criar_tabelas():
     metadata.create_all(engine)

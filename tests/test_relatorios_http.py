@@ -1,3 +1,4 @@
+import re
 import tempfile
 import unittest
 from datetime import datetime
@@ -7,7 +8,13 @@ from unittest.mock import patch
 from sqlalchemy import create_engine, insert, select
 
 import app as aplicativo
-from banco import metadata, recursos, reservas, usuarios
+from banco import (
+    conflitos_reservas,
+    metadata,
+    recursos,
+    reservas,
+    usuarios,
+)
 
 
 class TestRelatoriosHTTP(unittest.TestCase):
@@ -64,7 +71,7 @@ class TestRelatoriosHTTP(unittest.TestCase):
                 )
             )
 
-            conexao.execute(
+            resultado = conexao.execute(
                 insert(reservas).values(
                     recurso_id=1,
                     usuario_id=2,
@@ -74,6 +81,7 @@ class TestRelatoriosHTTP(unittest.TestCase):
                     status="APROVADA",
                 )
             )
+            self.reserva_junho_id = resultado.inserted_primary_key[0]
 
             conexao.execute(
                 insert(reservas).values(
@@ -109,6 +117,40 @@ class TestRelatoriosHTTP(unittest.TestCase):
             query_string=dados or {},
         )
 
+    def cadastrar_conflito(self, criado_em, operacao="CRIACAO"):
+        with self.engine.begin() as conexao:
+            conexao.execute(
+                insert(conflitos_reservas).values(
+                    usuario_id=2,
+                    recurso_id=1,
+                    reserva_conflitante_id=self.reserva_junho_id,
+                    operacao=operacao,
+                    inicio=datetime(2030, 6, 10, 10, 30),
+                    fim=datetime(2030, 6, 10, 11, 0),
+                    criado_em=datetime.fromisoformat(criado_em),
+                )
+            )
+
+    def conferir_contador(self, pagina, quantidade):
+        # Verifica o valor no cartão correto, sem depender
+        # de espaços e quebras de linha do HTML.
+        cartao = re.search(
+            r"<article\b[^>]*>"
+            r"\s*<h3>\s*Conflitos evitados\s*</h3>"
+            r"(.*?)</article>",
+            pagina,
+            flags=re.DOTALL,
+        )
+
+        self.assertIsNotNone(
+            cartao,
+            "O cartão de conflitos evitados não foi encontrado.",
+        )
+        self.assertRegex(
+            cartao.group(1),
+            rf"<strong>\s*{quantidade}\s*</strong>",
+        )
+
     def conferir_erro(self, dados, mensagem):
         resposta = self.consultar(dados)
         pagina = resposta.get_data(as_text=True)
@@ -140,10 +182,7 @@ class TestRelatoriosHTTP(unittest.TestCase):
 
                 self.assertEqual(resposta.status_code, 403)
                 self.assertIn("Acesso negado", pagina)
-                self.assertNotIn(
-                    "Sala exclusiva de junho",
-                    pagina,
-                )
+                self.assertNotIn("Sala exclusiva de junho", pagina)
                 self.assertNotIn("Resumo geral", pagina)
 
     def test_administrador_inativo_perde_acesso(self):
@@ -176,19 +215,13 @@ class TestRelatoriosHTTP(unittest.TestCase):
         self.autenticar()
 
         resposta = self.consultar(
-            {
-                "inicio": "2030-06-10",
-                "fim": "2030-06-10",
-            }
+            {"inicio": "2030-06-10", "fim": "2030-06-10"}
         )
         pagina = resposta.get_data(as_text=True)
 
         self.assertEqual(resposta.status_code, 200)
         self.assertIn("Sala exclusiva de junho", pagina)
-        self.assertNotIn(
-            "Projetor exclusivo de julho",
-            pagina,
-        )
+        self.assertNotIn("Projetor exclusivo de julho", pagina)
         self.assertIn("1,50 h", pagina)
         self.assertNotIn("3,50 h", pagina)
         self.assertIn('value="2030-06-10"', pagina)
@@ -197,33 +230,22 @@ class TestRelatoriosHTTP(unittest.TestCase):
         self.autenticar()
 
         resposta = self.consultar(
-            {
-                "inicio": "2031-01-01",
-                "fim": "2031-01-01",
-            }
+            {"inicio": "2031-01-01", "fim": "2031-01-01"}
         )
         pagina = resposta.get_data(as_text=True)
 
         self.assertEqual(resposta.status_code, 200)
         self.assertIn("0,00 h", pagina)
-        self.assertIn(
-            "Nenhum recurso com reservas",
-            pagina,
-        )
+        self.assertIn("Nenhum recurso com reservas", pagina)
         self.assertNotIn("Sala exclusiva de junho", pagina)
-        self.assertNotIn(
-            "Projetor exclusivo de julho",
-            pagina,
-        )
+        self.assertNotIn("Projetor exclusivo de julho", pagina)
+        self.conferir_contador(pagina, 0)
 
     def test_data_final_anterior_mostra_erro_e_preserva_campos(self):
         self.autenticar()
 
         pagina = self.conferir_erro(
-            {
-                "inicio": "2030-06-11",
-                "fim": "2030-06-10",
-            },
+            {"inicio": "2030-06-11", "fim": "2030-06-10"},
             "A data final não pode ser anterior à data inicial.",
         )
 
@@ -256,18 +278,16 @@ class TestRelatoriosHTTP(unittest.TestCase):
                     "Informe datas válidas para o relatório.",
                 )
 
-    def test_conflitos_aparecem_como_indisponiveis(self):
+    def test_sem_conflitos_mostra_zero(self):
         self.autenticar()
 
         resposta = self.consultar()
         pagina = resposta.get_data(as_text=True)
 
         self.assertEqual(resposta.status_code, 200)
-        self.assertIn("Conflitos evitados", pagina)
-        self.assertIn(
-            "Indicador ainda indisponível.",
-            pagina,
-        )
+        self.conferir_contador(pagina, 0)
+        self.assertNotIn("Indicador ainda indisponível.", pagina)
+        self.assertNotIn("<strong>None</strong>", pagina)
 
     def test_consulta_nao_altera_reservas(self):
         self.autenticar()
@@ -291,15 +311,94 @@ class TestRelatoriosHTTP(unittest.TestCase):
     def test_datas_vazias_consultam_historico_completo(self):
         self.autenticar()
 
-        resposta = self.consultar(
-            {"inicio": "", "fim": ""}
-        )
+        resposta = self.consultar({"inicio": "", "fim": ""})
         pagina = resposta.get_data(as_text=True)
 
         self.assertEqual(resposta.status_code, 200)
         self.assertIn("Sala exclusiva de junho", pagina)
         self.assertIn("Projetor exclusivo de julho", pagina)
         self.assertIn("3,50 h", pagina)
+
+    def test_exibir_total_de_conflitos_registrados(self):
+        self.autenticar()
+
+        for operacao in ("CRIACAO", "ALTERACAO", "APROVACAO"):
+            self.cadastrar_conflito(
+                "2030-06-01T12:00",
+                operacao,
+            )
+
+        resposta = self.consultar()
+        pagina = resposta.get_data(as_text=True)
+
+        self.assertEqual(resposta.status_code, 200)
+        self.conferir_contador(pagina, 3)
+        self.assertIn("3,50 h", pagina)
+
+    def test_filtrar_conflitos_pela_data_do_registro(self):
+        self.autenticar()
+        self.cadastrar_conflito("2030-06-01T12:00")
+
+        casos = (
+            ("2030-06-01", 1),
+            ("2030-06-10", 0),
+        )
+
+        for dia, quantidade in casos:
+            with self.subTest(dia=dia):
+                resposta = self.consultar(
+                    {"inicio": dia, "fim": dia}
+                )
+                pagina = resposta.get_data(as_text=True)
+
+                self.assertEqual(resposta.status_code, 200)
+                self.conferir_contador(pagina, quantidade)
+
+    def test_filtro_inclui_dia_inteiro_dos_conflitos(self):
+        self.autenticar()
+
+        for momento in (
+            "2030-06-09T23:59:59.999999",
+            "2030-06-10T00:00:00",
+            "2030-06-10T23:59:59.999999",
+            "2030-06-11T00:00:00",
+        ):
+            self.cadastrar_conflito(momento)
+
+        resposta = self.consultar(
+            {"inicio": "2030-06-10", "fim": "2030-06-10"}
+        )
+        pagina = resposta.get_data(as_text=True)
+
+        self.assertEqual(resposta.status_code, 200)
+        self.conferir_contador(pagina, 2)
+
+    def test_consultas_repetidas_nao_alteram_conflitos(self):
+        self.autenticar()
+        self.cadastrar_conflito("2030-06-01T12:00")
+
+        with self.engine.connect() as conexao:
+            antes = conexao.execute(
+                select(conflitos_reservas)
+                .order_by(conflitos_reservas.c.id)
+            ).mappings().all()
+
+        for _ in range(2):
+            resposta = self.consultar()
+
+            self.assertEqual(resposta.status_code, 200)
+            self.conferir_contador(
+                resposta.get_data(as_text=True),
+                1,
+            )
+
+        with self.engine.connect() as conexao:
+            depois = conexao.execute(
+                select(conflitos_reservas)
+                .order_by(conflitos_reservas.c.id)
+            ).mappings().all()
+
+        self.assertEqual(antes, depois)
 
 
 if __name__ == "__main__":
