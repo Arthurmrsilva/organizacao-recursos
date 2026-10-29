@@ -136,7 +136,8 @@ auditoria_reservas = Table(
     CheckConstraint(
         "acao IN ("
         "'CRIACAO', 'CANCELAMENTO', 'APROVACAO', 'REJEICAO', "
-        "'RETIRADA', 'DEVOLUCAO', 'ALTERACAO'"
+        "'RETIRADA', 'DEVOLUCAO', 'ALTERACAO', "
+        "'NAO_COMPARECEU'"
         ")",
         name="acao_auditoria_valida",
     ),

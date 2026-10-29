@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>Retirada e devolução — Organização de Recursos</title>
+    <title>Gestão de materiais — Organização de Recursos</title>
 
     <link rel="stylesheet"
           href="{{ url_for('static', filename='style.css') }}">
@@ -13,7 +13,7 @@
 <body class="perfil-{{ g.usuario.perfil|lower }}">
     <header>
         <h1>Organização de Recursos</h1>
-        <p>Retirada e devolução de materiais</p>
+        <p>Retirada, devolução e não comparecimento</p>
     </header>
 
     <main>
@@ -24,6 +24,8 @@
                 Registre a entrega do material ao solicitante
                 e confirme sua devolução.
                 A retirada deve ocorrer durante o período reservado.
+                Após o encerramento, uma reserva aprovada sem retirada
+                pode ser marcada como não comparecimento.
             </p>
 
             {% if mensagem %}
@@ -97,34 +99,64 @@
                             </button>
                         </form>
 
-                    {% elif not reserva.recurso_ativo %}
-                        <p>Material inativo. Retirada indisponível.</p>
+                    {% elif reserva.status == "APROVADA" %}
+                        {% if agora >= reserva.fim %}
+                            <p>
+                                O período para retirada terminou
+                                sem registro de retirada.
+                            </p>
 
-                    {% elif agora < reserva.inicio %}
-                        <p>Aguardando o início do período para retirada.</p>
+                            <form method="post"
+                                  action="{{ url_for(
+                                      'movimentar_material_reservado',
+                                      reserva_id=reserva.id
+                                  ) }}"
+                                  onsubmit="return confirm('Confirma que o solicitante não compareceu para retirar o material?');">
 
-                    {% elif agora >= reserva.fim %}
-                        <p>O período para retirada terminou.</p>
+                                <input type="hidden"
+                                       name="csrf_token"
+                                       value="{{ session['csrf_token'] }}">
 
-                    {% else %}
-                        <form method="post"
-                              action="{{ url_for(
-                                  'movimentar_material_reservado',
-                                  reserva_id=reserva.id
-                              ) }}"
-                              onsubmit="return confirm('Confirma a entrega do material ao solicitante?');">
+                                <button class="botao botao-secundario"
+                                        type="submit"
+                                        name="acao"
+                                        value="NAO_COMPARECEU">
+                                    Registrar não comparecimento
+                                </button>
+                            </form>
 
-                            <input type="hidden"
-                                   name="csrf_token"
-                                   value="{{ session['csrf_token'] }}">
+                        {% elif not reserva.recurso_ativo %}
+                            <p>
+                                Material inativo.
+                                Retirada indisponível.
+                            </p>
 
-                            <button class="botao"
-                                    type="submit"
-                                    name="acao"
-                                    value="RETIRADA">
-                                Registrar retirada
-                            </button>
-                        </form>
+                        {% elif agora < reserva.inicio %}
+                            <p>
+                                Aguardando o início do período
+                                para retirada.
+                            </p>
+
+                        {% else %}
+                            <form method="post"
+                                  action="{{ url_for(
+                                      'movimentar_material_reservado',
+                                      reserva_id=reserva.id
+                                  ) }}"
+                                  onsubmit="return confirm('Confirma a entrega do material ao solicitante?');">
+
+                                <input type="hidden"
+                                       name="csrf_token"
+                                       value="{{ session['csrf_token'] }}">
+
+                                <button class="botao"
+                                        type="submit"
+                                        name="acao"
+                                        value="RETIRADA">
+                                    Registrar retirada
+                                </button>
+                            </form>
+                        {% endif %}
                     {% endif %}
                 </article>
                 {% else %}

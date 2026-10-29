@@ -27,12 +27,26 @@ def registrar_devolucao(engine, usuario_id, reserva_id):
     )
 
 
+def registrar_nao_comparecimento(engine, usuario_id, reserva_id):
+    movimentar_material(
+        engine,
+        usuario_id,
+        reserva_id,
+        "NAO_COMPARECEU",
+    )
+
+
 def movimentar_material(engine, usuario_id, reserva_id, acao):
-    if acao not in ("RETIRADA", "DEVOLUCAO"):
+    if acao not in (
+        "RETIRADA",
+        "DEVOLUCAO",
+        "NAO_COMPARECEU",
+    ):
         raise ValueError("Selecione uma operação válida.")
 
     with engine.connect() as conexao:
         try:
+            # Serializa as gravações no SQLite.
             conexao.exec_driver_sql("BEGIN IMMEDIATE")
 
             usuario = conexao.execute(
@@ -128,7 +142,7 @@ def movimentar_material(engine, usuario_id, reserva_id, acao):
 
                 status_novo = "EM_USO"
 
-            else:
+            elif acao == "DEVOLUCAO":
                 if reserva["status"] != "EM_USO":
                     raise ValueError(
                         "Somente materiais em uso podem ser devolvidos."
@@ -137,6 +151,24 @@ def movimentar_material(engine, usuario_id, reserva_id, acao):
                 # Permite a devolução mesmo após o prazo ou
                 # se o recurso tiver sido desativado.
                 status_novo = "CONCLUIDA"
+
+            else:
+                if reserva["status"] != "APROVADA":
+                    raise ValueError(
+                        "Somente reservas aprovadas permitem "
+                        "registrar não comparecimento."
+                    )
+
+                if agora < reserva["fim"]:
+                    raise ValueError(
+                        "O não comparecimento só pode ser registrado "
+                        "após o encerramento do período da reserva."
+                    )
+
+                # Não altera reservas EM_USO: nesses casos,
+                # é necessário registrar a devolução.
+                # Recurso inativo não impede o registro histórico.
+                status_novo = "NAO_COMPARECEU"
 
             conexao.execute(
                 update(reservas)

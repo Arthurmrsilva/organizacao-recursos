@@ -26,6 +26,7 @@ from banco import (
 )
 from servico_materiais import (
     registrar_devolucao,
+    registrar_nao_comparecimento,
     registrar_retirada,
 )
 from servico_relatorios import gerar_relatorio
@@ -869,6 +870,17 @@ def movimentar_material_reservado(reserva_id):
             )
             mensagem = (
                 f"Devolução da reserva nº {reserva_id} registrada!"
+            )
+
+        elif acao == "NAO_COMPARECEU":
+            registrar_nao_comparecimento(
+                engine,
+                g.usuario["id"],
+                reserva_id,
+            )
+            mensagem = (
+                f"Não comparecimento da reserva nº "
+                f"{reserva_id} registrado!"
             )
 
         else:
