@@ -15,7 +15,7 @@ Esta matriz relaciona requisitos, riscos, testes, evidências e pendências.
 - Quantidade de testes e cobertura não representam percentual de conclusão.
 - Aprovação dos testes não comprova ausência de defeitos.
 - O cliente Flask não substitui testes externos por HTTP ou automação de navegador.
-- Os resultados históricos pertencem às versões em que foram medidos.
+- Resultados históricos pertencem às versões em que foram medidos.
 - Resultados de cobertura somente são comparáveis considerando ferramenta, versão e escopo.
 
 ## 2. Requisitos funcionais
@@ -25,16 +25,16 @@ Esta matriz relaciona requisitos, riscos, testes, evidências e pendências.
 | RF01 | Autenticação e autorização por perfil | Acesso indevido | Testes de consulta, cancelamento, aprovação, auditoria, manutenção, edição, notificações, relatórios, materiais e não comparecimento | Implementado e verificado nas operações atuais; revisão geral de segurança pendente |
 | RF02 | Cadastro e consulta de salas, professores e materiais | Dados inválidos | test_consulta.py, cadastro manual e vínculo de responsável no cadastro | Implementado e verificado; revisão por colega pendente |
 | RF03 | Pesquisa por tipo, capacidade, localização, competência e disponibilidade | Resultado incorreto | test_consulta.py, test_disponibilidade.py e consulta manual | Implementado e verificado; navegador automatizado pendente |
-| RF04 | Criar, alterar e cancelar reservas | Reserva incorreta ou alteração indevida | Testes de reservas, listagem, cancelamento e edição | Implementado e verificado no escopo atual |
+| RF04 | Criar, alterar e cancelar reservas | Reserva incorreta ou alteração indevida | Testes de reservas, listagem, cancelamento e edição; reteste após refatoração do serviço | Implementado e verificado no escopo atual |
 | RF05 | Detectar sobreposição, inclusive na agenda do professor | Dois usos simultâneos | Testes de criação, aprovação, disponibilidade e edição | Implementado no mecanismo compartilhado; ampliar cenários explícitos por tipo |
 | RF06 | Impedir dupla reserva simultânea | Duas solicitações aceitas | Duas solicitações simultâneas em test_reservas.py, com uma reserva aceita e um conflito registrado | Verificado no serviço com SQLite; concorrência por HTTP pendente |
-| RF07 | Exigir aprovação para recursos restritos | Uso sem autorização | Testes de aprovação, vínculo, cadastro com responsável e nova aprovação após edição | Implementado e verificado; vínculo disponível no cadastro; alteração do vínculo de recursos existentes pendente |
+| RF07 | Exigir aprovação para recursos restritos | Uso sem autorização | Testes de aprovação, vínculo, cadastro com responsável e nova aprovação após edição | Implementado e verificado; alteração do vínculo de recursos existentes pela interface pendente |
 | RF08 | Bloquear recursos em manutenção | Reserva impossível de atender | Testes de manutenção, disponibilidade e edição; consulta manual | Implementado e verificado; concorrência entre manutenção e reserva pendente |
 | RF09 | Registrar retirada e devolução de materiais | Perda de controle dos equipamentos | test_materiais.py, test_materiais_http.py e fluxo manual da reserva nº 11 | Implementado e verificado no serviço, nas rotas e manualmente; navegador automatizado pendente |
 | RF10 | Manter histórico auditável | Mudanças sem rastreio | Testes de auditoria, edição, materiais, não comparecimento e migração da auditoria | Implementado nas operações atuais; testes específicos de limite e ordenação da consulta pendentes |
 | RF11 | Notificação simulada ou integração externa | Usuário não informado | test_notificacoes.py e fluxo manual de leitura | Implementado como avisos internos para criação, edição, cancelamento, aprovação e rejeição |
-| RF12 | Relatórios de utilização, horas e conflitos evitados | Indicadores incorretos | 21 testes do serviço de relatórios, 16 da rota e conferência manual do contador | Contagens, horas previstas e conflitos evitados implementados e verificados; horas representam tempo reservado |
-| RF13 | Interface responsiva e erros compreensíveis | Dificuldade de uso | Testes HTTP e verificações manuais | Parcial: avaliação em diferentes telas e automação de navegador pendentes |
+| RF12 | Relatórios de utilização, horas e conflitos evitados | Indicadores incorretos | 21 testes do serviço de relatórios, 16 da rota e conferência manual do contador | Contagens, horas previstas e conflitos evitados implementados e verificados |
+| RF13 | Interface responsiva e erros compreensíveis | Dificuldade de uso | Testes HTTP, verificações manuais e reteste dos templates refatorados | Parcial: avaliação em diferentes telas e automação de navegador pendentes |
 | RF14 | Documentação da API ou dos fluxos públicos | Dificuldade de instalar e utilizar | README inicial e esta matriz | Parcial: ampliar instalação, fluxos e interfaces |
 
 O indicador de horas de RF12 representa carga horária prevista ou alocada nas reservas. Não mede o tempo real de utilização do recurso.
@@ -59,7 +59,7 @@ Tentativas bloqueadas por conflito não alteram o estado da reserva. Elas são r
 
 ## 4. Testes automatizados
 
-### Resultado local mais recente
+### Resultado local registrado com duração
 
 - Data: 31/10/2026.
 - Suíte completa: **283 testes aprovados**.
@@ -69,6 +69,16 @@ Tentativas bloqueadas por conflito não alteram o estado da reserva. Elas são r
 - Evidência: imagem do terminal.
 - A execução incluiu os oito testes de `test_atualizar_auditoria.py`.
 - O commit `4c94cf27` corresponde à atualização posteriormente analisada pelo Sonar.
+
+### Retestes após as refatorações
+
+- A suíte foi informada como aprovada após a refatoração de `servico_reservas.py`.
+- A extração dos dados compartilhados dos templates inicialmente provocou erros HTTP 500.
+- Foi identificada diferença entre o nome do arquivo criado e o nome usado no `include`.
+- O arquivo foi renomeado para `templates/_dados_reserva.html`.
+- Após a correção, a execução dos testes foi informada como bem-sucedida.
+- As durações e os hashes desses retestes não foram transcritos.
+- A duração de 90,405 segundos pertence à medição anterior e não deve ser atribuída aos retestes.
 
 ### Arquivos e escopos
 
@@ -179,8 +189,13 @@ Os resultados históricos pertencem às versões em que foram medidos.
 | Integração Sonar | Commit f2e3c18; execuções #92 e #93 aprovadas |
 | Primeira cobertura importada | Sonar apresentou 77,8% e duplicação de 3,9%; Quality Gate reprovado |
 | Testes da migração | Oito testes aprovados em banco temporário após correção do fechamento das conexões |
-| Suíte mais recente | 283 testes aprovados em 90,405 segundos; cobertura combinada local de 96% no escopo medido |
-| Aprovação Sonar | Commit 4c94cf27; Quality Gate Passed; cobertura exibida de 82,4% e duplicação de 3,9% |
+| Medição local com 283 testes | 283 testes aprovados em 90,405 segundos; cobertura combinada local de 96% no escopo medido |
+| Aprovação Sonar anterior | Commit 4c94cf27; Quality Gate Passed; cobertura exibida de 82,4% e duplicação de 3,9% |
+| Refatoração do serviço | Validações e consultas repetidas extraídas em funções auxiliares; testes informados como aprovados |
+| Medição intermediária de duplicação | Tela do Sonar mostrou 1,68% no código novo, limite de 3% e Quality Gate Passed |
+| Refatoração dos templates | Dados comuns extraídos para templates/_dados_reserva.html e reutilizados em aprovacoes.html e materiais.html |
+| Defeito de nome do template | Execução mostrou 19 falhas com respostas HTTP 500; nome do arquivo corrigido e reteste informado como aprovado |
+| Resultado mais recente do Sonar | Commit exibido 00f01ac3; Quality Gate Passed; cobertura no código novo de 83,74% e duplicação no código novo de 0,34% |
 
 ### Links principais
 
@@ -194,9 +209,12 @@ Os resultados históricos pertencem às versões em que foram medidos.
 - [Cobertura com 257 testes](https://github.com/Arthurmrsilva/organizacao-recursos/commit/47add5d)
 - [Contador de conflitos](https://github.com/Arthurmrsilva/organizacao-recursos/commit/d917f69)
 - [Vínculo no cadastro](https://github.com/Arthurmrsilva/organizacao-recursos/commit/7298034)
-- [Versão aprovada no Sonar](https://github.com/Arthurmrsilva/organizacao-recursos/commit/4c94cf27)
+- [Aprovação Sonar anterior](https://github.com/Arthurmrsilva/organizacao-recursos/commit/4c94cf27)
+- [Commit exibido na evidência mais recente](https://github.com/Arthurmrsilva/organizacao-recursos/commit/00f01ac3)
 
 Os prints da entrega devem identificar cenário, data, resultado esperado, resultado observado, requisito e commit, quando aplicável.
+
+O hash do último print identifica a análise exibida. Deve ser comparado ao último commit do PR antes de ser apresentado como evidência da versão final.
 
 A aprovação do workflow ou do Sonar não substitui revisão por outro integrante.
 
@@ -204,11 +222,12 @@ A aprovação do workflow ou do Sonar não substitui revisão por outro integran
 
 | Item | Meta ou exigência | Situação |
 | --- | --- | --- |
-| Cobertura de linhas | Pelo menos 80% | Medição local mais recente: 759 de 784 linhas, aproximadamente 96,81%, no escopo da seção 12 |
-| Cobertura de ramificações | Pelo menos 70% | Meta atendida pelo workflow aprovado; percentual exato da execução mais recente deve ser transcrito do resumo da CI |
-| Cobertura no Sonar | Pelo menos 80% conforme condição exibida | 82,4% na análise do commit 4c94cf27 |
+| Cobertura de linhas | Pelo menos 80% | Medição local anterior às refatorações: 759 de 784 linhas, aproximadamente 96,81%, no escopo da seção 12 |
+| Cobertura de ramificações | Pelo menos 70% | Meta atendida na execução de CI anteriormente registrada; transcrever os percentuais da execução final |
+| Cobertura no Sonar | Pelo menos 80% no código novo | 83,74% na evidência mais recente; condição atendida |
+| Duplicação no Sonar | No máximo 3% no código novo | 0,34% na evidência mais recente; condição atendida |
 | Rastreabilidade crítica | 100% das regras críticas ligadas a testes e evidências | Consolidar revisão dos cenários críticos |
-| Defeitos e vulnerabilidades críticas | Nenhum conhecido pendente na entrega | Sonar sem apontamentos abertos de segurança na análise registrada; revisão completa pendente |
+| Defeitos e vulnerabilidades críticas | Nenhum conhecido pendente na entrega | Sonar mostra zero novos problemas na análise registrada; revisão completa pendente |
 | Testes unitários isolados | Regras sem dependências reais | Ampliação pendente |
 | Integração | Persistência e integração das camadas | Verificada no escopo testado |
 | Testes em container | Banco com Testcontainers ou equivalente aceito | Pendente de adequação e execução |
@@ -217,9 +236,8 @@ A aprovação do workflow ou do Sonar não substitui revisão por outro integran
 | Ponta a ponta | Automação no navegador | Pendente |
 | Concorrência | Ausência de dupla reserva | Verificada no serviço; ampliar HTTP e manutenção |
 | Desempenho | Plano e resultados de carga | Pendente |
-| Análise estática | Ferramenta e resultados registrados | SonarQube Cloud integrado; Quality Gate aprovado no commit 4c94cf27 |
-| Duplicação | Revisar trechos e condição aplicável | Sonar exibe 3,9%; revisão pendente |
-| Segurança | Revisão e evidências | Parcial; autenticação, perfis, hash, CSRF e verificação de dependências implementados |
+| Análise estática | Ferramenta e resultados registrados | SonarQube Cloud integrado; Quality Gate aprovado na evidência mais recente |
+| Segurança | Revisão e evidências | Parcial; autenticação, perfis, hash, CSRF e verificação de hashes das dependências implementados |
 | Revisão por pares | Revisão de outro integrante | Pendente |
 | Arquitetura | C4, sequências, utility tree, riscos, trade-offs e ADRs | Pendente |
 | Gestão de defeitos | Registro, prioridade, correção e reteste | Parcial; consolidar documento |
@@ -242,6 +260,8 @@ O responsável pelo desenvolvimento informou que o professor permite a implement
 - Sem exclusão física de reservas pela interface.
 
 Criação e cancelamento bem-sucedidos geram auditoria e notificação na mesma transação.
+
+As validações e consultas compartilhadas foram extraídas para funções auxiliares em `servico_reservas.py`. O resultado dos testes após a refatoração foi informado como aprovado.
 
 ## 8. Aprovação e vínculo de responsáveis
 
@@ -348,32 +368,25 @@ Reserva nº 11 do Projetor 01 em 26/10/2026:
 - Autor: Administrador do projeto.
 - Eventos nº 8 e nº 9 conferidos na auditoria.
 
-Pendências: navegador automatizado e revisão por colega.
+### Reutilização do template
 
-## 12. Cobertura
+Os dados comuns da reserva foram extraídos para `templates/_dados_reserva.html`.
 
-### Última medição local conferida
+O arquivo é incluído pelas páginas de aprovação e de gestão de materiais. Os formulários e as condições específicas de cada operação permanecem nas respectivas páginas.
 
-- Data: 31/10/2026.
-- Ferramenta: coverage.py 7.17.0.
-- Execução: 283 testes em 90,405 segundos.
-- Linhas consideradas: 784.
-- Linhas não executadas: 25.
-- Linhas executadas: 759.
-- Cobertura de linhas calculada: aproximadamente 96,81%.
-- Ramificações consideradas: 302.
-- Ramificações parciais exibidas: 16.
-- Cobertura combinada exibida: 96%.
+## 12. Cobertura de testes
 
-A coluna `BrPart` representa ramificações parciais. Ela não corresponde diretamente ao total de ramificações não executadas.
+### Medição local registrada antes das refatorações
 
-O percentual exato de ramificações deve ser obtido do JSON ou do resumo gerado pela CI.
+- Suíte: 283 testes.
+- Duração: 90,405 segundos.
+- Linhas executadas: 759 de 784.
+- Cobertura de linhas: aproximadamente 96,81%.
+- Cobertura combinada exibida pelo coverage.py: 96%.
+- Percentual exato de ramificações: transcrever do resumo da CI correspondente.
+- O número de ramificações parciais não deve ser utilizado como quantidade de ramificações não cobertas.
 
-### Resultado por arquivo
-
-Os percentuais abaixo são os valores combinados exibidos no terminal.
-
-| Arquivo | Cobertura combinada |
+| Arquivo | Cobertura combinada exibida |
 | --- | ---: |
 | app.py | 98% |
 | atualizar_auditoria.py | 86% |
@@ -381,9 +394,11 @@ Os percentuais abaixo são os valores combinados exibidos no terminal.
 | servico_materiais.py | 98% |
 | servico_relatorios.py | 100% |
 | servico_reservas.py | 96% |
-| Total | 96% |
+| TOTAL | 96% |
 
-### Escopo local e do relatório enviado
+Esses números pertencem à versão anterior às refatorações recentes. Uma nova execução é necessária para registrar a cobertura local da versão final.
+
+### Escopo medido e enviado
 
 - app.py.
 - banco.py.
@@ -394,20 +409,28 @@ Os percentuais abaixo são os valores combinados exibidos no terminal.
 
 Não inclui cobertura de templates, CSS, JavaScript nem dos demais scripts administrativos e de migração.
 
-### Medição no Sonar
+### Medição mais recente exibida no Sonar
 
-Na análise do commit `4c94cf27`:
+Evidência capturada em 31/10/2026, no PR nº 1, com commit exibido `00f01ac3`:
 
-- Cobertura exibida: 82,4%.
-- Linhas a cobrir exibidas: 966.
-- Quality Gate: Passed.
-- Duplicação exibida: 3,9%.
+| Indicador | Resultado |
+| --- | --- |
+| Quality Gate | Passed |
+| Cobertura no código novo | 83,74% |
+| Condição de cobertura | Pelo menos 80% |
+| Linhas novas a cobrir | 923 |
+| Cobertura estimada após o merge | 82,9% |
+| Duplicação no código novo | 0,34% |
+| Condição de duplicação | No máximo 3% |
+| Duplicação estimada após o merge | 0,8% |
 
-O Sonar analisa um escopo mais amplo que os seis módulos medidos pelo coverage.py. Arquivos analisados sem cobertura importada também podem afetar o resultado.
+O Sonar considera arquivos e métricas que não coincidem integralmente com o escopo local dos seis módulos.
 
-Os valores de 96% local e 82,4% no Sonar não representam a mesma medição nem o mesmo escopo.
+A cobertura no código novo e a estimativa após o merge são indicadores distintos.
 
-### Histórico
+Os 96% locais históricos e os 83,74% no código novo do Sonar não representam a mesma medição.
+
+### Histórico local
 
 | Versão | Linhas | Ramificações | Combinada |
 | --- | --- | --- | --- |
@@ -415,9 +438,9 @@ Os valores de 96% local e 82,4% no Sonar não representam a mesma medição nem 
 | 213 testes | 93,31% | 90,23% | 92% |
 | 257 testes | Aproximadamente 98% | Aproximadamente 96% | 97% |
 | 269 testes | 97,70% — 680 de 696 | 96,27% — 258 de 268 | 97% |
-| 283 testes | Aproximadamente 96,81% — 759 de 784 | Meta atendida na CI; transcrever percentual exato do resumo | 96% |
+| 283 testes, antes das refatorações | Aproximadamente 96,81% — 759 de 784 | Meta atendida na CI registrada; transcrever percentual exato | 96% |
 
-A execução de cobertura com 269 testes durou 90,688 segundos e teve como base funcional o commit `d917f69`. O JSON foi atualizado no commit `ec99faa`.
+A execução com 269 testes durou 90,688 segundos e teve como base funcional o commit `d917f69`. O JSON foi atualizado no commit `ec99faa`.
 
 ### Como medir
 
@@ -475,7 +498,7 @@ A pesquisa não registra tentativa de conflito: ela apenas consulta disponibilid
 
 A migração histórica de detalhes preservou nove registros com backup.
 
-O script `atualizar_auditoria.py` agora possui oito testes automatizados em bancos temporários. Esses testes não equivalem à execução de uma nova migração no banco real.
+O script `atualizar_auditoria.py` possui oito testes automatizados em bancos temporários. Esses testes não equivalem à execução de uma nova migração no banco real.
 
 ## 15. Correção de materiais atrasados
 
@@ -611,7 +634,9 @@ Limitações: tempo real de utilização, exportação, paginação e navegador 
 - O lock é versionado no repositório.
 - Tokens não devem ser inseridos em código, documentação ou prints.
 
-### Resultados
+A verificação de hashes confirma os arquivos esperados pelo lock. Não substitui a análise de vulnerabilidades das dependências.
+
+### Resultados registrados
 
 - Execuções #85 e #86: aprovadas após vínculo de responsável.
 - Execução #87: falhou por sintaxe YAML.
@@ -619,12 +644,14 @@ Limitações: tempo real de utilização, exportação, paginação e navegador 
 - Execuções #92 e #93: aprovadas na integração inicial do Sonar.
 - Execução posterior aos testes de migração: informada como aprovada.
 - Sonar do commit 4c94cf27: Quality Gate Passed.
+- Evidência mais recente do Sonar, com commit exibido 00f01ac3: Quality Gate Passed.
+- Números das execuções referentes às últimas refatorações: transcrever do GitHub Actions.
 
 ### Limitações
 
 - JSON, XML e HTML ainda não são publicados como artefatos para download.
 - A etapa do scanner envia a análise, mas o workflow atual não aguarda explicitamente o resultado do Quality Gate para decidir seu próprio sucesso.
-- Portanto, workflow verde e Quality Gate aprovado são evidências distintas.
+- Workflow verde e Quality Gate aprovado são evidências distintas.
 - A análise automática do Sonar foi desativada para utilizar a análise pela CI.
 
 ## 19. Não comparecimento de materiais
@@ -710,6 +737,8 @@ O registro é confirmado antes do erro para não ser perdido pelo rollback do tr
 
 A função de bloqueio é chamada antes de qualquer gravação da operação na reserva.
 
+A refatoração do serviço manteve esse tratamento separado da confirmação das operações bem-sucedidas.
+
 ### Testes verificados
 
 - Criação bloqueada registra autor, recurso, período, operação e reserva conflitante.
@@ -743,14 +772,17 @@ A função de bloqueio é chamada antes de qualquer gravação da operação na 
 - Completar README de instalação e fluxos.
 - Consolidar evidências TDD ou BDD.
 - Documentar arquitetura, riscos e decisões.
-- Revisar os trechos duplicados indicados pelo Sonar.
-- Conferir as condições efetivamente aplicadas ao Quality Gate.
+- Registrar cobertura local atualizada após as refatorações.
+- Conferir se o hash da análise Sonar corresponde ao último commit do PR.
+- Registrar números e resultados das execuções finais do GitHub Actions.
 - Avaliar bloqueio da CI quando o Quality Gate reprovar.
 - Publicar relatórios de testes e cobertura como artefatos.
 - Concluir revisão de segurança.
 - Consolidar registro de defeitos e retestes.
 - Obter revisão por outro integrante.
 - Preparar relatório final e apresentação.
+
+A evidência mais recente atende às condições exibidas de cobertura e duplicação no código novo. Essas condições deixaram de ser pendências nessa análise.
 
 ## 22. Migração da auditoria: testes específicos
 
@@ -789,7 +821,7 @@ Após a correção:
 
 - Os oito testes específicos passaram.
 - A suíte completa passou com 283 testes.
-- A cobertura combinada do script ficou em 86%.
+- A cobertura combinada do script ficou em 86% na medição registrada.
 
 Esse resultado ainda não cobre todas as falhas possíveis, como interrupção do processo durante a operação ou falta de espaço em disco.
 
@@ -807,9 +839,9 @@ Esse resultado ainda não cobre todas as falhas possíveis, como interrupção d
 - Cobertura Python importada de coverage.xml.
 - Diretório tests identificado separadamente como código de teste.
 
-### Correções realizadas
+### Correções no workflow
 
-Na configuração inicial, o Sonar apresentou três apontamentos no workflow:
+Na configuração inicial, o Sonar apresentou três apontamentos:
 
 - Duas instalações sem exigência de pacotes binários.
 - Uma instalação sem verificação por hashes.
@@ -824,35 +856,121 @@ Foram realizadas as seguintes correções:
 
 Os três apontamentos deixaram de aparecer na análise posterior.
 
-### Resultado registrado
+### Resultado histórico
 
-**Commit:** 4c94cf27  
+Na análise do commit `4c94cf27`, a tela mostrou:
+
+- Quality Gate Passed.
+- Segurança A, com zero apontamentos abertos.
+- Confiabilidade A, com zero apontamentos abertos.
+- Manutenibilidade A, com zero apontamentos abertos.
+- Cobertura exibida de 82,4%.
+- Duplicação exibida de 3,9%.
+
+Essa tela não distinguia as condições da mesma forma que a evidência mais recente. Os valores foram preservados como registro histórico.
+
+### Resultado mais recente exibido
+
+**Commit exibido:** 00f01ac3  
 **Data da evidência:** 31/10/2026  
 **Quality Gate:** Passed
 
-| Indicador | Resultado exibido |
-| --- | --- |
-| Segurança | A; zero apontamentos abertos |
-| Confiabilidade | A; zero apontamentos abertos |
-| Manutenibilidade | A; zero apontamentos abertos |
-| Accepted issues | 0 |
-| Cobertura | 82,4% |
-| Duplicação | 3,9% |
-| Security hotspots exibidos | 0 |
-| Riscos de dependências exibidos | 0; classificação A |
+| Indicador | Resultado exibido | Condição exibida |
+| --- | --- | --- |
+| Novos problemas | 0 | Sem condição indicada no cartão |
+| Problemas aceitos | 0 | Sem condição indicada no cartão |
+| Cobertura no código novo | 83,74% | Pelo menos 80% |
+| Duplicação no código novo | 0,34% | No máximo 3% |
+| Security hotspots exibidos | 0 | Sem condição indicada no cartão |
+| Riscos de dependências exibidos | 0 | Sem condição indicada no cartão |
+| Cobertura estimada após o merge | 82,9% | Indicador distinto do código novo |
+| Duplicação estimada após o merge | 0,8% | Indicador distinto do código novo |
+
+A tela informa 923 linhas novas a cobrir para cobertura e aproximadamente 14 mil linhas novas no cartão de duplicação. Esses indicadores utilizam bases diferentes.
 
 ### Interpretação e limites
 
+- A evidência atende às condições exibidas de cobertura e duplicação no código novo.
 - O resultado pertence ao commit e ao Pull Request indicados.
+- O hash deve ser comparado ao último commit do PR antes da entrega.
 - Não representa uma análise atualizada da main antes do merge.
-- Zero apontamentos não comprova ausência de vulnerabilidades.
+- Estimativas após o merge não equivalem a uma análise já executada na main.
+- Zero novos problemas não comprova ausência de vulnerabilidades.
 - A análise estática não substitui testes de segurança, carga ou navegador.
-- Os quatro scripts administrativos e de migração restantes ainda aparecem sem cobertura importada na verificação anterior.
-- A tela de condições consultada apresentou limite de duplicação de 3%.
-- O resumo posterior mostrou Passed e duplicação de 3,9%, com indicação de ausência de condições nesse cartão.
-- A razão dessa diferença ainda não foi confirmada.
-- Não se declara que a meta de duplicação de 3% foi atingida.
-- A condição efetivamente aplicada deve ser revisada e documentada.
+- Scripts sem cobertura importada continuam exigindo testes específicos.
+- Resultados de telas históricas não devem ser apresentados como métricas da versão atual.
+
+## 24. Refatorações para redução de duplicação
+
+### Serviço de reservas
+
+**Arquivo:** servico_reservas.py.
+
+Foram extraídos auxiliares para:
+
+- Validar recurso, período e texto do agendamento.
+- Consultar usuário ativo.
+- Exigir usuário ativo nos fluxos correspondentes.
+- Consultar recurso disponível.
+- Consultar reserva do próprio usuário.
+- Validar alteração ou cancelamento antes do início.
+- Localizar reservas sobrepostas.
+- Verificar manutenção e registrar bloqueio por conflito.
+- Determinar o estado inicial conforme necessidade de aprovação.
+- Organizar os dados anteriores e novos da auditoria.
+
+As funções públicas de criação, alteração, cancelamento, avaliação, manutenção, auditoria e notificação foram mantidas.
+
+O reteste da suíte foi informado como aprovado.
+
+### Templates
+
+Arquivos envolvidos:
+
+- templates/_dados_reserva.html.
+- templates/aprovacoes.html.
+- templates/materiais.html.
+
+O trecho compartilhado apresenta:
+
+- Nome do recurso.
+- Número da reserva.
+- Tipo, quando solicitado pela página de aprovação.
+- Solicitante.
+- Início e término.
+- Finalidade.
+- Situação.
+
+Cada página mantém seus formulários e suas condições específicas:
+
+- Aprovar ou rejeitar na página de aprovação.
+- Retirar, devolver ou registrar não comparecimento na gestão de materiais.
+- Campos CSRF preservados.
+- Confirmações JavaScript preservadas.
+- Alertas de atraso e mensagens de indisponibilidade preservados.
+
+### Defeito encontrado na aplicação dos templates
+
+| Campo | Registro |
+| --- | --- |
+| Problema | Arquivo compartilhado criado com nome diferente do usado no include |
+| Efeito observado | Respostas HTTP 500 e 19 falhas na suíte |
+| Correção | Nome ajustado para templates/_dados_reserva.html |
+| Reteste | Execução informada como bem-sucedida após a correção |
+| Situação | Corrigido no ambiente local informado; conferir também a execução final da CI |
+
+### Evolução registrada no Sonar
+
+| Etapa | Indicador |
+| --- | --- |
+| Tela anterior | Duplicação no código novo de 1,68%, com limite de 3% |
+| Evidência mais recente | Duplicação no código novo de 0,34%, com limite de 3% |
+| Estimativa mais recente após o merge | Duplicação de 0,8% |
+| Quality Gate mais recente | Passed |
+
+Os resultados foram obtidos após alterações na estrutura do código e dos templates. Não foram acrescentadas exclusões de duplicação para esses arquivos.
+
+A comparação deve considerar o commit e o escopo de cada análise.
 
 ## Histórico detalhado das evidências
 
