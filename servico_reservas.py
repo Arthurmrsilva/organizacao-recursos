@@ -20,7 +20,7 @@ def registrar_notificacao(
     reserva_id,
     mensagem,
 ):
-    # Usa a transação da reserva, sem commit separado.
+    # Participa da transação da operação.
     conexao.execute(
         insert(notificacoes).values(
             usuario_id=usuario_id,
@@ -41,7 +41,7 @@ def registrar_auditoria(
     status_novo,
     detalhes=None,
 ):
-    # Usa a transação da operação, sem commit separado.
+    # Participa da transação da operação.
     conexao.execute(
         insert(auditoria_reservas).values(
             reserva_id=reserva_id,
@@ -69,9 +69,7 @@ def bloquear_por_conflito(
     fim,
     mensagem,
 ):
-    # Chamada antes de qualquer gravação na reserva.
-    # Cada tentativa bloqueada gera um registro, mesmo quando
-    # existem várias reservas sobrepostas.
+    # Deve ser chamada antes de qualquer gravação na reserva.
     conexao.execute(
         insert(conflitos_reservas).values(
             usuario_id=usuario_id,
@@ -84,21 +82,21 @@ def bloquear_por_conflito(
         )
     )
 
-    # Confirma somente o registro da tentativa bloqueada.
-    # O rollback do tratamento do erro não apagará esse registro.
+    # Preserva a tentativa bloqueada mesmo com o erro posterior.
     conexao.commit()
-
     raise ValueError(mensagem)
 
 
 def verificar_manutencao(conexao, recurso_id, inicio, fim):
     bloqueio = conexao.execute(
-        select(manutencoes.c.id).where(
+        select(manutencoes.c.id)
+        .where(
             manutencoes.c.recurso_id == recurso_id,
             manutencoes.c.ativo.is_(True),
             manutencoes.c.inicio < fim,
             manutencoes.c.fim > inicio,
-        ).limit(1)
+        )
+        .limit(1)
     ).first()
 
     if bloqueio is not None:
@@ -107,13 +105,28 @@ def verificar_manutencao(conexao, recurso_id, inicio, fim):
         )
 
 
-def criar_manutencao(engine, usuario_id, dados):
-    motivo = dados.get("motivo", "").strip()
-
-    if not 1 <= len(motivo) <= 200:
-        raise ValueError(
+def _validar_agendamento(dados, manutencao=False):
+    if manutencao:
+        campo = "motivo"
+        mensagem_texto = (
             "Informe o motivo da manutenção com até 200 caracteres."
         )
+        mensagem_inicio = (
+            "O início da manutenção deve estar no futuro."
+        )
+    else:
+        campo = "finalidade"
+        mensagem_texto = (
+            "Informe a finalidade com até 200 caracteres."
+        )
+        mensagem_inicio = (
+            "O início da reserva deve estar no futuro."
+        )
+
+    texto = dados.get(campo, "").strip()
+
+    if not 1 <= len(texto) <= 200:
+        raise ValueError(mensagem_texto)
 
     try:
         recurso_id = int(dados.get("recurso_id", ""))
@@ -139,38 +152,226 @@ def criar_manutencao(engine, usuario_id, dados):
             "O término deve ser posterior ao início."
         )
 
+    # Os horários seguem o relógio local do servidor.
     if inicio <= datetime.now():
-        raise ValueError(
-            "O início da manutenção deve estar no futuro."
+        raise ValueError(mensagem_inicio)
+
+    return recurso_id, inicio, fim, texto
+
+
+def _buscar_usuario_ativo(conexao, usuario_id):
+    return conexao.execute(
+        select(usuarios).where(
+            usuarios.c.id == usuario_id,
+            usuarios.c.ativo.is_(True),
         )
+    ).mappings().first()
+
+
+def _exigir_usuario_ativo(conexao, usuario_id):
+    usuario = _buscar_usuario_ativo(conexao, usuario_id)
+
+    if usuario is None:
+        raise ValueError(
+            "Usuário não encontrado ou inativo."
+        )
+
+    return usuario
+
+
+def _buscar_recurso_disponivel(conexao, recurso_id):
+    recurso = conexao.execute(
+        select(recursos).where(
+            recursos.c.id == recurso_id,
+            recursos.c.ativo.is_(True),
+        )
+    ).mappings().first()
+
+    if recurso is None:
+        raise ValueError(
+            "O recurso selecionado não está disponível."
+        )
+
+    return recurso
+
+
+def _buscar_reserva_do_usuario(
+    conexao,
+    usuario_id,
+    reserva_id,
+):
+    reserva = conexao.execute(
+        select(reservas).where(
+            reservas.c.id == reserva_id,
+            reservas.c.usuario_id == usuario_id,
+        )
+    ).mappings().first()
+
+    if reserva is None:
+        raise ValueError(
+            "Reserva não encontrada para este usuário."
+        )
+
+    return reserva
+
+
+def _validar_operacao_do_solicitante(reserva, operacao):
+    if operacao == "ALTERACAO":
+        mensagem_status = (
+            "Esta reserva não pode ser alterada "
+            "na situação atual."
+        )
+        mensagem_inicio = (
+            "Não é possível alterar uma reserva "
+            "que já começou."
+        )
+    else:
+        mensagem_status = (
+            "Esta reserva não pode ser cancelada "
+            "na situação atual."
+        )
+        mensagem_inicio = (
+            "Não é possível cancelar uma reserva "
+            "que já começou."
+        )
+
+    if reserva["status"] not in ("SOLICITADA", "APROVADA"):
+        raise ValueError(mensagem_status)
+
+    if reserva["inicio"] <= datetime.now():
+        raise ValueError(mensagem_inicio)
+
+
+def _buscar_conflito(
+    conexao,
+    recurso_id,
+    inicio,
+    fim,
+    reserva_id=None,
+):
+    consulta = select(reservas.c.id).where(
+        reservas.c.recurso_id == recurso_id,
+        reservas.c.status.in_(
+            ("SOLICITADA", "APROVADA", "EM_USO")
+        ),
+        reservas.c.inicio < fim,
+        reservas.c.fim > inicio,
+    )
+
+    if reserva_id is not None:
+        # A reserva não pode conflitar com ela mesma.
+        consulta = consulta.where(
+            reservas.c.id != reserva_id
+        )
+
+    return conexao.execute(
+        consulta.order_by(reservas.c.id).limit(1)
+    ).first()
+
+
+def _verificar_disponibilidade(
+    conexao,
+    usuario_id,
+    recurso_id,
+    inicio,
+    fim,
+    operacao,
+    reserva_id=None,
+):
+    verificar_manutencao(
+        conexao,
+        recurso_id,
+        inicio,
+        fim,
+    )
+
+    conflito = _buscar_conflito(
+        conexao,
+        recurso_id,
+        inicio,
+        fim,
+        reserva_id=reserva_id,
+    )
+
+    if conflito is None:
+        return
+
+    if operacao == "APROVACAO":
+        mensagem = (
+            "Existe outra reserva para este recurso "
+            "no período informado."
+        )
+    else:
+        mensagem = (
+            "Já existe uma reserva para esse recurso "
+            "no período informado."
+        )
+
+    bloquear_por_conflito(
+        conexao=conexao,
+        usuario_id=usuario_id,
+        recurso_id=recurso_id,
+        reserva_conflitante_id=conflito.id,
+        operacao=operacao,
+        inicio=inicio,
+        fim=fim,
+        mensagem=mensagem,
+    )
+
+
+def _status_inicial(recurso):
+    precisa_aprovacao = (
+        recurso["restrito"]
+        or recurso["tipo"] == "PROFESSOR"
+    )
+
+    return (
+        "SOLICITADA"
+        if precisa_aprovacao
+        else "APROVADA"
+    )
+
+
+def _dados_para_auditoria(
+    recurso_id,
+    inicio,
+    fim,
+    finalidade,
+    status,
+):
+    return {
+        "recurso_id": recurso_id,
+        "inicio": inicio.isoformat(),
+        "fim": fim.isoformat(),
+        "finalidade": finalidade,
+        "status": status,
+    }
+
+
+def criar_manutencao(engine, usuario_id, dados):
+    recurso_id, inicio, fim, motivo = _validar_agendamento(
+        dados,
+        manutencao=True,
+    )
 
     with engine.connect() as conexao:
         try:
             conexao.exec_driver_sql("BEGIN IMMEDIATE")
 
-            usuario = conexao.execute(
-                select(usuarios).where(
-                    usuarios.c.id == usuario_id,
-                    usuarios.c.ativo.is_(True),
-                )
-            ).mappings().first()
+            usuario = _buscar_usuario_ativo(
+                conexao,
+                usuario_id,
+            )
 
             if usuario is None or usuario["perfil"] != "ADMIN":
                 raise ValueError(
                     "Somente administradores podem cadastrar manutenção."
                 )
 
-            recurso = conexao.execute(
-                select(recursos).where(
-                    recursos.c.id == recurso_id,
-                    recursos.c.ativo.is_(True),
-                )
-            ).mappings().first()
-
-            if recurso is None:
-                raise ValueError(
-                    "O recurso selecionado não está disponível."
-                )
+            _buscar_recurso_disponivel(
+                conexao,
+                recurso_id,
+            )
 
             verificar_manutencao(
                 conexao,
@@ -179,16 +380,12 @@ def criar_manutencao(engine, usuario_id, dados):
                 fim,
             )
 
-            conflito = conexao.execute(
-                select(reservas.c.id).where(
-                    reservas.c.recurso_id == recurso_id,
-                    reservas.c.status.in_(
-                        ("SOLICITADA", "APROVADA", "EM_USO")
-                    ),
-                    reservas.c.inicio < fim,
-                    reservas.c.fim > inicio,
-                ).limit(1)
-            ).first()
+            conflito = _buscar_conflito(
+                conexao,
+                recurso_id,
+                inicio,
+                fim,
+            )
 
             if conflito is not None:
                 raise ValueError(
@@ -220,114 +417,34 @@ def criar_manutencao(engine, usuario_id, dados):
 
 
 def criar_reserva(engine, usuario_id, dados):
-    finalidade = dados.get("finalidade", "").strip()
-
-    if not 1 <= len(finalidade) <= 200:
-        raise ValueError(
-            "Informe a finalidade com até 200 caracteres."
-        )
-
-    try:
-        recurso_id = int(dados.get("recurso_id", ""))
-    except (TypeError, ValueError):
-        raise ValueError("Selecione um recurso válido.") from None
-
-    try:
-        inicio = datetime.strptime(
-            dados.get("inicio", ""),
-            "%Y-%m-%dT%H:%M",
-        )
-        fim = datetime.strptime(
-            dados.get("fim", ""),
-            "%Y-%m-%dT%H:%M",
-        )
-    except (TypeError, ValueError):
-        raise ValueError(
-            "Informe datas e horários válidos."
-        ) from None
-
-    if fim <= inicio:
-        raise ValueError(
-            "O término deve ser posterior ao início."
-        )
-
-    # Os horários seguem o relógio local do servidor.
-    if inicio <= datetime.now():
-        raise ValueError(
-            "O início da reserva deve estar no futuro."
-        )
+    recurso_id, inicio, fim, finalidade = _validar_agendamento(
+        dados
+    )
 
     with engine.connect() as conexao:
         try:
             conexao.exec_driver_sql("BEGIN IMMEDIATE")
 
-            usuario = conexao.execute(
-                select(usuarios).where(
-                    usuarios.c.id == usuario_id,
-                    usuarios.c.ativo.is_(True),
-                )
-            ).mappings().first()
+            _exigir_usuario_ativo(
+                conexao,
+                usuario_id,
+            )
 
-            if usuario is None:
-                raise ValueError(
-                    "Usuário não encontrado ou inativo."
-                )
-
-            recurso = conexao.execute(
-                select(recursos).where(
-                    recursos.c.id == recurso_id,
-                    recursos.c.ativo.is_(True),
-                )
-            ).mappings().first()
-
-            if recurso is None:
-                raise ValueError(
-                    "O recurso selecionado não está disponível."
-                )
-
-            verificar_manutencao(
+            recurso = _buscar_recurso_disponivel(
                 conexao,
                 recurso_id,
-                inicio,
-                fim,
             )
 
-            conflito = conexao.execute(
-                select(reservas.c.id).where(
-                    reservas.c.recurso_id == recurso_id,
-                    reservas.c.status.in_(
-                        ("SOLICITADA", "APROVADA", "EM_USO")
-                    ),
-                    reservas.c.inicio < fim,
-                    reservas.c.fim > inicio,
-                ).order_by(reservas.c.id).limit(1)
-            ).first()
-
-            if conflito is not None:
-                bloquear_por_conflito(
-                    conexao=conexao,
-                    usuario_id=usuario_id,
-                    recurso_id=recurso_id,
-                    reserva_conflitante_id=conflito.id,
-                    operacao="CRIACAO",
-                    inicio=inicio,
-                    fim=fim,
-                    mensagem=(
-                        "Já existe uma reserva para esse recurso "
-                        "no período informado."
-                    ),
-                )
-
-            precisa_aprovacao = (
-                recurso["restrito"]
-                or recurso["tipo"] == "PROFESSOR"
+            _verificar_disponibilidade(
+                conexao=conexao,
+                usuario_id=usuario_id,
+                recurso_id=recurso_id,
+                inicio=inicio,
+                fim=fim,
+                operacao="CRIACAO",
             )
 
-            status = (
-                "SOLICITADA"
-                if precisa_aprovacao
-                else "APROVADA"
-            )
+            status = _status_inicial(recurso)
 
             resultado = conexao.execute(
                 insert(reservas).values(
@@ -351,7 +468,7 @@ def criar_reserva(engine, usuario_id, dados):
                 status_novo=status,
             )
 
-            if precisa_aprovacao:
+            if status == "SOLICITADA":
                 mensagem = (
                     f"Reserva nº {reserva_id} criada. "
                     "Sua solicitação está aguardando aprovação."
@@ -378,129 +495,45 @@ def criar_reserva(engine, usuario_id, dados):
 
 
 def alterar_reserva(engine, usuario_id, reserva_id, dados):
-    finalidade = dados.get("finalidade", "").strip()
-
-    if not 1 <= len(finalidade) <= 200:
-        raise ValueError(
-            "Informe a finalidade com até 200 caracteres."
-        )
-
-    try:
-        recurso_id = int(dados.get("recurso_id", ""))
-    except (TypeError, ValueError):
-        raise ValueError("Selecione um recurso válido.") from None
-
-    try:
-        inicio = datetime.strptime(
-            dados.get("inicio", ""),
-            "%Y-%m-%dT%H:%M",
-        )
-        fim = datetime.strptime(
-            dados.get("fim", ""),
-            "%Y-%m-%dT%H:%M",
-        )
-    except (TypeError, ValueError):
-        raise ValueError(
-            "Informe datas e horários válidos."
-        ) from None
-
-    if fim <= inicio:
-        raise ValueError(
-            "O término deve ser posterior ao início."
-        )
-
-    if inicio <= datetime.now():
-        raise ValueError(
-            "O início da reserva deve estar no futuro."
-        )
+    recurso_id, inicio, fim, finalidade = _validar_agendamento(
+        dados
+    )
 
     with engine.connect() as conexao:
         try:
-            # Impede outra gravação entre a verificação e a alteração.
+            # Impede gravações entre a verificação e a alteração.
             conexao.exec_driver_sql("BEGIN IMMEDIATE")
 
-            usuario = conexao.execute(
-                select(usuarios).where(
-                    usuarios.c.id == usuario_id,
-                    usuarios.c.ativo.is_(True),
-                )
-            ).mappings().first()
-
-            if usuario is None:
-                raise ValueError(
-                    "Usuário não encontrado ou inativo."
-                )
-
-            reserva = conexao.execute(
-                select(reservas).where(
-                    reservas.c.id == reserva_id,
-                    reservas.c.usuario_id == usuario_id,
-                )
-            ).mappings().first()
-
-            if reserva is None:
-                raise ValueError(
-                    "Reserva não encontrada para este usuário."
-                )
-
-            if reserva["status"] not in ("SOLICITADA", "APROVADA"):
-                raise ValueError(
-                    "Esta reserva não pode ser alterada "
-                    "na situação atual."
-                )
-
-            if reserva["inicio"] <= datetime.now():
-                raise ValueError(
-                    "Não é possível alterar uma reserva "
-                    "que já começou."
-                )
-
-            recurso = conexao.execute(
-                select(recursos).where(
-                    recursos.c.id == recurso_id,
-                    recursos.c.ativo.is_(True),
-                )
-            ).mappings().first()
-
-            if recurso is None:
-                raise ValueError(
-                    "O recurso selecionado não está disponível."
-                )
-
-            verificar_manutencao(
+            _exigir_usuario_ativo(
                 conexao,
-                recurso_id,
-                inicio,
-                fim,
+                usuario_id,
             )
 
-            conflito = conexao.execute(
-                select(reservas.c.id).where(
-                    # A reserva não pode conflitar com ela mesma.
-                    reservas.c.id != reserva_id,
-                    reservas.c.recurso_id == recurso_id,
-                    reservas.c.status.in_(
-                        ("SOLICITADA", "APROVADA", "EM_USO")
-                    ),
-                    reservas.c.inicio < fim,
-                    reservas.c.fim > inicio,
-                ).order_by(reservas.c.id).limit(1)
-            ).first()
+            reserva = _buscar_reserva_do_usuario(
+                conexao,
+                usuario_id,
+                reserva_id,
+            )
 
-            if conflito is not None:
-                bloquear_por_conflito(
-                    conexao=conexao,
-                    usuario_id=usuario_id,
-                    recurso_id=recurso_id,
-                    reserva_conflitante_id=conflito.id,
-                    operacao="ALTERACAO",
-                    inicio=inicio,
-                    fim=fim,
-                    mensagem=(
-                        "Já existe uma reserva para esse recurso "
-                        "no período informado."
-                    ),
-                )
+            _validar_operacao_do_solicitante(
+                reserva,
+                "ALTERACAO",
+            )
+
+            recurso = _buscar_recurso_disponivel(
+                conexao,
+                recurso_id,
+            )
+
+            _verificar_disponibilidade(
+                conexao=conexao,
+                usuario_id=usuario_id,
+                recurso_id=recurso_id,
+                inicio=inicio,
+                fim=fim,
+                operacao="ALTERACAO",
+                reserva_id=reserva_id,
+            )
 
             houve_alteracao = (
                 reserva["recurso_id"] != recurso_id
@@ -514,33 +547,24 @@ def alterar_reserva(engine, usuario_id, reserva_id, dados):
                     "Nenhuma alteração foi informada."
                 )
 
-            precisa_aprovacao = (
-                recurso["restrito"]
-                or recurso["tipo"] == "PROFESSOR"
-            )
-
-            # Recursos restritos e professores passam por nova aprovação.
-            status_novo = (
-                "SOLICITADA"
-                if precisa_aprovacao
-                else "APROVADA"
-            )
+            # Recursos restritos e professores exigem nova aprovação.
+            status_novo = _status_inicial(recurso)
 
             detalhes = {
-                "antes": {
-                    "recurso_id": reserva["recurso_id"],
-                    "inicio": reserva["inicio"].isoformat(),
-                    "fim": reserva["fim"].isoformat(),
-                    "finalidade": reserva["finalidade"],
-                    "status": reserva["status"],
-                },
-                "depois": {
-                    "recurso_id": recurso_id,
-                    "inicio": inicio.isoformat(),
-                    "fim": fim.isoformat(),
-                    "finalidade": finalidade,
-                    "status": status_novo,
-                },
+                "antes": _dados_para_auditoria(
+                    reserva["recurso_id"],
+                    reserva["inicio"],
+                    reserva["fim"],
+                    reserva["finalidade"],
+                    reserva["status"],
+                ),
+                "depois": _dados_para_auditoria(
+                    recurso_id,
+                    inicio,
+                    fim,
+                    finalidade,
+                    status_novo,
+                ),
             }
 
             conexao.execute(
@@ -568,7 +592,7 @@ def alterar_reserva(engine, usuario_id, reserva_id, dados):
                 detalhes=detalhes,
             )
 
-            if precisa_aprovacao:
+            if status_novo == "SOLICITADA":
                 mensagem = (
                     f"Reserva nº {reserva_id} alterada. "
                     "Sua solicitação está aguardando nova aprovação."
@@ -586,7 +610,7 @@ def alterar_reserva(engine, usuario_id, reserva_id, dados):
                 mensagem=mensagem,
             )
 
-            # Reserva, auditoria e notificação são confirmadas juntas.
+            # Confirma reserva, auditoria e notificação juntas.
             conexao.commit()
             return reserva_id
 
@@ -600,29 +624,16 @@ def cancelar_reserva(engine, usuario_id, reserva_id):
         try:
             conexao.exec_driver_sql("BEGIN IMMEDIATE")
 
-            reserva = conexao.execute(
-                select(reservas).where(
-                    reservas.c.id == reserva_id,
-                    reservas.c.usuario_id == usuario_id,
-                )
-            ).mappings().first()
+            reserva = _buscar_reserva_do_usuario(
+                conexao,
+                usuario_id,
+                reserva_id,
+            )
 
-            if reserva is None:
-                raise ValueError(
-                    "Reserva não encontrada para este usuário."
-                )
-
-            if reserva["status"] not in ("SOLICITADA", "APROVADA"):
-                raise ValueError(
-                    "Esta reserva não pode ser cancelada "
-                    "na situação atual."
-                )
-
-            if reserva["inicio"] <= datetime.now():
-                raise ValueError(
-                    "Não é possível cancelar uma reserva "
-                    "que já começou."
-                )
+            _validar_operacao_do_solicitante(
+                reserva,
+                "CANCELAMENTO",
+            )
 
             conexao.execute(
                 update(reservas)
@@ -664,12 +675,10 @@ def avaliar_reserva(engine, usuario_id, reserva_id, decisao):
         try:
             conexao.exec_driver_sql("BEGIN IMMEDIATE")
 
-            usuario = conexao.execute(
-                select(usuarios).where(
-                    usuarios.c.id == usuario_id,
-                    usuarios.c.ativo.is_(True),
-                )
-            ).mappings().first()
+            usuario = _buscar_usuario_ativo(
+                conexao,
+                usuario_id,
+            )
 
             if usuario is None or usuario["perfil"] != "RESPONSAVEL":
                 raise ValueError(
@@ -685,6 +694,7 @@ def avaliar_reserva(engine, usuario_id, reserva_id, decisao):
             if reserva is None:
                 raise ValueError("Reserva não encontrada.")
 
+            # A rejeição também pode ocorrer com recurso inativo.
             recurso = conexao.execute(
                 select(recursos).where(
                     recursos.c.id == reserva["recurso_id"]
@@ -717,39 +727,15 @@ def avaliar_reserva(engine, usuario_id, reserva_id, decisao):
                         "de um recurso inativo."
                     )
 
-                verificar_manutencao(
-                    conexao,
-                    recurso["id"],
-                    reserva["inicio"],
-                    reserva["fim"],
+                _verificar_disponibilidade(
+                    conexao=conexao,
+                    usuario_id=usuario_id,
+                    recurso_id=recurso["id"],
+                    inicio=reserva["inicio"],
+                    fim=reserva["fim"],
+                    operacao="APROVACAO",
+                    reserva_id=reserva_id,
                 )
-
-                conflito = conexao.execute(
-                    select(reservas.c.id).where(
-                        reservas.c.id != reserva_id,
-                        reservas.c.recurso_id == recurso["id"],
-                        reservas.c.status.in_(
-                            ("SOLICITADA", "APROVADA", "EM_USO")
-                        ),
-                        reservas.c.inicio < reserva["fim"],
-                        reservas.c.fim > reserva["inicio"],
-                    ).order_by(reservas.c.id).limit(1)
-                ).first()
-
-                if conflito is not None:
-                    bloquear_por_conflito(
-                        conexao=conexao,
-                        usuario_id=usuario_id,
-                        recurso_id=recurso["id"],
-                        reserva_conflitante_id=conflito.id,
-                        operacao="APROVACAO",
-                        inicio=reserva["inicio"],
-                        fim=reserva["fim"],
-                        mensagem=(
-                            "Existe outra reserva para este recurso "
-                            "no período informado."
-                        ),
-                    )
 
             conexao.execute(
                 update(reservas)
@@ -778,7 +764,7 @@ def avaliar_reserva(engine, usuario_id, reserva_id, decisao):
                 else "rejeitada"
             )
 
-            # O destinatário é o solicitante, não quem avaliou.
+            # O destinatário é o solicitante.
             registrar_notificacao(
                 conexao=conexao,
                 usuario_id=reserva["usuario_id"],
