@@ -11,11 +11,13 @@ jobs:
   testes:
     name: Testes Python e cobertura
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 15
 
     steps:
       - name: Baixar codigo
         uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
 
       - name: Preparar Python
         uses: actions/setup-python@v7
@@ -35,6 +37,9 @@ jobs:
 
       - name: Gerar relatorio JSON
         run: python -m coverage json -o coverage.json
+
+      - name: Gerar relatorio XML para o Sonar
+        run: python -m coverage xml -o coverage.xml
 
       - name: Verificar metas de cobertura
         shell: python
@@ -84,3 +89,9 @@ jobs:
               sys.exit(1)
 
           print("As duas metas de cobertura foram atingidas.")
+
+      - name: Analisar no SonarQube Cloud
+        if: github.event_name == 'pull_request' || github.ref == 'refs/heads/main'
+        uses: SonarSource/sonarqube-scan-action@4d1dc0c91ee400dcf8a6dddf2f705ac36542e304 # v8.4.0
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
