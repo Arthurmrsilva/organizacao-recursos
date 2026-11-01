@@ -113,3 +113,48 @@ jobs:
             -Dsonar.qualitygate.timeout=300
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+
+  navegador:
+    name: Teste de navegador com Chromium
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Baixar codigo
+        uses: actions/checkout@v7
+
+      - name: Preparar Python
+        uses: actions/setup-python@v7
+        with:
+          python-version: "3.14"
+
+      - name: Instalar dependencias do teste de navegador
+        run: |
+          python -m pip install --only-binary=:all: --require-hashes -r requirements-e2e.lock
+
+      - name: Instalar Chromium e dependencias do sistema
+        run: python -m playwright install --with-deps chromium
+
+      - name: Executar fluxo de reservas no navegador
+        run: xvfb-run -a python -m unittest discover -s e2e -v
+
+      - name: Registrar resultado no resumo
+        shell: python
+        run: |
+          import os
+
+          with open(
+              os.environ["GITHUB_STEP_SUMMARY"],
+              "a",
+              encoding="utf-8",
+          ) as resumo:
+              resumo.write("## Teste de navegador\n\n")
+              resumo.write("Resultado: aprovado no Chromium.\n\n")
+              resumo.write(
+                  "Fluxo verificado: login invalido, login valido, "
+                  "criacao de reserva, consulta, conflito de horario, "
+                  "cancelamento e historico.\n\n"
+              )
+              resumo.write(
+                  "Execucao com banco SQLite temporario.\n"
+              )
