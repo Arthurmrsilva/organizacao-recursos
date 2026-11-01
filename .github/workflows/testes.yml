@@ -90,8 +90,12 @@ jobs:
 
           print("As duas metas de cobertura foram atingidas.")
 
-      - name: Analisar no SonarQube Cloud
+      - name: Analisar no Sonar e verificar Quality Gate
         if: github.event_name == 'pull_request' || github.ref == 'refs/heads/main'
         uses: SonarSource/sonarqube-scan-action@4d1dc0c91ee400dcf8a6dddf2f705ac36542e304 # v8.4.0
+        with:
+          args: >
+            -Dsonar.qualitygate.wait=true
+            -Dsonar.qualitygate.timeout=300
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
