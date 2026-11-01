@@ -40,42 +40,10 @@
             <div class="grade-recursos">
                 {% for reserva in reservas %}
                 <article class="recurso">
-                    <h3>{{ reserva.recurso_nome }}</h3>
-
-                    <p>
-                        <strong>Reserva:</strong>
-                        nº {{ reserva.id }}
-                    </p>
-
-                    <p>
-                        <strong>Tipo:</strong>
-                        {{ reserva.recurso_tipo }}
-                    </p>
-
-                    <p>
-                        <strong>Solicitante:</strong>
-                        {{ reserva.solicitante_nome }}
-                    </p>
-
-                    <p>
-                        <strong>Início:</strong>
-                        {{ reserva.inicio.strftime("%d/%m/%Y às %H:%M") }}
-                    </p>
-
-                    <p>
-                        <strong>Término:</strong>
-                        {{ reserva.fim.strftime("%d/%m/%Y às %H:%M") }}
-                    </p>
-
-                    <p>
-                        <strong>Finalidade:</strong>
-                        {{ reserva.finalidade }}
-                    </p>
-
-                    <p>
-                        <strong>Situação:</strong>
-                        Aguardando aprovação
-                    </p>
+                    {% with mostrar_tipo=true,
+                            situacao_reserva="Aguardando aprovação" %}
+                        {% include "_dados_reserva.html" %}
+                    {% endwith %}
 
                     <form method="post"
                           action="{{ url_for(

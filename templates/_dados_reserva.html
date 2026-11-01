@@ -1,0 +1,38 @@
+<h3>{{ reserva.recurso_nome }}</h3>
+
+<p>
+    <strong>Reserva:</strong>
+    nº {{ reserva.id }}
+</p>
+
+{% if mostrar_tipo %}
+<p>
+    <strong>Tipo:</strong>
+    {{ reserva.recurso_tipo }}
+</p>
+{% endif %}
+
+<p>
+    <strong>Solicitante:</strong>
+    {{ reserva.solicitante_nome }}
+</p>
+
+<p>
+    <strong>Início:</strong>
+    {{ reserva.inicio.strftime("%d/%m/%Y às %H:%M") }}
+</p>
+
+<p>
+    <strong>Término:</strong>
+    {{ reserva.fim.strftime("%d/%m/%Y às %H:%M") }}
+</p>
+
+<p>
+    <strong>Finalidade:</strong>
+    {{ reserva.finalidade }}
+</p>
+
+<p>
+    <strong>Situação:</strong>
+    {{ situacao_reserva }}
+</p>

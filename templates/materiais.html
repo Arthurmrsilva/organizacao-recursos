@@ -43,37 +43,14 @@
             <div class="grade-recursos">
                 {% for reserva in reservas %}
                 <article class="recurso">
-                    <h3>{{ reserva.recurso_nome }}</h3>
-
-                    <p>
-                        <strong>Reserva:</strong>
-                        nº {{ reserva.id }}
-                    </p>
-
-                    <p>
-                        <strong>Solicitante:</strong>
-                        {{ reserva.solicitante_nome }}
-                    </p>
-
-                    <p>
-                        <strong>Início:</strong>
-                        {{ reserva.inicio.strftime("%d/%m/%Y às %H:%M") }}
-                    </p>
-
-                    <p>
-                        <strong>Término:</strong>
-                        {{ reserva.fim.strftime("%d/%m/%Y às %H:%M") }}
-                    </p>
-
-                    <p>
-                        <strong>Finalidade:</strong>
-                        {{ reserva.finalidade }}
-                    </p>
-
-                    <p>
-                        <strong>Situação:</strong>
-                        {{ "Em uso" if reserva.status == "EM_USO" else "Aprovada" }}
-                    </p>
+                    {% with mostrar_tipo=false,
+                            situacao_reserva=(
+                                "Em uso"
+                                if reserva.status == "EM_USO"
+                                else "Aprovada"
+                            ) %}
+                        {% include "_dados_reserva.html" %}
+                    {% endwith %}
 
                     {% if reserva.status == "EM_USO" %}
                         {% if reserva.fim <= agora %}
