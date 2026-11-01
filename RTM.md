@@ -59,7 +59,7 @@ Tentativas bloqueadas por conflito não alteram o estado da reserva. Elas são r
 
 ## 4. Testes automatizados
 
-### Resultado local registrado com duração
+### Execução local histórica com duração registrada
 
 - Data: 31/10/2026.
 - Suíte completa: **283 testes aprovados**.
@@ -67,18 +67,20 @@ Tentativas bloqueadas por conflito não alteram o estado da reserva. Elas são r
 - Duração: **90,405 segundos**.
 - Execução com unittest e coverage.py.
 - Evidência: imagem do terminal.
-- A execução incluiu os oito testes de `test_atualizar_auditoria.py`.
+- Incluiu os oito testes de `test_atualizar_auditoria.py`.
 - O commit `4c94cf27` corresponde à atualização posteriormente analisada pelo Sonar.
 
-### Retestes após as refatorações
+### Retestes e CI posteriores
 
 - A suíte foi informada como aprovada após a refatoração de `servico_reservas.py`.
 - A extração dos dados compartilhados dos templates inicialmente provocou erros HTTP 500.
 - Foi identificada diferença entre o nome do arquivo criado e o nome usado no `include`.
 - O arquivo foi renomeado para `templates/_dados_reserva.html`.
-- Após a correção, a execução dos testes foi informada como bem-sucedida.
-- As durações e os hashes desses retestes não foram transcritos.
-- A duração de 90,405 segundos pertence à medição anterior e não deve ser atribuída aos retestes.
+- Após a correção, os testes foram informados como aprovados.
+- As execuções de CI #106 e #107 aparecem aprovadas na evidência do GitHub Actions.
+- O pacote `relatorios-cobertura.zip` foi baixado e conferido.
+- A duração local histórica de 90,405 segundos não deve ser atribuída às execuções posteriores.
+- O JSON de cobertura não informa a quantidade de testes nem a duração da suíte; esses dados devem ser consultados no log de testes.
 
 ### Arquivos e escopos
 
@@ -192,10 +194,16 @@ Os resultados históricos pertencem às versões em que foram medidos.
 | Medição local com 283 testes | 283 testes aprovados em 90,405 segundos; cobertura combinada local de 96% no escopo medido |
 | Aprovação Sonar anterior | Commit 4c94cf27; Quality Gate Passed; cobertura exibida de 82,4% e duplicação de 3,9% |
 | Refatoração do serviço | Validações e consultas repetidas extraídas em funções auxiliares; testes informados como aprovados |
-| Medição intermediária de duplicação | Tela do Sonar mostrou 1,68% no código novo, limite de 3% e Quality Gate Passed |
+| Medição intermediária de duplicação | Sonar mostrou 1,68% no código novo, limite de 3% e Quality Gate Passed |
 | Refatoração dos templates | Dados comuns extraídos para templates/_dados_reserva.html e reutilizados em aprovacoes.html e materiais.html |
-| Defeito de nome do template | Execução mostrou 19 falhas com respostas HTTP 500; nome do arquivo corrigido e reteste informado como aprovado |
-| Resultado mais recente do Sonar | Commit exibido 00f01ac3; Quality Gate Passed; cobertura no código novo de 83,74% e duplicação no código novo de 0,34% |
+| Defeito de nome do template | Execução mostrou 19 falhas com respostas HTTP 500; nome corrigido e reteste informado como aprovado |
+| Análise intermediária do Sonar | Commit exibido 00f01ac3; cobertura no código novo de 83,74%, duplicação de 0,34% e Quality Gate Passed |
+| Espera pelo Quality Gate | Workflow alterado para aguardar até 300 segundos e falhar em caso de reprovação |
+| CI da espera pelo Quality Gate | Execuções #104 e #105 aparecem aprovadas na evidência do GitHub Actions |
+| Publicação dos relatórios | Commit 23078f86; geração de HTML e publicação do pacote relatorios-cobertura |
+| CI com artefatos | Execuções #106 e #107 aparecem aprovadas |
+| Sonar mais recente | Commit 23078f86; Quality Gate Passed; cobertura no código novo de 83,74%; duplicação no código novo e estimada após o merge de 0,0% |
+| Conferência do artefato | ZIP baixado com JSON, XML e HTML; 97,69% de linhas, 95,39% de ramificações e 97,08% de cobertura combinada nos seis módulos medidos |
 
 ### Links principais
 
@@ -210,11 +218,12 @@ Os resultados históricos pertencem às versões em que foram medidos.
 - [Contador de conflitos](https://github.com/Arthurmrsilva/organizacao-recursos/commit/d917f69)
 - [Vínculo no cadastro](https://github.com/Arthurmrsilva/organizacao-recursos/commit/7298034)
 - [Aprovação Sonar anterior](https://github.com/Arthurmrsilva/organizacao-recursos/commit/4c94cf27)
-- [Commit exibido na evidência mais recente](https://github.com/Arthurmrsilva/organizacao-recursos/commit/00f01ac3)
+- [Refatoração do serviço](https://github.com/Arthurmrsilva/organizacao-recursos/commit/00f01ac3)
+- [Publicação dos relatórios](https://github.com/Arthurmrsilva/organizacao-recursos/commit/23078f86)
 
 Os prints da entrega devem identificar cenário, data, resultado esperado, resultado observado, requisito e commit, quando aplicável.
 
-O hash do último print identifica a análise exibida. Deve ser comparado ao último commit do PR antes de ser apresentado como evidência da versão final.
+Antes da entrega, comparar o hash analisado pelo Sonar com a versão que será apresentada.
 
 A aprovação do workflow ou do Sonar não substitui revisão por outro integrante.
 
@@ -222,12 +231,14 @@ A aprovação do workflow ou do Sonar não substitui revisão por outro integran
 
 | Item | Meta ou exigência | Situação |
 | --- | --- | --- |
-| Cobertura de linhas | Pelo menos 80% | Medição local anterior às refatorações: 759 de 784 linhas, aproximadamente 96,81%, no escopo da seção 12 |
-| Cobertura de ramificações | Pelo menos 70% | Meta atendida na execução de CI anteriormente registrada; transcrever os percentuais da execução final |
-| Cobertura no Sonar | Pelo menos 80% no código novo | 83,74% na evidência mais recente; condição atendida |
-| Duplicação no Sonar | No máximo 3% no código novo | 0,34% na evidência mais recente; condição atendida |
+| Cobertura de linhas | Pelo menos 80% | 97,69% — 761 de 779 linhas, no JSON do artefato conferido |
+| Cobertura de ramificações | Pelo menos 70% | 95,39% — 269 de 282 ramificações, no JSON do artefato conferido |
+| Cobertura no Sonar | Pelo menos 80% no código novo | 83,74% no commit 23078f86; condição atendida |
+| Duplicação no Sonar | No máximo 3% no código novo | 0,0% no commit 23078f86; condição atendida |
+| Quality Gate na CI | Aguardar resultado e falhar em caso de reprovação | Implementado; execução de PR #107 aprovada no cenário positivo |
+| Relatórios de cobertura | Disponíveis para download | JSON, XML e HTML publicados e ZIP conferido |
 | Rastreabilidade crítica | 100% das regras críticas ligadas a testes e evidências | Consolidar revisão dos cenários críticos |
-| Defeitos e vulnerabilidades críticas | Nenhum conhecido pendente na entrega | Sonar mostra zero novos problemas na análise registrada; revisão completa pendente |
+| Defeitos e vulnerabilidades críticas | Nenhum conhecido pendente na entrega | Sonar mostra zero novos problemas; revisão completa pendente |
 | Testes unitários isolados | Regras sem dependências reais | Ampliação pendente |
 | Integração | Persistência e integração das camadas | Verificada no escopo testado |
 | Testes em container | Banco com Testcontainers ou equivalente aceito | Pendente de adequação e execução |
@@ -236,7 +247,7 @@ A aprovação do workflow ou do Sonar não substitui revisão por outro integran
 | Ponta a ponta | Automação no navegador | Pendente |
 | Concorrência | Ausência de dupla reserva | Verificada no serviço; ampliar HTTP e manutenção |
 | Desempenho | Plano e resultados de carga | Pendente |
-| Análise estática | Ferramenta e resultados registrados | SonarQube Cloud integrado; Quality Gate aprovado na evidência mais recente |
+| Análise estática | Ferramenta e resultados registrados | SonarQube Cloud integrado e Quality Gate aprovado |
 | Segurança | Revisão e evidências | Parcial; autenticação, perfis, hash, CSRF e verificação de hashes das dependências implementados |
 | Revisão por pares | Revisão de outro integrante | Pendente |
 | Arquitetura | C4, sequências, utility tree, riscos, trade-offs e ADRs | Pendente |
@@ -261,7 +272,7 @@ O responsável pelo desenvolvimento informou que o professor permite a implement
 
 Criação e cancelamento bem-sucedidos geram auditoria e notificação na mesma transação.
 
-As validações e consultas compartilhadas foram extraídas para funções auxiliares em `servico_reservas.py`. O resultado dos testes após a refatoração foi informado como aprovado.
+Validações e consultas compartilhadas foram extraídas para funções auxiliares em `servico_reservas.py`. Os testes foram informados como aprovados após a refatoração, com execuções posteriores da CI também aprovadas.
 
 ## 8. Aprovação e vínculo de responsáveis
 
@@ -281,7 +292,7 @@ Implementado no commit `7298034`.
 - A lista apresenta somente usuários ativos com perfil RESPONSAVEL.
 - O servidor valida novamente o responsável no envio do formulário.
 - Perfil incorreto, usuário inexistente e responsável inativo são recusados.
-- Erros de validação preservam a seleção válida no formulário.
+- Erros de validação preservam a seleção válida.
 - O vínculo é opcional.
 - Recurso restrito ou professor sem responsável pode permanecer aguardando aprovação até que o vínculo seja configurado.
 - Alteração do vínculo de recursos existentes pela interface permanece pendente.
@@ -372,33 +383,45 @@ Reserva nº 11 do Projetor 01 em 26/10/2026:
 
 Os dados comuns da reserva foram extraídos para `templates/_dados_reserva.html`.
 
-O arquivo é incluído pelas páginas de aprovação e de gestão de materiais. Os formulários e as condições específicas de cada operação permanecem nas respectivas páginas.
+Esse arquivo é incluído pelas páginas de aprovação e de gestão de materiais. Os formulários e as condições específicas permanecem nas respectivas páginas.
 
 ## 12. Cobertura de testes
 
-### Medição local registrada antes das refatorações
+### Resultado mais recente conferido no artefato da CI
 
-- Suíte: 283 testes.
-- Duração: 90,405 segundos.
-- Linhas executadas: 759 de 784.
-- Cobertura de linhas: aproximadamente 96,81%.
-- Cobertura combinada exibida pelo coverage.py: 96%.
-- Percentual exato de ramificações: transcrever do resumo da CI correspondente.
-- O número de ramificações parciais não deve ser utilizado como quantidade de ramificações não cobertas.
+**Evidência:** relatorios-cobertura.zip, baixado do GitHub Actions e conferido em 31/10/2026.  
+**Ferramenta:** coverage.py 7.17.0.
 
-| Arquivo | Cobertura combinada exibida |
-| --- | ---: |
-| app.py | 98% |
-| atualizar_auditoria.py | 86% |
-| banco.py | 85% |
-| servico_materiais.py | 98% |
-| servico_relatorios.py | 100% |
-| servico_reservas.py | 96% |
-| TOTAL | 96% |
+| Métrica | Quantidade coberta | Quantidade total | Resultado |
+| --- | ---: | ---: | ---: |
+| Linhas | 761 | 779 | 97,69% |
+| Ramificações | 269 | 282 | 95,39% |
+| Combinada | 1.030 | 1.061 | 97,08% |
 
-Esses números pertencem à versão anterior às refatorações recentes. Uma nova execução é necessária para registrar a cobertura local da versão final.
+- Linhas não cobertas: 18.
+- Ramificações não cobertas: 13.
+- Linhas excluídas informadas no total: 0.
+- Cobertura combinada arredondada pelo relatório: 97%.
+- Meta de linhas de 80%: atendida.
+- Meta de ramificações de 70%: atendida.
 
-### Escopo medido e enviado
+A cobertura combinada considera linhas e ramificações. Ela não substitui os percentuais separados exigidos pela CI.
+
+### Resultado por módulo
+
+| Arquivo | Linhas cobertas / total | Ramificações cobertas / total | Cobertura combinada |
+| --- | ---: | ---: | ---: |
+| app.py | 365 / 373 | 146 / 150 | 97,71% |
+| atualizar_auditoria.py | 59 / 65 | 16 / 22 | 86,21% |
+| banco.py | 16 / 18 | 1 / 2 | 85,00% |
+| servico_materiais.py | 56 / 57 | 29 / 30 | 97,70% |
+| servico_relatorios.py | 67 / 67 | 24 / 24 | 100,00% |
+| servico_reservas.py | 198 / 199 | 53 / 54 | 99,21% |
+| TOTAL | 761 / 779 | 269 / 282 | 97,08% |
+
+### Escopo
+
+A medição inclui:
 
 - app.py.
 - banco.py.
@@ -409,9 +432,12 @@ Esses números pertencem à versão anterior às refatorações recentes. Uma no
 
 Não inclui cobertura de templates, CSS, JavaScript nem dos demais scripts administrativos e de migração.
 
-### Medição mais recente exibida no Sonar
+O ZIP de cobertura não contém, por si só, identificação suficiente para comprovar o hash e o número da execução. Preservar também a página da execução da qual ele foi baixado.
 
-Evidência capturada em 31/10/2026, no PR nº 1, com commit exibido `00f01ac3`:
+### Medição mais recente no Sonar
+
+**Commit:** 23078f86.  
+**Pull Request:** nº 1.
 
 | Indicador | Resultado |
 | --- | --- |
@@ -420,29 +446,32 @@ Evidência capturada em 31/10/2026, no PR nº 1, com commit exibido `00f01ac3`:
 | Condição de cobertura | Pelo menos 80% |
 | Linhas novas a cobrir | 923 |
 | Cobertura estimada após o merge | 82,9% |
-| Duplicação no código novo | 0,34% |
+| Duplicação no código novo | 0,0% |
 | Condição de duplicação | No máximo 3% |
-| Duplicação estimada após o merge | 0,8% |
+| Duplicação estimada após o merge | 0,0% |
 
-O Sonar considera arquivos e métricas que não coincidem integralmente com o escopo local dos seis módulos.
+O Sonar considera um escopo e métricas que não coincidem integralmente com a medição dos seis módulos pelo coverage.py.
 
-A cobertura no código novo e a estimativa após o merge são indicadores distintos.
+Os 97,69% de linhas do artefato e os 83,74% de cobertura no código novo do Sonar representam medições diferentes.
 
-Os 96% locais históricos e os 83,74% no código novo do Sonar não representam a mesma medição.
+### Histórico
 
-### Histórico local
-
-| Versão | Linhas | Ramificações | Combinada |
+| Etapa | Linhas | Ramificações | Combinada |
 | --- | --- | --- | --- |
 | 103 testes | 89,87% | 85,16% | Medição histórica |
 | 213 testes | 93,31% | 90,23% | 92% |
 | 257 testes | Aproximadamente 98% | Aproximadamente 96% | 97% |
 | 269 testes | 97,70% — 680 de 696 | 96,27% — 258 de 268 | 97% |
-| 283 testes, antes das refatorações | Aproximadamente 96,81% — 759 de 784 | Meta atendida na CI registrada; transcrever percentual exato | 96% |
+| 283 testes, antes das refatorações | 96,81% — 759 de 784 | Percentual exato não transcrito | 96% |
+| Artefato após as refatorações | 97,69% — 761 de 779 | 95,39% — 269 de 282 | 97,08% |
 
 A execução com 269 testes durou 90,688 segundos e teve como base funcional o commit `d917f69`. O JSON foi atualizado no commit `ec99faa`.
 
-### Como medir
+A execução local anterior às refatorações, com 283 testes, durou 90,405 segundos.
+
+Mudanças no código podem alterar a quantidade de linhas e ramificações medidas.
+
+### Como medir localmente
 
 ```powershell
 .\.venv\Scripts\python.exe -m coverage run --branch --source=app,banco,servico_reservas,servico_materiais,servico_relatorios,atualizar_auditoria -m unittest discover -s tests -v
@@ -461,7 +490,7 @@ A execução com 269 testes durou 90,688 segundos e teve como base funcional o c
 ```
 
 ```powershell
-.\.venv\Scripts\python.exe -m coverage html
+.\.venv\Scripts\python.exe -m coverage html -d htmlcov
 ```
 
 Regenerar os relatórios após a execução para que representem a versão medida.
@@ -609,22 +638,55 @@ Limitações: tempo real de utilização, exportação, paginação e navegador 
 
 **Workflow:** `.github/workflows/testes.yml`
 
+### Execução
+
 - Executa em push e Pull Requests.
 - Ubuntu e Python 3.14.
+- Permissão declarada: contents: read.
+- Limite total do job: 15 minutos.
 - Instala dependências de requirements.lock.
 - Exige pacotes binários com --only-binary=:all:.
 - Verifica hashes com --require-hashes.
 - Executa unittest com cobertura de linhas e ramificações.
 - Mede os seis módulos da seção 12.
 - Mostra relatório no log.
-- Gera coverage.json e coverage.xml.
+- Gera coverage.json, coverage.xml e htmlcov.
+- Publica os relatórios antes da verificação das metas e do Sonar.
 - Escreve percentuais separados de linhas e ramificações no resumo.
 - Falha se algum teste falhar.
 - Falha com linhas abaixo de 80% ou ramificações abaixo de 70%.
 - Falha se não houver linhas ou ramificações medidas.
-- Executa o scanner Sonar nos Pull Requests e nos pushes da main.
-- Utiliza SONAR_TOKEN armazenado como segredo no GitHub.
 - Obtém histórico completo do Git com fetch-depth: 0.
+
+### Quality Gate
+
+- O scanner executa nos Pull Requests e nos pushes da main.
+- Utiliza SONAR_TOKEN armazenado como segredo no GitHub.
+- sonar.qualitygate.wait=true faz o scanner aguardar o resultado.
+- sonar.qualitygate.timeout=300 limita a espera a cinco minutos.
+- Reprovação do Quality Gate ou expiração da espera provoca falha da etapa.
+- Push em funcionalidade/login executa os testes, mas pula o scanner; a execução associada ao PR realiza a análise.
+- A análise automática do Sonar foi desativada para utilizar a análise pela CI.
+
+A aprovação da execução #107 verifica o cenário positivo da integração. Ainda não foi registrada uma execução deliberadamente reprovada pelo Quality Gate para demonstrar o cenário negativo.
+
+Falha do workflow e bloqueio de merge são controles diferentes. A proteção da main com verificações obrigatórias ainda deve ser conferida.
+
+### Publicação dos relatórios
+
+- Action: actions/upload-artifact@v7.
+- Nome do artefato: relatorios-cobertura.
+- Retenção configurada: 30 dias.
+- Conteúdo: coverage.json, coverage.xml e diretório htmlcov.
+- if-no-files-found: error.
+- ZIP baixado e conteúdo conferido.
+- Relatório HTML acessível por htmlcov/index.html após extração.
+
+Como a publicação ocorre antes das metas e do Sonar, uma reprovação posterior dessas etapas não apaga o artefato já publicado.
+
+A configuração atual não garante relatórios quando os testes falham, pois as etapas seguintes dependem do sucesso das anteriores.
+
+O artefato contém relatórios de cobertura. Não inclui um relatório estruturado da suíte em JUnit XML ou equivalente.
 
 ### Dependências
 
@@ -638,21 +700,17 @@ A verificação de hashes confirma os arquivos esperados pelo lock. Não substit
 
 ### Resultados registrados
 
-- Execuções #85 e #86: aprovadas após vínculo de responsável.
-- Execução #87: falhou por sintaxe YAML.
-- Execuções #88 e #89: aprovadas após correção.
-- Execuções #92 e #93: aprovadas na integração inicial do Sonar.
-- Execução posterior aos testes de migração: informada como aprovada.
-- Sonar do commit 4c94cf27: Quality Gate Passed.
-- Evidência mais recente do Sonar, com commit exibido 00f01ac3: Quality Gate Passed.
-- Números das execuções referentes às últimas refatorações: transcrever do GitHub Actions.
+| Execuções | Resultado registrado |
+| --- | --- |
+| #85 e #86 | Aprovadas após vínculo de responsável |
+| #87 | Falha por sintaxe YAML |
+| #88 e #89 | Aprovadas após correção |
+| #92 e #93 | Aprovadas na integração inicial do Sonar |
+| #104 e #105 | Aprovadas após configuração de espera pelo Quality Gate |
+| #106 | Push do commit de publicação dos relatórios aprovado |
+| #107 | Execução do Pull Request aprovada |
 
-### Limitações
-
-- JSON, XML e HTML ainda não são publicados como artefatos para download.
-- A etapa do scanner envia a análise, mas o workflow atual não aguarda explicitamente o resultado do Quality Gate para decidir seu próprio sucesso.
-- Workflow verde e Quality Gate aprovado são evidências distintas.
-- A análise automática do Sonar foi desativada para utilizar a análise pela CI.
+A duração total exibida da execução #107 foi de aproximadamente 2 minutos e 2 segundos. Esse tempo inclui outras etapas do job e não equivale à duração isolada dos testes.
 
 ## 19. Não comparecimento de materiais
 
@@ -737,7 +795,7 @@ O registro é confirmado antes do erro para não ser perdido pelo rollback do tr
 
 A função de bloqueio é chamada antes de qualquer gravação da operação na reserva.
 
-A refatoração do serviço manteve esse tratamento separado da confirmação das operações bem-sucedidas.
+A refatoração manteve esse tratamento separado da confirmação das operações bem-sucedidas.
 
 ### Testes verificados
 
@@ -772,17 +830,24 @@ A refatoração do serviço manteve esse tratamento separado da confirmação da
 - Completar README de instalação e fluxos.
 - Consolidar evidências TDD ou BDD.
 - Documentar arquitetura, riscos e decisões.
-- Registrar cobertura local atualizada após as refatorações.
-- Conferir se o hash da análise Sonar corresponde ao último commit do PR.
-- Registrar números e resultados das execuções finais do GitHub Actions.
-- Avaliar bloqueio da CI quando o Quality Gate reprovar.
-- Publicar relatórios de testes e cobertura como artefatos.
+- Preservar a identificação da execução de origem de cada artefato.
+- Conferir se a análise Sonar corresponde à versão da entrega.
+- Conferir proteção da main e verificações obrigatórias.
+- Registrar, se realizado, teste controlado de reprovação do Quality Gate.
+- Avaliar publicação de relatório estruturado dos testes.
 - Concluir revisão de segurança.
 - Consolidar registro de defeitos e retestes.
 - Obter revisão por outro integrante.
 - Preparar relatório final e apresentação.
 
-A evidência mais recente atende às condições exibidas de cobertura e duplicação no código novo. Essas condições deixaram de ser pendências nessa análise.
+Concluído nesta etapa:
+
+- Medição de cobertura após as refatorações conferida no artefato.
+- Metas de linhas e ramificações atendidas no escopo medido.
+- Quality Gate aprovado.
+- Cobertura e duplicação do código novo dentro das condições exibidas.
+- Espera pelo Quality Gate configurada.
+- Relatórios JSON, XML e HTML publicados e baixados.
 
 ## 22. Migração da auditoria: testes específicos
 
@@ -821,7 +886,7 @@ Após a correção:
 
 - Os oito testes específicos passaram.
 - A suíte completa passou com 283 testes.
-- A cobertura combinada do script ficou em 86% na medição registrada.
+- A medição mais recente do artefato mostra cobertura combinada de 86,21% para o script.
 
 Esse resultado ainda não cobre todas as falhas possíveis, como interrupção do processo durante a operação ou falta de espaço em disco.
 
@@ -838,6 +903,7 @@ Esse resultado ainda não cobre todas as falhas possíveis, como interrupção d
 - Análise executada pelo GitHub Actions.
 - Cobertura Python importada de coverage.xml.
 - Diretório tests identificado separadamente como código de teste.
+- Scanner configurado para aguardar o Quality Gate.
 
 ### Correções no workflow
 
@@ -846,7 +912,7 @@ Na configuração inicial, o Sonar apresentou três apontamentos:
 - Duas instalações sem exigência de pacotes binários.
 - Uma instalação sem verificação por hashes.
 
-Foram realizadas as seguintes correções:
+Correções realizadas:
 
 - Fixação das versões das dependências.
 - Geração de requirements.lock com hashes.
@@ -856,22 +922,21 @@ Foram realizadas as seguintes correções:
 
 Os três apontamentos deixaram de aparecer na análise posterior.
 
-### Resultado histórico
+### Histórico
 
-Na análise do commit `4c94cf27`, a tela mostrou:
+| Evidência | Resultado |
+| --- | --- |
+| Primeira cobertura importada | 77,8%; Quality Gate reprovado |
+| Commit 4c94cf27 | Quality Gate Passed; cobertura exibida de 82,4%; duplicação exibida de 3,9% |
+| Medição intermediária | Duplicação no código novo de 1,68%; Quality Gate Passed |
+| Commit exibido 00f01ac3 | Cobertura no código novo de 83,74%; duplicação no código novo de 0,34%; Quality Gate Passed |
+| Commit 23078f86 | Cobertura no código novo de 83,74%; duplicação no código novo de 0,0%; Quality Gate Passed |
 
-- Quality Gate Passed.
-- Segurança A, com zero apontamentos abertos.
-- Confiabilidade A, com zero apontamentos abertos.
-- Manutenibilidade A, com zero apontamentos abertos.
-- Cobertura exibida de 82,4%.
-- Duplicação exibida de 3,9%.
+Os valores históricos foram transcritos das respectivas telas. Não devem ser tratados como medições do mesmo escopo sem conferir a visualização utilizada.
 
-Essa tela não distinguia as condições da mesma forma que a evidência mais recente. Os valores foram preservados como registro histórico.
+### Resultado mais recente
 
-### Resultado mais recente exibido
-
-**Commit exibido:** 00f01ac3  
+**Commit exibido:** 23078f86  
 **Data da evidência:** 31/10/2026  
 **Quality Gate:** Passed
 
@@ -880,11 +945,11 @@ Essa tela não distinguia as condições da mesma forma que a evidência mais re
 | Novos problemas | 0 | Sem condição indicada no cartão |
 | Problemas aceitos | 0 | Sem condição indicada no cartão |
 | Cobertura no código novo | 83,74% | Pelo menos 80% |
-| Duplicação no código novo | 0,34% | No máximo 3% |
+| Duplicação no código novo | 0,0% | No máximo 3% |
 | Security hotspots exibidos | 0 | Sem condição indicada no cartão |
 | Riscos de dependências exibidos | 0 | Sem condição indicada no cartão |
 | Cobertura estimada após o merge | 82,9% | Indicador distinto do código novo |
-| Duplicação estimada após o merge | 0,8% | Indicador distinto do código novo |
+| Duplicação estimada após o merge | 0,0% | Indicador distinto do código novo |
 
 A tela informa 923 linhas novas a cobrir para cobertura e aproximadamente 14 mil linhas novas no cartão de duplicação. Esses indicadores utilizam bases diferentes.
 
@@ -892,13 +957,13 @@ A tela informa 923 linhas novas a cobrir para cobertura e aproximadamente 14 mil
 
 - A evidência atende às condições exibidas de cobertura e duplicação no código novo.
 - O resultado pertence ao commit e ao Pull Request indicados.
-- O hash deve ser comparado ao último commit do PR antes da entrega.
+- Antes da entrega, conferir o hash da versão analisada.
 - Não representa uma análise atualizada da main antes do merge.
 - Estimativas após o merge não equivalem a uma análise já executada na main.
 - Zero novos problemas não comprova ausência de vulnerabilidades.
+- Duplicação exibida como 0,0% representa o resultado da ferramenta, de acordo com seus critérios e arredondamento.
 - A análise estática não substitui testes de segurança, carga ou navegador.
 - Scripts sem cobertura importada continuam exigindo testes específicos.
-- Resultados de telas históricas não devem ser apresentados como métricas da versão atual.
 
 ## 24. Refatorações para redução de duplicação
 
@@ -921,7 +986,9 @@ Foram extraídos auxiliares para:
 
 As funções públicas de criação, alteração, cancelamento, avaliação, manutenção, auditoria e notificação foram mantidas.
 
-O reteste da suíte foi informado como aprovado.
+O reteste local foi informado como aprovado e as execuções posteriores da CI aparecem aprovadas.
+
+No artefato conferido, o serviço apresenta cobertura combinada de 99,21%.
 
 ### Templates
 
@@ -945,9 +1012,9 @@ Cada página mantém seus formulários e suas condições específicas:
 
 - Aprovar ou rejeitar na página de aprovação.
 - Retirar, devolver ou registrar não comparecimento na gestão de materiais.
-- Campos CSRF preservados.
-- Confirmações JavaScript preservadas.
-- Alertas de atraso e mensagens de indisponibilidade preservados.
+- Campos CSRF.
+- Confirmações JavaScript.
+- Alertas de atraso e mensagens de indisponibilidade.
 
 ### Defeito encontrado na aplicação dos templates
 
@@ -956,19 +1023,21 @@ Cada página mantém seus formulários e suas condições específicas:
 | Problema | Arquivo compartilhado criado com nome diferente do usado no include |
 | Efeito observado | Respostas HTTP 500 e 19 falhas na suíte |
 | Correção | Nome ajustado para templates/_dados_reserva.html |
-| Reteste | Execução informada como bem-sucedida após a correção |
-| Situação | Corrigido no ambiente local informado; conferir também a execução final da CI |
+| Reteste | Execução local informada como bem-sucedida |
+| Verificação posterior | Execuções de CI posteriores aprovadas |
+| Situação | Corrigido no escopo verificado |
 
 ### Evolução registrada no Sonar
 
-| Etapa | Indicador |
-| --- | --- |
-| Tela anterior | Duplicação no código novo de 1,68%, com limite de 3% |
-| Evidência mais recente | Duplicação no código novo de 0,34%, com limite de 3% |
-| Estimativa mais recente após o merge | Duplicação de 0,8% |
-| Quality Gate mais recente | Passed |
+| Etapa | Duplicação no código novo |
+| --- | ---: |
+| Medição intermediária anterior | 1,68% |
+| Evidência seguinte | 0,34% |
+| Commit 23078f86 | 0,0% |
 
-Os resultados foram obtidos após alterações na estrutura do código e dos templates. Não foram acrescentadas exclusões de duplicação para esses arquivos.
+Na evidência mais recente, a duplicação estimada após o merge também aparece como 0,0%.
+
+Não foram acrescentadas exclusões de duplicação para os arquivos refatorados nesta etapa.
 
 A comparação deve considerar o commit e o escopo de cada análise.
 
