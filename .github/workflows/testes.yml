@@ -41,6 +41,20 @@ jobs:
       - name: Gerar relatorio XML para o Sonar
         run: python -m coverage xml -o coverage.xml
 
+      - name: Gerar relatorio HTML
+        run: python -m coverage html -d htmlcov
+
+      - name: Publicar relatorios de cobertura
+        uses: actions/upload-artifact@v7
+        with:
+          name: relatorios-cobertura
+          path: |
+            coverage.json
+            coverage.xml
+            htmlcov/
+          retention-days: 30
+          if-no-files-found: error
+
       - name: Verificar metas de cobertura
         shell: python
         run: |
