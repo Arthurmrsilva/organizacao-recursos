@@ -56,7 +56,7 @@ jobs:
 
       - name: Executar testes com cobertura
         run: |
-          python -m coverage run --branch --source=app,banco,servico_reservas,servico_materiais,servico_relatorios,atualizar_auditoria -m unittest discover -s tests -v
+          python -m coverage run --branch --source=app,banco,servico_reservas,servico_materiais,servico_relatorios,atualizar_auditoria,validar_backup -m unittest discover -s tests -v
 
       - name: Mostrar cobertura
         run: python -m coverage report -m
