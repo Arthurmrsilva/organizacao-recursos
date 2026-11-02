@@ -1,103 +1,93 @@
 ﻿# Matriz de Rastreabilidade — RTM
 
-**Projeto:** Organização de Recursos
+Projeto: Organização de Recursos.
 
-**Última atualização:** 02/11/2026
+Atualização: 02/11/2026.
 
-**Integrantes:** Arthur Mendes, Robert Oliveira, Nicolas Ferreira e Murilo Henrique.
+Integrantes: Arthur Mendes, Robert Oliveira, Nicolas Ferreira e Murilo Henrique.
 
-**Versão dos testes conferidos:** 67b3d00.
+Referência detalhada dos 292 testes e cobertura: da93d49.
+Referência de checks e Sonar conferidos: 3a76227.
 
-**Último Sonar conferido:** 02737a6.
-
-Esta matriz relaciona requisitos, riscos, testes, resultados e limitações.
-
-As evidências históricas EV01 a EV94 permanecem em [RTM_historico.md](RTM_historico.md). Cada resultado pertence à versão em que foi observado.
+Estado: preparação da entrega, sem aprovação formal do grupo ou tag publicada.
 
 ## 1. Legenda
 
-- **Implementado e verificado:** disponível e verificado no escopo indicado.
-- **Parcial:** implementação ou verificação ainda incompleta.
-- **Pendente:** sem conclusão demonstrada.
+- Verificado: evidência disponível nos cenários indicados.
+- Parcial: implementação ou verificação incompleta.
+- Pendente: conclusão não demonstrada.
 - Testes planejados não representam resultados aprovados.
-- Quantidade de testes e cobertura não representam percentual de conclusão.
-- Aprovação dos testes não comprova ausência de defeitos.
+- Contagem de testes e cobertura não medem percentual de conclusão.
 - Cliente Flask, HTTP real, navegador e carga possuem escopos diferentes.
+- Resultados históricos pertencem às respectivas versões.
+
+EV01 a EV94 permanecem em [RTM_historico.md](RTM_historico.md).
+Detalhes anteriores desta matriz permanecem no histórico Git.
 
 ## 2. Requisitos funcionais
 
-| ID | Requisito | Risco | Testes e evidências | Situação |
+Os arquivos test_*.py citados nas tabelas pertencem a tests/,
+exceto quando outro caminho estiver indicado.
+
+| ID | Requisito | Risco | Evidências | Situação |
 | --- | --- | --- | --- | --- |
-| RF01 | Autenticação e autorização por perfil | Acesso indevido | test_consulta.py, testes HTTP de permissões, test_seguranca_login.py e login no Chromium | Implementado e verificado nos cenários atuais; revisão completa de segurança pendente |
-| RF02 | Cadastro e consulta de salas, professores e materiais | Dados inválidos | test_consulta.py e cadastro manual | Implementado e verificado; revisão por outro integrante pendente |
-| RF03 | Pesquisa por tipo, capacidade, localização, competência e disponibilidade | Resultado incorreto | test_consulta.py, test_disponibilidade.py e consultas manuais | Implementado e verificado; ampliar filtros por navegador |
-| RF04 | Criar, alterar e cancelar reservas | Alteração indevida ou reserva incorreta | Testes de reservas, cancelamento, edição e E2E | Implementado e verificado no escopo atual; edição por navegador pendente |
-| RF05 | Detectar sobreposição, inclusive na agenda do professor | Dois usos simultâneos | Criação, aprovação, disponibilidade, edição, conflito no E2E e concorrência HTTP | Parcial: ampliar cenários explícitos de sobreposição de reservas por tipo |
-| RF06 | Impedir dupla reserva simultânea | Duas solicitações aceitas | test_reservas.py e teste_concorrencia_http.py | Verificado no serviço e no cenário HTTP concorrente; não representa teste amplo de carga |
-| RF07 | Exigir aprovação para recursos restritos | Uso sem autorização | Aprovação, vínculo e nova aprovação após edição | Implementado; vínculo no cadastro; alteração de vínculo de recurso existente pela interface pendente |
-| RF08 | Bloquear recursos em manutenção | Reserva impossível de atender | Manutenção, disponibilidade, edição e test_concorrencia_manutencao.py | Verificado, incluindo disputa no serviço para SALA, PROFESSOR e MATERIAL |
-| RF09 | Registrar retirada e devolução de materiais | Perda de controle | test_materiais.py, test_materiais_http.py e reserva manual nº 11 | Implementado e verificado; E2E desse fluxo pendente |
-| RF10 | Manter histórico auditável | Mudanças sem rastreio | Auditoria, edição, materiais, não comparecimento, rollback, E2E e concorrência HTTP | Implementado nas operações atuais; testes específicos do limite e ordenação da consulta pendentes |
-| RF11 | Notificação simulada ou integração externa | Usuário não informado | test_notificacoes.py, leitura manual, E2E e concorrência HTTP | Avisos internos implementados para criação, edição, cancelamento, aprovação e rejeição |
-| RF12 | Relatórios de utilização, horas e conflitos evitados | Indicadores incorretos | test_relatorios.py, test_relatorios_http.py e consultas manuais | Contagens, horas previstas e conflitos evitados implementados; tempo real não medido |
-| RF13 | Interface responsiva e erros compreensíveis | Dificuldade de uso | Testes HTTP, verificações manuais e fluxo Chromium | Parcial: ampliar telas, navegadores e fluxos |
-| RF14 | Documentação da API ou dos fluxos públicos | Dificuldade de instalar e utilizar | README, RTM, arquitetura, plano, segurança e relatório de qualidade | Documentada; conferência final da instalação e correspondência com os fluxos pendente |
+| RF01 | Autenticação e autorização por perfil | Acesso indevido | test_consulta.py, testes HTTP de permissões, test_seguranca_login.py e Chromium | Verificado nos cenários atuais; revisão completa de segurança pendente |
+| RF02 | Cadastro e consulta de salas, professores e materiais | Dados inválidos | test_consulta.py e cadastro manual | Verificado; revisão por pares pendente |
+| RF03 | Pesquisa por características e disponibilidade | Resultado incorreto | test_consulta.py e test_disponibilidade.py | Verificado; ampliar filtros no navegador |
+| RF04 | Criar, alterar e cancelar reservas | Alteração indevida | test_reservas.py, test_edicao_reservas.py, test_edicao_http.py, test_cancelamento_http.py e E2E | Verificado no escopo atual; edição no navegador pendente |
+| RF05 | Detectar sobreposição, inclusive agenda do professor | Dois usos simultâneos | Reservas, aprovação, edição, disponibilidade, E2E e HTTP concorrente | Parcial: ampliar casos explícitos entre reservas por tipo |
+| RF06 | Impedir dupla reserva simultânea | Duas aceitações | test_reservas.py e teste_concorrencia_http.py na raiz | Verificado no serviço e no cenário HTTP executado |
+| RF07 | Aprovação de recursos restritos | Uso sem autorização | test_aprovacoes.py, test_aprovacoes_http.py e edição | Verificado; alteração de vínculo existente pela interface pendente |
+| RF08 | Bloquear recursos em manutenção | Reserva impossível de atender | Manutenção, disponibilidade, edição e test_concorrencia_manutencao.py | Verificado, incluindo disputa no serviço nos três tipos |
+| RF09 | Retirada e devolução de materiais | Perda de controle | test_materiais.py, test_materiais_http.py e reserva manual nº 11 | Verificado; E2E pendente |
+| RF10 | Histórico auditável | Mudanças sem rastreio | Auditoria, edição, materiais, não comparecimento, rollback, E2E e HTTP | Verificado nas operações atuais; testes do limite e ordenação da auditoria pendentes |
+| RF11 | Notificação simulada ou integração externa | Usuário não informado | test_notificacoes.py, E2E e HTTP | Avisos internos para criação, edição, cancelamento, aprovação e rejeição |
+| RF12 | Relatórios de utilização, horas e conflitos | Indicadores incorretos | test_relatorios.py e test_relatorios_http.py | Contagens, horas previstas e conflitos implementados; tempo real não medido |
+| RF13 | Interface responsiva e erros compreensíveis | Dificuldade de uso | HTTP, verificações manuais e Chromium | Parcial: ampliar telas, navegadores e fluxos |
+| RF14 | Documentação da API ou fluxos públicos | Reprodução difícil | README, arquitetura, plano, segurança, relatório e instalação limpa | Documentado; clone final da candidata e revisão dos fluxos pendentes |
+
+A aplicação usa HTML e formulários com sessão por cookie.
+A documentação não declara uma API REST JSON completa.
 
 ## 3. Regras críticas
 
-| ID | Regra | Risco | Verificação | Situação |
-| --- | --- | --- | --- | --- |
-| RC01 | Término posterior ao início | Período inválido | Validação no serviço e banco; edição e disponibilidade | Verificado nesses fluxos; ampliar casos explícitos de criação |
-| RC02 | Mesmo recurso sem sobreposição | Conflito de utilização | Criação, aprovação, edição, disponibilidade, horários consecutivos e E2E | Parcial: ampliar cenários de reservas por tipo |
-| RC03 | Solicitações simultâneas com uma única aceita | Dupla reserva | Concorrência no serviço e teste_concorrencia_http.py | Verificado nos cenários executados |
-| RC04 | Recurso em manutenção indisponível | Reserva impossível de atender | Manutenção, edição, disponibilidade e disputa entre manutenção e reserva nos três tipos | Verificado no serviço; disputa manutenção/reserva por HTTP não demonstrada |
-| RC05 | SOLICITADA → APROVADA → EM_USO → CONCLUIDA | Estado inconsistente | Aprovação e materiais nos serviços e rotas; reserva nº 11 | Verificado para materiais |
-| RC06 | REJEITADA, CANCELADA e NAO_COMPARECEU | Histórico incorreto | Aprovação, cancelamento e não comparecimento | Verificado no escopo atual; não comparecimento somente para materiais |
-| RC07 | Somente responsável vinculado aprova recurso restrito | Aprovação indevida | Perfil, vínculo, prazo e estado | Implementado e verificado |
-| RC08 | Reservas iniciadas não podem ser apagadas | Perda de histórico | Ausência de exclusão física pela interface; edição e cancelamento após início bloqueados | Verificado nas operações existentes |
-| RC09 | Toda mudança de estado gera auditoria | Falta de rastreabilidade | Criação, alteração, cancelamento, aprovação, rejeição, retirada, devolução e não comparecimento | Verificado nas transições atuais |
+| ID | Regra | Verificação | Situação |
+| --- | --- | --- | --- |
+| RC01 | Término posterior ao início | Serviço, banco, edição e disponibilidade | Verificado nesses fluxos; ampliar casos explícitos de criação |
+| RC02 | Mesmo recurso sem sobreposição | Criação, aprovação, edição, disponibilidade e horários consecutivos | Parcial: ampliar reservas por tipo |
+| RC03 | Solicitações simultâneas com uma única aceita | Serviço e teste_concorrencia_http.py | Verificado nos cenários executados |
+| RC04 | Recurso em manutenção indisponível | Manutenção, edição, disponibilidade e disputa nos três tipos | Verificado no serviço; disputa manutenção/reserva por HTTP não demonstrada |
+| RC05 | SOLICITADA → APROVADA → EM_USO → CONCLUIDA | Aprovação e materiais, serviços e rotas | Verificado para materiais |
+| RC06 | REJEITADA, CANCELADA e NAO_COMPARECEU | Aprovação, cancelamento e não comparecimento | Verificado no escopo atual; não comparecimento somente para materiais |
+| RC07 | Somente responsável vinculado aprova recurso restrito | Perfil, vínculo, prazo e estado | Verificado |
+| RC08 | Reservas iniciadas não podem ser apagadas | Sem exclusão física pela interface; edição/cancelamento bloqueados após início | Verificado nas operações existentes |
+| RC09 | Toda mudança de estado gera auditoria | Criação, alteração, cancelamento, aprovação, rejeição e movimentações | Verificado nas transições atuais |
 
-As nove regras possuem verificações associadas. Isso não equivale à revisão final de todas as combinações exigidas pelo enunciado.
+As associações não substituem revisão final das combinações do enunciado.
 
 ## 4. Resultados automatizados
 
-### Resultado de referência
-
-**GitHub Actions #146 — commit 67b3d00 — evento push.**
-
-| Verificação | Resultado |
+| Referência | Resultado |
 | --- | --- |
-| Suíte principal com cobertura | 288 testes aprovados em 15,349 segundos |
-| Concorrência por HTTP | Aprovada, executada separadamente |
-| Fluxo Chromium | Aprovado em job separado |
-| Workflow completo | Success em 59 segundos |
-| Artefatos | Um artefato exibido no resumo |
+| da93d49, local | 292 testes aprovados em 116,207 segundos |
+| da93d49, Actions #160, push | Workflow aprovado em 53 segundos |
+| da93d49, CI | HTTP e Chromium aprovados |
+| da93d49, cobertura | 97,46% linhas e 94,83% ramificações |
+| b1b308a, Testcontainers push #1 | Aprovado em 49 segundos totais; um artefato |
+| 1e42442 | Execução Testcontainers verde informada após correção YAML |
+| 3a76227 | Sete checks verdes no pull request |
 
-Os 288 métodos da suíte principal não incluem o método HTTP separado nem o método de navegador.
+HTTP, navegador e controle externo do container são separados dos
+292 métodos da suíte. Métodos com subTest podem conter várias variações.
 
-Alguns métodos utilizam subTest e verificam várias situações.
-
-### Execuções locais preservadas
-
-| Execução | Resultado |
-| --- | --- |
-| test_consulta.py | 24 testes em 16,051 segundos |
-| test_edicao_http.py | 12 testes em 3,490 segundos |
-| Suíte antes do teste adicional de XSS | 286 testes em 121,250 segundos |
-| Escape de HTML | Um teste em 0,382 segundo, com dois cenários |
-| Fluxo Chromium | Um teste em 20,869 segundos |
-| Concorrência HTTP | Um teste em 3,731 segundos |
-| Suíte inicial em Docker | 287 testes em 186,330 segundos |
-| Docker após ajuste de segurança | 287 testes em 180,651 segundos |
-| Concorrência manutenção/reserva | Um teste em 1,762 segundo, com três cenários |
-
-A execução Docker de 287 testes precede a inclusão do novo teste de manutenção/reserva.
+Resultados anteriores de 286, 287 e 288 testes permanecem históricos.
+Duração de workflow não equivale à duração isolada dos testes.
 
 ## 5. Arquivos de teste
 
 | Arquivo | Escopo |
 | --- | --- |
-| tests/test_consulta.py | Login, logout, usuário inativo, CSRF, cadastro, vínculo e filtros |
+| tests/test_consulta.py | Login, logout, inatividade, CSRF, cadastro, vínculo e filtros |
 | tests/test_reservas.py | Criação, sobreposição, horários consecutivos, concorrência e cancelamento |
 | tests/test_minhas_reservas.py | Isolamento, filtros, prazo, atraso e ordenação |
 | tests/test_cancelamento_http.py | Autenticação, autorização e CSRF |
@@ -107,580 +97,399 @@ A execução Docker de 287 testes precede a inclusão do novo teste de manutenç
 | tests/test_auditoria_http.py | Login, permissões e visibilidade |
 | tests/test_manutencoes.py | Períodos, conflitos e bloqueios |
 | tests/test_manutencoes_http.py | Permissões, CSRF, cadastro e consulta |
-| tests/test_concorrencia_manutencao.py | Disputa entre manutenção e reserva para os três tipos |
+| tests/test_concorrencia_manutencao.py | Disputa manutenção/reserva nos três tipos |
 | tests/test_materiais.py | Retirada, devolução, estados, permissões e auditoria |
 | tests/test_materiais_http.py | Listagem, isolamento, movimentações e recusas |
-| tests/test_disponibilidade.py | Sobreposição, manutenção, limites e filtros combinados |
-| tests/test_edicao_reservas.py | Edição, conflitos, aprovação, auditoria, notificações e rollback |
+| tests/test_disponibilidade.py | Sobreposição, manutenção, limites e filtros |
+| tests/test_edicao_reservas.py | Edição, conflitos, aprovação, auditoria, avisos e rollback |
 | tests/test_edicao_http.py | Formulário, persistência, auditoria, CSRF e recusas |
 | tests/test_notificacoes.py | Geração, destinatário, leitura, isolamento, escape e rollback |
-| tests/test_relatorios.py | Contagens, horas previstas, períodos e conflitos evitados |
+| tests/test_relatorios.py | Contagens, horas, períodos e conflitos evitados |
 | tests/test_relatorios_http.py | Acesso, filtros, erros e consulta sem alteração |
 | tests/test_nao_comparecimento.py | Permissões, prazo, estados, repetição e rollback |
 | tests/test_nao_comparecimento_http.py | Rota, botão, CSRF, mensagem e persistência |
 | tests/test_atualizar_auditoria.py | Migração, backup, preservação, índices, gatilhos e rollback |
-| tests/test_seguranca_login.py | CSRF, renovação do token e tentativas de injeção SQL |
+| tests/test_seguranca_login.py | CSRF, renovação do token e SQL |
 | tests/test_seguranca_xss.py | Escape de HTML em duas páginas |
-| teste_concorrencia_http.py | Duas sessões concorrentes por HTTP e registros persistidos |
+| tests/test_validar_backup.py | Preservação e recusa de entradas inválidas |
+| teste_concorrencia_http.py | Duas sessões por HTTP e registros associados |
+| teste_testcontainers.py | Ciclo do container, código de saída e quantidade esperada |
 | e2e/test_fluxo_reserva.py | Login, criação, consulta, conflito, cancelamento e histórico |
 
-Testes com persistência temporária verificam integração com SQLite. Não são integralmente testes unitários isolados.
+Persistência temporária real também caracteriza integração.
+A suíte não é integralmente composta por testes unitários isolados.
 
-## 6. Evidências e versões
+## 6. Evidências e versões principais
 
-EV01 a EV94 permanecem em RTM_historico.md.
-
-| Etapa | Identificação |
+| Etapa | Commit |
 | --- | --- |
-| Registro de conflitos bloqueados | d917f69 |
-| Vínculo de responsável no cadastro | 7298034 |
-| Dependências com hashes | d6de95ea |
-| Integração inicial do Sonar | f2e3c18 |
-| Refatoração do serviço | 00f01ac3 |
-| Publicação de relatórios | 23078f86; Actions #106 e #107 |
-| Teste inicial de navegador | 8544630 |
-| Navegador na CI | 8f4e8b9; Actions #112 e #113 |
-| Desempenho de GET /login | bf6822a |
+| TDD: RED do controle de acesso | 1ed928d |
+| TDD: GREEN | 49b42fe |
+| Ampliação e CI do TDD | 250f9b2 |
 | Segurança do login | 003cc82 |
 | Escape de HTML | 75c7622 |
-| Correção de acentos do histórico | b8b1de9 |
-| Arquitetura | c13ef46 |
-| Atualização do README | 4ccb05e |
-| Registro de defeitos | cab70cc |
-| Plano de testes | e97a0a1 |
-| Relatório inicial | f0b57ca |
 | Concorrência HTTP | 7cb6a29 |
-| Workflow HTTP e arquivos Docker | 73a556e |
-| Segurança do Docker e classificação do teste no Sonar | 02737a6 |
-| Auditoria das dependências de E2E | 98d26d5 |
-| Concorrência entre manutenção e reserva | 67b3d00 |
-| Relatório atualizado com os resultados | 4da131b |
+| Segurança Docker e classificação HTTP no Sonar | 02737a6 |
+| Auditoria E2E | 98d26d5 |
+| Concorrência manutenção/reserva | 67b3d00 |
+| Plano e versão da instalação limpa | c84dac2 |
+| Registro da instalação limpa | 2d31e4f |
+| Verificador de backup | 8820445 |
+| Testes do backup e cobertura de sete módulos | da93d49 |
+| Integração Testcontainers | b1b308a |
+| Exigência de pacotes binários | 047995b |
+| Correção YAML | 1e42442 |
+| Duas medições planejadas de carga | 49f9268 |
+| Checklist | f533ef8 |
+| Índice de evidências | b990407 |
+| README atualizado | b94a8ea |
+| Changelog | 04f2d2c |
+| Relatório consolidado | 3a76227 |
+| Segurança consolidada | c11c3ba |
+| Plano consolidado | 5ffea52 |
 
-Não atribuir hashes ou números de execução sem evidência.
+Não atribuir resultados de uma versão automaticamente a outra.
 
-## 7. Metas de qualidade
+## 7. Metas e critérios
 
-| Item | Meta ou exigência | Situação |
+| Item | Critério | Evidência ou estado |
 | --- | --- | --- |
-| Linhas | Pelo menos 80% | 97,69% na execução #146 |
-| Ramificações | Pelo menos 70% | 95,74% na execução #146 |
-| Código novo no Sonar | Pelo menos 80% | 83,8% no commit 02737a6 |
-| Duplicação no código novo | No máximo 3% | 0,0% no commit 02737a6 |
-| Quality Gate | Aprovação na versão analisada | Aprovado em 02737a6; conferir versão final |
-| Artefatos | Relatórios acessíveis | JSON, XML e HTML publicados |
-| Rastreabilidade crítica | Regras associadas a verificações | Associações registradas; revisão final pendente |
-| Defeitos e vulnerabilidades críticas | Nenhum conhecido pendente | Revisão final pendente; auditorias Python sem achados conhecidos |
-| Testes isolados | Regras sem dependências reais | Ampliação pendente |
-| Integração | Persistência e camadas | Verificada no escopo executado |
-| Container | Ambiente de execução isolado | Suíte com SQLite executada em Docker |
-| Testcontainers | Ferramenta ou alternativa aceita | Ainda não demonstrado especificamente |
-| Integração externa | Simulação quando aplicável | Sem integração externa; avisos internos adotados |
-| Navegador | Fluxo ponta a ponta | Fluxo principal aprovado no Chromium |
-| Concorrência de reservas | Uma única solicitação aceita | Verificada no serviço e por HTTP |
-| Concorrência manutenção/reserva | Não aceitar ambas no mesmo período | Verificada no serviço para os três tipos |
-| Desempenho | Plano, critérios e resultados | Ensaios exploratórios; critérios prévios pendentes |
-| Segurança | Revisão e evidências | Parcial |
-| Arquitetura | C4, sequências, utility tree, riscos e ADRs | Documento consolidado; revisão pendente |
-| Defeitos | Registro e retestes | Documento consolidado; revisão pendente |
-| Relatório final | Síntese das evidências | Documento atualizado; conferência final pendente |
-| Revisão por pares | Revisão real de outro integrante | Reservada para etapa posterior |
-| Apresentação | Demonstração e domínio pelo grupo | Preparação pendente |
+| Linhas | Pelo menos 80% | 97,46% em da93d49 |
+| Ramificações | Pelo menos 70% | 94,83% em da93d49 |
+| Código novo no Sonar | Pelo menos 80% | 84,1% em 3a76227 |
+| Duplicação no código novo | No máximo 3% | 0,0% em 3a76227 |
+| Quality Gate | Aprovação | Aprovado em 3a76227; conferir candidata final |
+| Artefatos | Relatórios acessíveis | Cobertura JSON/XML/HTML e log Testcontainers |
+| Regras críticas | Verificações associadas | Revisão final pendente |
+| Container | Execução controlada | Testcontainers com SQLite aprovado |
+| Banco em container | Correspondência com exigência acadêmica | Confirmar aceitação; sem servidor de banco separado |
+| Navegador | Fluxo principal | Chromium aprovado |
+| Desempenho | Metas prévias no cenário definido | Duas repetições de GET /login aprovadas |
+| Instalação | Ambiente novo | Clone separado c84dac2; repetir na candidata |
+| Recuperação | Integridade e dados | Backup/restauração SQLite verificados |
+| Segurança | Controles e revisão | Parcial; não há certificação |
+| Revisão por pares | Outro integrante | Pendente |
+| Release | Main avaliada e tag | Pendente |
+| Decisão do grupo | Contribuições e riscos confirmados | Pendente |
 
-A permissão informada para utilizar Python não comprova aceitação automática de todas as substituições de ferramentas.
+Python foi informado como permitido. Isso não comprova aceitação
+automática de todas as equivalências de ferramentas.
 
 ## 8. Reservas e cancelamento
 
-- Usuário e recurso ativos.
-- Finalidade e período válidos.
-- Início no futuro.
-- Sobreposição bloqueada em SOLICITADA, APROVADA e EM_USO.
-- Horários consecutivos permitidos.
-- Escritas serializadas com BEGIN IMMEDIATE no SQLite.
-- Cancelamento pelo proprietário antes do início.
-- Somente SOLICITADA e APROVADA podem ser canceladas.
-- Registro cancelado preservado e horário liberado.
-- Sem exclusão física pela interface.
-- Operações bem-sucedidas geram auditoria e aviso na mesma transação.
+Usuário/recurso ativos, finalidade válida e início futuro.
+Sobreposição bloqueada nos estados SOLICITADA, APROVADA e EM_USO.
+Horários consecutivos são permitidos.
 
-Evidências: testes de reservas, cancelamento HTTP, listagem, E2E e concorrência HTTP.
+As escritas utilizam BEGIN IMMEDIATE no SQLite.
+
+Cancelamento pelo proprietário antes do início, somente em SOLICITADA
+ou APROVADA. O registro é preservado e o horário liberado.
+Não há exclusão física pela interface.
+
+Reserva, auditoria e aviso das operações correspondentes compartilham
+transação.
 
 ## 9. Aprovação e responsáveis
 
-- Responsável ativo e vinculado.
-- Reserva SOLICITADA e ainda não iniciada.
-- Aprovação verifica recurso ativo, manutenção e sobreposição.
-- Rejeição libera o horário.
-- Auditoria e aviso participam da transação.
-- Conflito com outra reserva registra tentativa bloqueada.
+Responsável ativo, vinculado, reserva SOLICITADA e ainda não iniciada.
+Aprovação verifica recurso ativo, manutenção e sobreposição.
+Rejeição libera o horário. Auditoria e aviso participam da transação.
 
-O cadastro permite selecionar responsável ativo com perfil RESPONSAVEL. O servidor valida o vínculo.
+O cadastro permite responsável ativo com perfil RESPONSAVEL.
+Vínculo é opcional; recursos que exigem aprovação podem aguardar
+enquanto não houver responsável configurado.
 
-O vínculo é opcional. Recursos que exigem aprovação podem aguardar enquanto não houver responsável configurado.
+Alteração de vínculo existente pela interface permanece pendente.
 
-Alterar o vínculo de recurso existente pela interface permanece pendente.
+## 10. Auditoria e próprias reservas
 
-## 10. Auditoria e filtros
+Auditadas: criação, alteração, cancelamento, aprovação, rejeição,
+retirada, devolução e não comparecimento de materiais.
 
-Operações auditadas:
+Eventos registram reserva, autor, ação, horário e situações.
+Alterações preservam detalhes anteriores e novos.
+Falhas simuladas verificam rollback.
 
-- Criação e alteração.
-- Cancelamento.
-- Aprovação e rejeição.
-- Retirada e devolução.
-- Não comparecimento de materiais.
+A auditoria é exclusiva do administrador e apresenta até 100 eventos.
+Testes específicos desse limite e ordenação permanecem pendentes.
 
-Cada evento registra reserva, autor, ação, horário e situações anterior e nova. Alterações preservam detalhes anteriores e novos.
+Próprias reservas:
 
-Falhas provocam rollback da operação correspondente.
-
-A consulta é exclusiva do administrador e apresenta os 100 eventos mais recentes.
-
-### Próprias reservas
-
-- Ativas: EM_USO e SOLICITADA ou APROVADA com término futuro.
-- Histórico: complemento da condição de Ativas.
+- Ativas: EM_USO ou SOLICITADA/APROVADA com término futuro.
+- Histórico: complemento de Ativas.
 - Todas: registros do usuário conectado.
-- Ativas: início e ID crescentes.
-- Histórico e Todas: início e ID decrescentes.
-- EM_USO permanece em Ativas até a devolução.
+- Ativas ordenadas por início/ID crescentes.
+- Histórico/Todas por início/ID decrescentes.
+- EM_USO permanece ativa até devolução.
 
-Limitações: sem paginação, sem reconstrução de eventos anteriores e testes específicos do limite e ordenação da auditoria pendentes.
+Sem paginação ou reconstrução dos eventos anteriores.
 
 ## 11. Manutenção
 
-- Cadastro e consulta pelo administrador.
-- Período futuro e término posterior ao início.
-- Motivo obrigatório de até 200 caracteres.
-- Sobreposição com manutenção ou reserva ativa bloqueada.
-- Criação, edição e aprovação de reserva verificam manutenção.
-- Horários consecutivos permitidos.
-- Proteção CSRF.
-- Autor e data na tabela de manutenção.
+Administrador cadastra período futuro, motivo obrigatório até 200 caracteres
+e término posterior ao início.
 
-O cadastro não gera evento na auditoria de reservas.
+Sobreposição com manutenção ou reserva ativa é bloqueada.
+Criação, edição e aprovação de reserva conferem manutenção.
+Horários consecutivos são permitidos.
 
-A disputa entre manutenção e reserva foi testada no serviço para SALA, PROFESSOR e MATERIAL. O teste exige exatamente uma operação aceita e uma recusada.
+O cadastro de manutenção não gera evento na auditoria de reservas.
 
-Também verifica datas, estado inicial e, quando a reserva vence, auditoria e notificação.
+A disputa manutenção/reserva verifica uma aceitação e uma recusa
+para SALA, PROFESSOR e MATERIAL, datas e estado inicial;
+quando a reserva vence, também auditoria e aviso.
 
-Evidências: teste local em 1,762 segundo e suíte aprovada na execução #146.
-
-Pendências: edição e desativação pela interface, manutenção imediata e disputa manutenção/reserva por HTTP.
+Não força todas as ordens internas nem utiliza HTTP.
+Edição/desativação pela interface e manutenção imediata permanecem pendentes.
 
 ## 12. Materiais e não comparecimento
 
-### Retirada e devolução
+Retirada: administrador ou responsável vinculado, APROVADA,
+período permitido, recurso ativo e sem bloqueios de manutenção/uso.
 
-- Administrador ou responsável vinculado.
-- Retirada exige APROVADA e período permitido.
-- Recurso inativo, em manutenção ou já em uso bloqueia retirada.
-- APROVADA → EM_USO.
-- EM_USO → CONCLUIDA.
-- Devolução permitida após o prazo e com recurso inativo.
-- Auditoria das movimentações.
-- GET não realiza movimentações.
-- Login, perfil, vínculo, estado e CSRF verificados.
+Transições: APROVADA → EM_USO → CONCLUIDA.
+Devolução permitida após prazo e com recurso inativo.
+Movimentações exigem POST, permissões e CSRF e geram auditoria.
 
-Reserva manual nº 11, em 26/10/2026:
+Não comparecimento:
 
-- Retirada às 20h17min10s.
-- Devolução às 20h18min04s.
-- Eventos nº 8 e nº 9 conferidos.
-
-### Não comparecimento
-
-- Exclusivo para MATERIAL.
-- Reserva APROVADA.
+- Somente MATERIAL, reserva APROVADA.
 - Horário igual ou posterior ao término.
 - Administrador ativo ou responsável ativo vinculado.
 - Recurso inativo não impede registro histórico.
 - EM_USO exige devolução.
-- APROVADA → NAO_COMPARECEU.
-- Operação manual, sem alteração automática pelo prazo.
+- Operação manual, sem mudança automática pelo prazo.
 - Repetição recusada sem duplicar auditoria.
-- Atualização e auditoria na mesma transação.
-- Sem notificação interna dessa operação.
+- Atualização/auditoria na mesma transação.
+- Sem aviso interno dessa movimentação.
 
-Evidências: 14 testes de serviço, 12 HTTP e commit f1d0af2.
-
-Reserva nº 12, em 29/10/2026:
-
-- Criação: evento nº 12, às 17h44min15s.
-- Aprovação: evento nº 13, às 17h45min05s.
-- Não comparecimento: evento nº 14, às 17h54min06s.
-
-O script atualizar_auditoria_nao_comparecimento.py preservou 11 registros com backup. Seus testes específicos permanecem pendentes.
-
-O fluxo de materiais por navegador ainda precisa ser ampliado.
+Evidências manuais históricas: reservas nº 11 e nº 12.
+O script atualizar_auditoria_nao_comparecimento.py teve preservação
+e backup observados; testes específicos permanecem pendentes.
 
 ## 13. Cobertura
 
-### Resultado atual conferido
+Referência da93d49: 97,46% de linhas e 94,83% de ramificações.
 
-**Actions #146 — commit 67b3d00.**
+Escopo: app, banco, servico_reservas, servico_materiais,
+servico_relatorios, atualizar_auditoria e validar_backup.
 
-| Métrica | Resultado |
-| --- | ---: |
-| Linhas | 97,69% |
-| Ramificações | 95,74% |
+HTTP separado, Chromium e controle externo Testcontainers não são
+somados à medição da suíte principal.
 
-Módulos medidos:
-
-- app.py
-- banco.py
-- servico_reservas.py
-- servico_materiais.py
-- servico_relatorios.py
-- atualizar_auditoria.py
-
-A medição utiliza a suíte principal. HTTP separado e Chromium não são somados a esse relatório.
-
-O artefato histórico anteriormente conferido apresentou 761 de 779 linhas, 269 de 282 ramificações e 97,08% de cobertura combinada. Esses totais históricos não são atribuídos à execução #146.
-
-Não abrange HTML, CSS, JavaScript nem todos os scripts administrativos.
-
-### Comandos
-
-```powershell
-.\.venv\Scripts\python.exe -m coverage run --branch --source=app,banco,servico_reservas,servico_materiais,servico_relatorios,atualizar_auditoria -m unittest discover -s tests -v
-.\.venv\Scripts\python.exe -m coverage report -m
-.\.venv\Scripts\python.exe -m coverage json -o coverage.json
-.\.venv\Scripts\python.exe -m coverage xml
-.\.venv\Scripts\python.exe -m coverage html
-```
+Não abrange HTML, CSS, JavaScript ou todos os scripts administrativos.
+Comandos atualizados no README e PLANO_TESTES.
 
 Cobertura elevada não comprova ausência de defeitos.
 
 ## 14. Disponibilidade e edição
 
-### Disponibilidade
+Disponibilidade exige início/término juntos quando informados,
+valida datas e exclui reservas ativas e manutenção sobrepostas.
 
-- Início e término opcionais, preenchidos em conjunto.
-- Datas e ordem do período validadas.
-- Exclusão de reservas em estados ativos e manutenção sobrepostas.
-- Horários consecutivos permitidos.
-- Combinação com tipo, capacidade, localização e competência.
-- Consulta de períodos passados permitida.
-- Limpeza dos filtros remove o período.
+Permite consulta de períodos passados e horários consecutivos,
+combinando tipo, capacidade, localização e competência.
 
-Evidências: test_disponibilidade.py, test_consulta.py e consultas manuais da Sala 101.
+Edição exige proprietário ativo, SOLICITADA/APROVADA e início futuro.
+Valida recurso, período e finalidade; exclui a própria reserva do conflito.
+Restritos/professores voltam a SOLICITADA; comuns ficam APROVADA.
 
-### Edição
-
-- Proprietário ativo e autenticado.
-- SOLICITADA ou APROVADA antes do início.
-- Alteração de recurso, período e finalidade.
-- Recurso, datas e finalidade validados.
-- Própria reserva excluída da busca de conflito.
-- Restritos e professores voltam para SOLICITADA.
-- Recursos comuns ficam em APROVADA.
-- Solicitação sem mudança recusada.
-- Auditoria ALTERACAO com antes e depois.
-- Reserva, auditoria e aviso na mesma transação.
-
-Evidências: 24 testes de serviço, 12 HTTP e alteração manual da reserva nº 9 com evento nº 10.
+Pedido sem mudança é recusado.
+Auditoria ALTERACAO registra antes/depois; reserva e aviso são transacionais.
 
 ## 15. Defeitos e retestes
 
-| Registro | Problema | Evidência |
+| Registro | Problema | Estado |
 | --- | --- | --- |
-| DEF01 | EM_USO desaparecia de Ativas após o prazo | Filtro corrigido; testes e commit 9e94725 |
-| DEF02 | Nome do template diferente do include | Nome _dados_reserva.html corrigido e retestes |
-| DEF03 | Conexões SQLite impediam limpeza no Windows | Fechamento explícito; oito testes específicos |
-| DEF04 | Sintaxe YAML impedia a CI | Actions #88 e #89 aprovados após correção |
-| DEF05 | Caracteres corrompidos na documentação | Reconstrução e conferência visual |
-| INV01 | Falhas no ensaio de carga sem pausa | Causa não confirmada; investigação pendente |
+| DEF01 | EM_USO desaparecia de Ativas após prazo | Corrigido no escopo verificado |
+| DEF02 | Template diferente do include | Corrigido e retestado |
+| DEF03 | Conexões impediam limpeza no Windows | Fechamento explícito e testes |
+| DEF04 | YAML impedia CI | Corrigido nas execuções registradas |
+| DEF05 | Caracteres corrompidos | Corrigidos nos trechos conferidos |
+| INV01 | Falhas de conexão na carga sem pausa | Causa não confirmada |
 
-O Quality Gate também reprovou no commit 73a556e. Após ajuste do Dockerfile e classificação do teste HTTP, passou em 02737a6.
+Também foram corrigidos apontamentos Docker/Sonar e instalação/YAML
+do Testcontainers. Detalhes no relatório de qualidade e histórico Git.
 
-Detalhes e limitações estão em DEFEITOS.md e RELATORIO_QUALIDADE.md.
+## 16. Notificações
 
-Uma alteração acidental com texto de comando em novo_recurso.html foi restaurada.
+Avisos internos ao proprietário para criação, edição, cancelamento,
+aprovação e rejeição, com mensagem conforme o estado.
 
-## 16. Notificações internas
+Novos avisos são não lidos. Consulta/leitura somente pelo destinatário.
+Marcação exige login e CSRF; aviso alheio/inexistente retorna 404.
+GET não marca leitura; avisos lidos permanecem.
 
-Avisos persistidos ao dono da reserva:
+Operação, auditoria e aviso compartilham transação nos fluxos abrangidos.
 
-| Operação | Aviso |
-| --- | --- |
-| Criação comum | Criada e aprovada |
-| Criação restrita ou professor | Aguardando aprovação |
-| Edição comum | Alterada e aprovada |
-| Edição restrita ou professor | Aguardando nova aprovação |
-| Cancelamento | Cancelada |
-| Aprovação | Aprovada pelo responsável |
-| Rejeição | Rejeitada pelo responsável |
-
-- Avisos novos são não lidos.
-- Reserva, auditoria e aviso compartilham a transação.
-- Falha no aviso desfaz a operação.
-- Consulta e leitura somente pelo destinatário.
-- Marcação exige login e CSRF.
-- Aviso inexistente ou alheio retorna 404.
-- GET não marca leitura.
-- Avisos lidos permanecem na lista.
-
-Sem e-mail, SMS, paginação, tempo real ou aviso ao responsável. Movimentações e não comparecimento não geram aviso interno.
+Sem e-mail, SMS, tempo real, paginação ou aviso ao responsável.
+Movimentações e não comparecimento não geram aviso.
 
 ## 17. Relatórios e conflitos evitados
 
-Acesso pelo administrador ativo.
+Administrador ativo consulta contagens das sete situações,
+agrupamento por recurso, horas previstas e conflitos registrados.
 
-Indicadores:
+Horas consideram APROVADA, EM_USO e CONCLUIDA,
+somente o trecho sobreposto ao período consultado.
+Representam tempo reservado, não utilização real.
 
-- Total de reservas e contagem das sete situações.
-- Agrupamento por recurso.
-- Horas previstas por recurso e no total.
-- Conflitos evitados registrados.
+conflitos_reservas registra sobreposição na criação, edição e aprovação,
+com usuário, recurso, reserva conflitante, período, operação e data.
 
-Horas previstas consideram APROVADA, EM_USO e CONCLUIDA. Somente o trecho sobreposto ao período consultado é somado.
+Filtro por criado_em; sem datas, todo histórico.
+Repetições geram registros separados.
+Cancelamento/inativação posterior não apaga tentativas.
+Manutenção, preenchimento e falta de permissão não entram no indicador.
+Tentativas anteriores não são reconstruídas.
 
-O indicador representa tempo reservado, não utilização real.
+Sem tempo real, exportação, paginação ou E2E equivalente do relatório.
 
-### Tentativas bloqueadas
+## 18. CI e Sonar
 
-conflitos_reservas registra sobreposição na criação, edição e aprovação.
+Workflows testes.yml e testcontainers.yml em .github/workflows.
 
-Registra usuário, recurso, reserva conflitante, operação, período e data.
+Pipeline principal: HTTP separado, suíte, cobertura, artefatos e Chromium.
+Metas: 80% linhas e 70% ramificações; medições vazias são recusadas.
+Cobertura publicada como relatorios-cobertura por 30 dias.
 
-- Filtro pela data da tentativa, criado_em.
-- Sem datas, todo o histórico registrado.
-- Tentativas repetidas geram registros separados.
-- Cancelamento ou inativação posterior não apaga o histórico.
-- Manutenção, erros de preenchimento e falta de permissão não entram na contagem.
-- Tentativas anteriores não são reconstruídas.
-- A tentativa é confirmada antes do erro de conflito; reserva preservada.
+Sonar em PRs e pushes da main; segredo SONAR_TOKEN;
+espera pelo Quality Gate com limite de 300 segundos.
+Arquivos HTTP e Testcontainers classificados como testes.
 
-Evidências: 21 testes de relatório, 16 HTTP, contador manual de zero para um e persistência no E2E e teste HTTP concorrente.
+Testcontainers: constrói imagem e publica resultado-testcontainers.
 
-Limitações: tempo real, exportação, paginação e E2E desse relatório.
+Referência 3a76227: sete checks verdes, Gate aprovado,
+84,1% código novo, 0,0% duplicação, zero novos problemas e hotspots.
 
-## 18. Integração contínua e Sonar
+Proteção da main e CI após merge ainda precisam de conferência.
 
-**Workflow:** .github/workflows/testes.yml.
+## 19. Migração, backup e refatorações
 
-### Suíte e cobertura
+test_atualizar_auditoria.py verifica ausência de banco/tabela,
+estrutura atualizada, preservação/backup, coluna detalhes,
+índice/gatilho, coluna desconhecida, rollback e repetição.
 
-- Push e Pull Requests.
-- Ubuntu e Python 3.14.
-- Dependências com hashes e pacotes binários.
-- Teste HTTP em processo separado.
-- Suíte principal com linhas e ramificações.
-- Metas de 80% de linhas e 70% de ramificações.
-- Falha em teste reprovado ou medição sem linhas ou ramificações.
-- JSON, XML e HTML publicados como relatorios-cobertura.
-- Retenção de 30 dias.
-- Publicação antes da verificação das metas e do Sonar.
+Não cobre automaticamente falta de espaço, interrupção ou demais scripts.
 
-Etapas posteriores dependentes podem não executar após falha dos testes.
+validar_backup.py abre origem somente para leitura, verifica integridade,
+cria backup/restauração temporários e compara estrutura e dados.
+Execução registrada: sete tabelas do banco do clone separado.
 
-### Chromium
+Quatro testes verificam preservação, arquivo inexistente, diretório
+e arquivo inválido.
 
-- Job separado.
-- requirements-e2e.lock com hashes.
-- Instalação do Chromium e dependências.
-- Execução com xvfb-run.
-- Descoberta em e2e.
+Não constitui backup persistente nem recuperação completa de desastre.
 
-### Sonar
+Refatorações extraíram validações comuns no serviço
+e dados de reserva em templates/_dados_reserva.html.
+Formulários, CSRF e ações específicas permanecem nas páginas.
 
-- Análise em PRs e pushes da main.
-- SONAR_TOKEN como segredo.
-- Espera pelo Quality Gate, com limite de 300 segundos.
-- Reprovação ou expiração falha a etapa.
-- Teste HTTP classificado como teste.
+## 20. Navegador e HTTP
 
-Última evidência conferida: commit 02737a6.
+Chromium: login inválido/válido, criação, consulta, conflito,
+cancelamento, Ativas/Histórico e registros associados.
+Servidor em porta dinâmica e SQLite temporário.
 
-| Indicador | Resultado |
-| --- | ---: |
-| Quality Gate | Passed |
-| Novos problemas | 0 |
-| Problemas aceitos | 0 |
-| Security Hotspots | 0 |
-| Cobertura no código novo | 83,8% |
-| Duplicação no código novo | 0,0% |
+HTTP concorrente: duas sessões coordenadas, uma aceitação, uma recusa,
+uma reserva, auditoria, notificação e conflito registrado.
 
-Esse resultado não comprova análise posterior ao merge nem substitui a conferência do commit final.
+A coordenação não garante ordem interna.
+Ampliar aprovação, edição, materiais, navegadores e capturas/traces.
 
-Proteção da main e verificações obrigatórias ainda precisam de conferência.
+## 21. Docker e Testcontainers
 
-## 19. Migração e refatorações
+Imagem Python 3.14 slim, requirements.lock com hashes,
+cópias explícitas e usuário sem privilégios de root.
 
-### Migração da auditoria
+.dockerignore exclui bancos locais, ambientes virtuais, backups
+e arquivos de ambiente. Sem montagem do banco local.
 
-tests/test_atualizar_auditoria.py contém oito métodos:
+teste_testcontainers.py inicia, aguarda e remove o container,
+coleta log e exige código zero e 292 testes esperados.
 
-1. Banco inexistente sem criação indevida.
-2. Ausência da tabela de auditoria.
-3. Estrutura atualizada sem migração desnecessária.
-4. Preservação, backup e coluna detalhes.
-5. Índice e gatilho preservados.
-6. Recusa de coluna desconhecida.
-7. Rollback após ação inválida.
-8. Repetição sem duplicar registros ou backups.
+Reconstruir a imagem após alterações e atualizar a quantidade esperada
+quando a suíte mudar.
 
-Utiliza caminhos e bancos temporários. Não cobre automaticamente interrupção, falta de espaço ou outros scripts.
-
-### Refatorações
-
-Auxiliares extraídos para validar usuário, recurso, período, propriedade, conflitos, manutenção, estado inicial e detalhes de auditoria.
-
-Dados comuns dos templates extraídos para _dados_reserva.html, reutilizado em aprovacoes.html e materiais.html.
-
-Formulários, CSRF e ações específicas permanecem em cada página.
-
-## 20. Navegador e concorrência HTTP
-
-### Chromium
-
-Arquivo: e2e/test_fluxo_reserva.py.
-
-Verifica login inválido e válido, criação, consulta, conflito, cancelamento com confirmação, Ativas, Histórico e registros associados no banco.
-
-Servidor local em porta dinâmica e SQLite temporário.
-
-Resultado na execução #146: aprovado.
-
-A execução local mais recente registrada foi de 20,869 segundos. O resultado inicial de 58,588 segundos permanece histórico.
-
-Pendências: aprovação, materiais, edição, outros navegadores e capturas ou traces como artefatos.
-
-### Concorrência HTTP
-
-Arquivo: teste_concorrencia_http.py.
-
-Duas sessões autenticadas enviam solicitações coordenadas para o mesmo recurso e período.
-
-Verifica uma aceitação, uma recusa, uma reserva, auditoria, notificação e conflito registrado.
-
-Resultado local: um teste em 3,731 segundos. Também aprovado na execução #146.
-
-A barreira coordena os clientes, sem garantir uma ordem interna específica. O cenário não comprova todas as condições de corrida possíveis.
-
-## 21. Docker
-
-Arquivos: Dockerfile.testes e .dockerignore.
-
-- Python 3.14 slim.
-- Instalação com hashes de requirements.lock.
-- Cópia dos arquivos Python, templates, static e tests.
-- Execução como usuário sem privilégios de root.
-- Banco local, ambientes virtuais, backups e arquivos de ambiente excluídos conforme .dockerignore.
-- Sem montagem do banco local nos comandos utilizados.
-
-```powershell
-docker build -f Dockerfile.testes -t organizacao-recursos-testes .
-docker run --rm organizacao-recursos-testes
-```
-
-Resultado após ajuste: 287 testes em 180,651 segundos, OK.
-
-A imagem dessa execução precede o teste adicional de manutenção/reserva.
-
-Executar SQLite e a suíte em Docker não equivale à implementação de Testcontainers nem à integração com um servidor de banco externo.
-
-A imagem-base não está fixada por digest.
+SQLite está dentro do container; sem servidor externo de banco.
+Aceitação acadêmica dessa abordagem deve ser confirmada.
+Imagem-base sem digest e ambiente externo sem lock completo com hashes.
 
 ## 22. Desempenho
 
-Documentação: performance/README.md.
-
 Plano: performance/consulta_login_10usuarios_60s.jmx.
 
-Commit: bf6822a.
+Duas execuções planejadas: Windows, JMeter 5.6.3, Flask local,
+debug desligado, cliente e servidor na mesma máquina.
 
-Ambiente: Windows, JMeter 5.6.3, Java Zulu 25.0.3 e Flask local na porta 5003, sem debug. Cliente e servidor na mesma máquina.
+GET /login; dez usuários, subida de cinco segundos, 60 segundos,
+pausa de um segundo; verifica HTTP 200 e texto Acesso ao sistema.
 
-GET /login, dez usuários, ramp-up de cinco segundos e duração configurada de 60 segundos.
+Metas prévias: zero erros, p95 até 500 ms e pelo menos 500 amostras.
 
-Validações de HTTP 200 e texto Acesso ao sistema.
+| Execução | Amostras | Erros | Média (ms) | p95 (ms) | Máximo (ms) |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| 1 | 565 | 0 | 9,12 | 23 | 85 |
+| 2 | 565 | 0 | 8,11 | 19 | 69 |
 
-| Indicador | Sem pausa | Pausa de 1.000 ms |
-| --- | ---: | ---: |
-| Amostras | 17.633 | 570 |
-| HTTP 200 | 16.344 | 570 |
-| Falhas | 1.289 | 0 |
-| Taxa de falhas | 7,31% | 0% |
+Ambas atenderam. Evidências em docs/performance/resultado-01.md,
+registradas no commit 49f9268.
 
-Com pausa: média 5,49 ms, mediana 5 ms, p95 de 8 ms, mínimo 2 ms e máximo 38 ms. Taxa aproximada de 9,5 requisições/s.
+Histórico exploratório: sem pausa, 1.289 falhas em 17.633 amostras;
+com pausa, 570 sem falha, média 5,49 ms e p95 8 ms.
 
-Usuários ativos incluem espera pelo timer; não equivalem a dez requisições simultâneas.
+BindException teve causa não confirmada. Reduzir carga não comprova
+correção. Usuários ativos incluem espera pelo timer.
 
-Sem pausa, houve java.net.BindException com Address already in use: connect. Causa não confirmada.
+Não mede autenticação por POST, reservas ou capacidade de produção.
+Cenários autenticados continuam pendentes.
 
-A pausa reduziu a carga e não comprova correção da causa anterior.
+## 23. Segurança e instalação
 
-Os ensaios foram exploratórios, sem critérios prévios. Não avaliam autenticação, reservas ou capacidade de produção.
+test_seguranca_login.py: tokens, renovação e tentativas de SQL.
+test_seguranca_xss.py: escape em duas páginas.
 
-Evidências:
+Auditorias dos locks principal e E2E sem vulnerabilidades conhecidas
+reportadas nas execuções registradas.
+Não abrangem automaticamente Chromium, imagem Docker ou Testcontainers.
 
-- performance/carga_login_10usuarios_60s_01.jtl
-- performance/carga_login_10usuarios_60s_pausa_01.jtl
+Limitações: revisão completa, implantação HTTPS/cookies,
+limitação de tentativas e ampliação de XSS. Sem teste de invasão completo.
 
-Pendências: critérios definidos antes das execuções, repetições e cenários autenticados isolados.
+Instalação limpa no commit c84dac2: clone temporário e ambiente novo,
+mesmo computador; dependências, banco, exemplos, administrador,
+login e criação/consulta da Sala 101 confirmados.
 
-## 23. Segurança
+Reserva nº 1: 03/11/2026, 14h–15h, aprovada.
+Detalhes em VALIDACAO_INSTALACAO.md.
+Repetir a validação na candidata final.
 
-Documento: SEGURANCA.md.
+## 24. Entrega e verificações restantes
 
-### Login e saída HTML
+- Confirmar equivalências de ferramentas com o professor.
+- Conferir requisitos e limitações contra o enunciado.
+- Revisar gestão administrativa e conflitos por tipo.
+- Ampliar cenários conforme riscos e registrar ressalvas reais.
+- Conferir documentação das rotas e links.
+- Confirmar nomes completos e contribuições.
+- Obter revisão real por outro integrante.
+- Conferir conteúdo antes de tornar o repositório público.
+- Integrar alteração revisada e conferir CI/Sonar na main.
+- Validar candidata em clone limpo.
+- Registrar decisão de qualidade e riscos com responsáveis.
+- Criar tag anotada sem mover tags publicadas.
+- Vincular CI e evidências ao commit avaliado.
+- Preparar demonstração e realizar envio único pelo grupo.
 
-test_seguranca_login.py verifica CSRF entre sessões, renovação após login, recusa do token anterior, logout com token atual e três tentativas de injeção SQL sem autenticação.
+Referências de fechamento:
 
-test_seguranca_xss.py verifica escape no nome do recurso na página inicial e no formulário de nova reserva.
+- docs/entrega/checklist.md
+- docs/evidencias/README.md
+- CHANGELOG.md
+- RELATORIO_QUALIDADE.md
+- PLANO_TESTES.md
+- SEGURANCA.md
 
-O teste HTML não representa conjunto completo de ataques no navegador.
-
-### Dependências
-
-| Lock | Relatório | Resultado |
-| --- | --- | --- |
-| requirements.lock | auditoria_dependencias.json | Dez dependências; nenhuma vulnerabilidade conhecida reportada |
-| requirements-e2e.lock | auditoria_dependencias_e2e.json | Nenhuma vulnerabilidade conhecida reportada |
-
-Auditorias com pip-audit, --require-hashes e --strict.
-
-O JSON de E2E foi registrado no commit 98d26d5 e inclui Playwright 1.64.1.
-
-O ambiente .venv-auditoria é separado e excluído do Git e do Sonar.
-
-A auditoria dos pacotes Python não equivale à auditoria do binário Chromium nem da imagem Docker.
-
-Resultados dependem da base consultada no momento da execução.
-
-### Limitações
-
-- Revisão completa de segurança.
-- HTTPS e cookies para implantação.
-- Avaliação de limitação de tentativas de login.
-- Ampliação de campos e páginas contra XSS.
-- Ausência de teste de invasão completo.
-
-## 24. Próximas verificações e entrega
-
-- Conferir requisitos e regras com o enunciado.
-- Revisar gestão administrativa de usuários e recursos.
-- Revisar não comparecimento para outros tipos.
-- Ampliar cenários explícitos de conflito entre reservas por tipo.
-- Atender Testcontainers ou registrar alternativa aceita.
-- Testar os demais scripts e migrações.
-- Verificar restauração de backup.
-- Ampliar E2E e tamanhos de tela.
-- Definir critérios e ampliar desempenho.
-- Conferir instalação limpa e README.
-- Revisar documentação TDD, arquitetura e defeitos.
-- Alinhar PLANO_TESTES.md e SEGURANCA.md com as novas evidências.
-- Conferir proteção da main e checks obrigatórios.
-- Conferir Sonar do commit final.
-- Preparar apresentação e roteiro de demonstração.
-- Realizar revisão por outro integrante na etapa combinada.
-
-### Evidências
-
-- Identificar cenário, versão e resultados esperado e observado.
-- Preservar falhas e limitações.
-- Não transformar contagens esperadas em execuções comprovadas.
-- Não apresentar métricas históricas como atuais.
-- Não registrar revisão, merge ou aprovação sem evidência.
-- Preservar RTM_historico.md como histórico.
+Não registrar assinatura, revisão, merge ou aprovação sem evidência.
+Não apresentar resultados locais como prontidão para produção.
