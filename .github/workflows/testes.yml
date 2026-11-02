@@ -28,6 +28,32 @@ jobs:
         run: |
           python -m pip install --only-binary=:all: --require-hashes -r requirements.lock
 
+      - name: Executar concorrencia de reservas por HTTP
+        run: python teste_concorrencia_http.py
+
+      - name: Registrar resultado da concorrencia HTTP
+        shell: python
+        run: |
+          import os
+
+          with open(
+              os.environ["GITHUB_STEP_SUMMARY"],
+              "a",
+              encoding="utf-8",
+          ) as resumo:
+              resumo.write("## Concorrencia por HTTP\n\n")
+              resumo.write("Resultado: teste aprovado.\n\n")
+              resumo.write(
+                  "Duas sessoes autenticadas solicitam o mesmo "
+                  "recurso e periodo por HTTP: uma reserva e aceita "
+                  "e a outra tentativa e recusada.\n\n"
+              )
+              resumo.write(
+                  "O teste verifica os registros de reserva, "
+                  "auditoria, notificacao e conflito, "
+                  "utilizando banco SQLite temporario.\n\n"
+              )
+
       - name: Executar testes com cobertura
         run: |
           python -m coverage run --branch --source=app,banco,servico_reservas,servico_materiais,servico_relatorios,atualizar_auditoria -m unittest discover -s tests -v
