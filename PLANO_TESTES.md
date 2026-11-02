@@ -1,6 +1,7 @@
 # Plano de testes — Organização de Recursos
 
-**Data:** 02/11/2026  
+**Atualização:** 02/11/2026
+
 **Integrantes:** Arthur Mendes, Robert Oliveira, Nicolas Ferreira e Murilo Henrique.
 
 ## 1. Objetivo
@@ -9,38 +10,42 @@ Verificar as regras de reserva, o controle de acesso, a integridade dos registro
 
 Este plano consolida a estratégia utilizada e as verificações ainda necessárias. Foi documentado após parte das execuções; não representa planejamento prévio de todos os testes realizados.
 
-Os resultados observados estão em RTM.md e nos relatórios associados.
+Os resultados observados estão em RTM.md e RELATORIO_QUALIDADE.md.
 
 ## 2. Escopo
 
 - Autenticação, sessão e autorização.
 - Cadastro e consulta de recursos.
 - Pesquisa por disponibilidade.
-- Criação, edição e cancelamento de reservas.
+- Criação, edição e cancelamento.
 - Aprovação e rejeição.
 - Manutenção.
 - Retirada, devolução e não comparecimento de materiais.
 - Auditoria e notificações.
 - Relatórios e conflitos evitados.
-- Migração da auditoria com testes específicos.
-- Fluxo principal no navegador.
+- Migração específica da auditoria.
+- Concorrência de reservas no serviço e por HTTP.
+- Concorrência entre manutenção e reserva no serviço.
+- Fluxo principal no Chromium.
+- Execução da suíte em Docker.
 - Segurança e desempenho nos cenários documentados.
 
-Não estão demonstrados testes completos de implantação de produção, recuperação de desastre ou todas as combinações de dispositivos e navegadores.
+Não estão demonstrados testes completos de produção, recuperação de desastre ou todas as combinações de dispositivos e navegadores.
 
 ## 3. Priorização por risco
 
 | Prioridade | Risco | Verificação principal |
 | --- | --- | --- |
-| Alta | Duas reservas aceitas para o mesmo recurso e período | Sobreposição e concorrência |
-| Alta | Usuário altera dados alheios | Autorização por propriedade e vínculo |
+| Alta | Duas reservas aceitas no mesmo período | Sobreposição e concorrência |
+| Alta | Manutenção e reserva aceitas para o mesmo recurso e período | Disputa concorrente entre as operações |
+| Alta | Usuário altera dados alheios | Propriedade, perfil e vínculo |
 | Alta | Operação sem autenticação ou CSRF válido | Testes negativos das rotas |
-| Alta | Reserva alterada sem auditoria correspondente | Transação e rollback |
+| Alta | Alteração sem auditoria correspondente | Transação e rollback |
 | Alta | Transição de estado inválida | Estados permitidos e recusas |
 | Média | Recurso indisponível aparece na pesquisa | Filtros e manutenção |
-| Média | Indicador incorreto | Contagens, limites de datas e arredondamento |
+| Média | Indicador incorreto | Contagens, datas e arredondamento |
 | Média | Fluxo falha no navegador | Teste ponta a ponta |
-| Média | Degradação sob carga | Ensaios controlados de desempenho |
+| Média | Degradação sob carga | Ensaios controlados |
 
 A prioridade foi consolidada neste documento e precisa de revisão pelo grupo.
 
@@ -49,58 +54,64 @@ A prioridade foi consolidada neste documento e precisa de revisão pelo grupo.
 | Tipo | Abordagem | Limite |
 | --- | --- | --- |
 | Regras e integração | unittest e SQLite temporário | Muitos testes utilizam persistência real |
-| Rotas HTTP | Cliente de testes Flask | Não executa JavaScript |
-| Navegador | Playwright com Chromium e servidor local | Um fluxo principal automatizado |
-| Concorrência | Solicitações simultâneas no serviço | Não demonstra concorrência por HTTP |
-| Cobertura | coverage.py com linhas e ramificações | Escopo Python definido |
-| Análise estática | SonarQube Cloud | Depende da versão analisada |
+| Rotas | Cliente Flask | Não executa JavaScript |
+| HTTP real | Servidor local e dois clientes autenticados | Um cenário concorrente de criação |
+| Navegador | Playwright com Chromium | Um fluxo principal |
+| Concorrência no serviço | Threads com início coordenado | SQLite e cenários definidos |
+| Container | Docker e suíte com SQLite temporário | Não equivale à implementação de Testcontainers |
+| Cobertura | coverage.py | Seis módulos Python definidos |
+| Análise estática | SonarQube Cloud | Resultado associado à versão analisada |
 | Segurança | Testes específicos e pip-audit | Cobertura parcial de ameaças |
 | Desempenho | JMeter | GET /login em ambiente local |
-| Verificação manual | Interface e registros persistidos | Evidências devem identificar cenário e versão |
+| Verificação manual | Interface e registros | Depende da identificação da evidência |
+
+Não existe integração externa implementada. As notificações são avisos internos persistidos.
 
 ## 5. Técnicas utilizadas
 
 - Particionamento de entradas válidas e inválidas.
-- Valores-limite de datas, horários e períodos.
+- Valores-limite de datas e horários.
 - Combinações de perfil, vínculo e propriedade.
 - Transições de estado permitidas e proibidas.
 - Cenários negativos de autenticação e CSRF.
-- Verificação de persistência e ausência de alterações nas recusas.
+- Persistência e ausência de alterações nas recusas.
 - Falhas simuladas para verificar rollback.
-- Concorrência no serviço.
+- Concorrência no serviço e por HTTP.
 - Regressão após correções e refatorações.
-- subTest para agrupar variações de um cenário.
+- subTest para agrupar variações.
 
-A cobertura de código complementa essas técnicas; não substitui a avaliação das regras de negócio.
+Cobertura de código complementa essas técnicas; não substitui a avaliação das regras.
 
-Testes que utilizam banco real temporário também verificam integração. Não devem ser classificados integralmente como testes unitários isolados.
+Testes com banco temporário real também verificam integração. Não são integralmente testes unitários isolados.
 
 ## 6. Cenários críticos
 
 | ID | Cenário | Resultado esperado | Rastreabilidade |
 | --- | --- | --- | --- |
-| CT01 | Login válido, inválido e usuário inativo | Somente credenciais válidas de usuário ativo autenticam | RF01 |
+| CT01 | Login válido, inválido e usuário inativo | Somente usuário ativo com credenciais válidas autentica | RF01 |
 | CT02 | POST sem token ou com token inválido | Recusa sem operação indevida | RF01 |
-| CT03 | Token pertencente a outra sessão | Autenticação recusada | RF01 |
-| CT04 | Cadastro por perfil não administrador | Acesso recusado e nenhum recurso criado | RF02 |
-| CT05 | Período com término não posterior ao início | Operação recusada | RC01 |
-| CT06 | Reserva sobreposta no mesmo recurso | Operação recusada | RF05, RC02 |
-| CT07 | Horários consecutivos | Ausência de conflito por simples contato no limite | RC02 |
-| CT08 | Duas solicitações simultâneas | Uma aceita e outra bloqueada | RF06, RC03 |
+| CT03 | Token de outra sessão | Operação recusada | RF01 |
+| CT04 | Cadastro por não administrador | Acesso recusado e nenhum recurso criado | RF02 |
+| CT05 | Término não posterior ao início | Operação recusada | RC01 |
+| CT06 | Reserva sobreposta | Operação recusada | RF05, RC02 |
+| CT07 | Horários consecutivos | Ausência de conflito por contato no limite | RC02 |
+| CT08 | Duas reservas simultâneas no serviço | Uma aceita e outra bloqueada | RF06, RC03 |
 | CT09 | Reserva durante manutenção | Operação recusada | RF08, RC04 |
-| CT10 | Aprovação por responsável sem vínculo | Operação recusada | RF07, RC07 |
-| CT11 | Edição ou cancelamento por outro usuário | Acesso recusado e dados preservados | RF04 |
+| CT10 | Aprovação sem vínculo | Operação recusada | RF07, RC07 |
+| CT11 | Edição ou cancelamento por usuário alheio | Recusa e dados preservados | RF04 |
 | CT12 | Edição ou cancelamento após início | Operação recusada | RC08 |
-| CT13 | Retirada e devolução de material | Transições válidas e auditoria | RF09, RC05, RC09 |
-| CT14 | Não comparecimento antes e no limite do término | Recusa antes; aceitação no limite para perfil autorizado e reserva elegível | RC06 |
+| CT13 | Retirada e devolução | Transições válidas e auditoria | RF09, RC05, RC09 |
+| CT14 | Não comparecimento antes e no limite do término | Recusa antes; aceitação no limite para reserva elegível e usuário autorizado | RC06 |
 | CT15 | Falha na auditoria ou notificação | Rollback da operação correspondente | RF10, RF11 |
 | CT16 | Consulta ou leitura de aviso alheio | Aviso não exposto e operação recusada | RF11 |
-| CT17 | Relatório com datas inválidas e limites de período | Validação e contagens corretas | RF12 |
-| CT18 | Tentativa bloqueada por sobreposição | Registro do conflito sem alterar a reserva | RF05, RF12 |
-| CT19 | Nome de recurso contendo HTML | Saída escapada nas páginas verificadas | RF13 |
-| CT20 | Login, criação, conflito e cancelamento no Chromium | Fluxo completo com registros coerentes | RF01, RF04, RF05 |
+| CT17 | Datas inválidas e limites no relatório | Validação e contagens corretas | RF12 |
+| CT18 | Bloqueio por sobreposição | Conflito registrado sem alterar a reserva | RF05, RF12 |
+| CT19 | Nome de recurso contendo HTML | Saída escapada nos pontos verificados | RF13 |
+| CT20 | Fluxo principal no Chromium | Login, criação, conflito, cancelamento e histórico coerentes | RF01, RF04, RF05 |
+| CT21 | Duas sessões criam reserva concorrente por HTTP | Uma aceitação, uma recusa e registros consistentes | RF06, RC03, RC09 |
+| CT22 | Manutenção e reserva concorrentes nos três tipos | Exatamente uma operação aceita por disputa | RF08, RC04 |
 
-Esta tabela define cenários e expectativas. O estado da implementação e das evidências deve ser consultado em RTM.md; a tabela não declara aprovação automática de todos os casos.
+A tabela define expectativas. As evidências e limitações devem ser consultadas na RTM; não declara aprovação automática de todas as variações possíveis.
 
 ## 7. Ambiente e dados
 
@@ -111,68 +122,98 @@ Esta tabela define cenários e expectativas. O estado da implementação e das e
 - Flask e SQLAlchemy Core.
 - SQLite.
 - Chromium instalado pelo Playwright.
-- JMeter 5.6.3 para os ensaios registrados.
+- JMeter 5.6.3.
+- Docker Desktop com containers Linux.
 
 ### Integração contínua
 
 - GitHub Actions em Ubuntu.
 - Python 3.14.
-- Dependências instaladas por locks com hashes.
-- Chromium executado com suporte de tela virtual.
+- Locks com hashes.
+- Chromium executado com tela virtual.
+- Teste HTTP em processo separado da suíte principal.
 
-### Preparação dos dados
+### Container de testes
 
-- Utilizar usuários ativos e inativos.
-- Variar ADMIN, RESPONSAVEL e SOLICITANTE.
-- Preparar recursos comuns, restritos, ativos e inativos.
-- Variar responsável vinculado e não vinculado.
-- Preparar períodos futuros, limites exatos e reservas iniciadas.
-- Utilizar todos os estados relevantes.
-- Isolar os registros de teste em bancos temporários.
+- Python 3.14 slim.
+- Dependências de requirements.lock com hashes.
+- Execução como usuário sem privilégios de root.
+- Bancos de teste temporários.
+- Banco local e arquivos de ambiente excluídos conforme .dockerignore.
 
-A aplicação possui criação de estrutura durante a importação. A preparação do ambiente deve considerar esse efeito colateral e preservar bases importantes.
+A imagem-base utiliza tag, sem fixação por digest.
 
-Não executar cenários de escrita ou carga sobre dados importantes sem isolamento e preparação específicos.
+### Dados
+
+- Usuários ativos e inativos.
+- ADMIN, RESPONSAVEL e SOLICITANTE.
+- Recursos comuns, restritos, ativos e inativos.
+- Responsável vinculado e não vinculado.
+- Períodos futuros, limites exatos e reservas iniciadas.
+- Estados relevantes das reservas.
+- Bancos temporários isolados.
+
+A aplicação cria estrutura durante a importação. Os testes que substituem a conexão precisam preparar esse isolamento antes de importar app.
+
+Não executar escrita ou carga sobre dados importantes sem isolamento.
 
 ## 8. Critérios de entrada
 
-Antes de uma execução:
+Antes de executar:
 
 - Identificar versão e branch.
 - Instalar as dependências previstas.
-- Preparar ambiente e dados necessários.
-- Confirmar o isolamento do cenário.
+- Preparar ambiente e dados.
+- Confirmar isolamento.
 - Definir resultado esperado.
-- Verificar disponibilidade das ferramentas utilizadas.
+- Verificar as ferramentas necessárias.
 
-Para novos ensaios de desempenho, definir antecipadamente carga, duração, pausas, métricas e critérios de aceitação.
+Para novos ensaios de desempenho, definir previamente carga, duração, pausas, métricas e critérios de aceitação.
 
 ## 9. Critérios de saída
 
-| Critério | Evidência necessária |
+| Critério | Evidência |
 | --- | --- |
-| Testes da versão de entrega aprovados | Logs da execução identificada |
-| Cobertura mínima de 80% de linhas | Relatório no escopo definido |
-| Cobertura mínima de 70% de ramificações | Relatório no escopo definido |
-| Quality Gate aprovado | Análise associada à versão de entrega |
-| Regras críticas rastreadas | Revisão de RC01 a RC09 na RTM |
-| Defeitos críticos conhecidos tratados | Registro de defeitos e decisão documentada |
-| Limitações e investigações identificadas | RTM, DEFEITOS e relatório final |
+| Testes da versão de entrega aprovados | Logs identificados |
+| Pelo menos 80% de linhas | Relatório no escopo definido |
+| Pelo menos 70% de ramificações | Relatório no escopo definido |
+| Quality Gate aprovado | Análise da versão de entrega |
+| Regras críticas rastreadas | Revisão de RC01 a RC09 |
+| Defeitos críticos conhecidos tratados | Registro e decisão documentada |
+| Limitações identificadas | RTM, DEFEITOS e relatório |
 | Revisão por outro integrante | Registro real de revisão |
 
-O atendimento de cada critério deve ser conferido antes da entrega. Este plano não declara que todos já foram atendidos.
+Esses critérios devem ser conferidos antes da entrega. Nem todos estão demonstrados como atendidos.
 
 ## 10. Execução e regressão
 
-Os comandos desta seção são instruções para futuras execuções. Sua presença no documento não significa que precisam ser executados a cada atualização.
+Os comandos são referências para reprodução. Atualizar documentação não exige automaticamente repetir a suíte local.
 
 ### Suíte principal
 
-Executar na raiz do projeto:
+Na raiz do projeto:
 
 ```powershell
 .\.venv\Scripts\python.exe -m unittest discover -s tests -v
 ```
+
+### Concorrência HTTP
+
+Executar separadamente:
+
+```powershell
+.\.venv\Scripts\python.exe .\teste_concorrencia_http.py
+```
+
+O teste prepara servidor e banco temporários próprios.
+
+### Concorrência entre manutenção e reserva
+
+```powershell
+.\.venv\Scripts\python.exe -m unittest discover -s tests -p test_concorrencia_manutencao.py -v
+```
+
+Esse arquivo também entra automaticamente na descoberta da suíte principal.
 
 ### Navegador
 
@@ -182,141 +223,196 @@ Após instalar as dependências e o Chromium conforme README.md:
 .\.venv\Scripts\python.exe -m unittest discover -s e2e -v
 ```
 
-O teste de navegador inicia servidor e banco temporários próprios.
+### Docker
+
+Com Docker em funcionamento:
+
+```powershell
+docker build -f Dockerfile.testes -t organizacao-recursos-testes .
+docker run --rm organizacao-recursos-testes
+```
+
+O comando padrão da imagem executa a suíte de tests. Não executa automaticamente o Chromium nem o teste HTTP separado.
 
 ### Cobertura
 
-Utilizar os comandos de README.md para executar a suíte com coverage.py e gerar JSON, XML e HTML.
+```powershell
+.\.venv\Scripts\python.exe -m coverage run --branch --source=app,banco,servico_reservas,servico_materiais,servico_relatorios,atualizar_auditoria -m unittest discover -s tests -v
+.\.venv\Scripts\python.exe -m coverage report -m
+.\.venv\Scripts\python.exe -m coverage json -o coverage.json
+.\.venv\Scripts\python.exe -m coverage xml
+.\.venv\Scripts\python.exe -m coverage html
+```
 
-### Estratégia de reteste
+O teste HTTP separado e o navegador não são somados a essa medição.
 
-1. Reproduzir ou identificar a falha.
-2. Registrar resultado esperado e observado.
+### Reteste
+
+1. Identificar ou reproduzir a falha.
+2. Registrar esperado e observado.
 3. Aplicar a correção.
-4. Executar os testes diretamente relacionados.
+4. Executar os testes relacionados.
 5. Executar regressão adequada ao impacto.
 6. Registrar versão e resultado.
 
-Alterações apenas de documentação exigem conferência de conteúdo, links e renderização, sem necessidade automática de repetir toda a suíte local.
+Para documentação, conferir conteúdo, links, comandos e renderização.
 
-### Execuções locais registradas
+## 11. Resultados registrados
 
-| Execução | Resultado observado |
+### CI de referência
+
+**Actions #146 — commit 67b3d00 — evento push.**
+
+| Verificação | Resultado |
 | --- | --- |
-| Suíte principal após os testes adicionais de login | 286 testes aprovados em 121,250 segundos |
-| Teste de escape de HTML acrescentado posteriormente | Um teste aprovado em 0,382 segundo, com dois cenários |
-| Teste de navegador em 02/11/2026 | Um teste aprovado em 20,869 segundos |
+| Suíte principal | 288 testes em 15,349 segundos, OK |
+| Concorrência HTTP | Aprovada |
+| Chromium | Aprovado |
+| Linhas | 97,69% |
+| Ramificações | 95,74% |
+| Workflow completo | Success em 59 segundos |
 
-A execução de 286 testes precede a inclusão do teste de escape de HTML. Não é apresentada como uma execução completa posterior a essa inclusão.
+O método HTTP e o método de navegador são separados dos 288 testes.
 
-O teste de navegador inclui respostas de erro esperadas para senha incorreta e reserva conflitante. Esses retornos são avaliados pelo cenário e não representam, por si só, falha do teste.
+### Execuções locais
 
-## 11. Segurança
+| Execução | Resultado |
+| --- | --- |
+| Suíte antes do teste adicional de XSS | 286 testes em 121,250 segundos |
+| Escape de HTML | Um teste em 0,382 segundo, com dois cenários |
+| Chromium | Um teste em 20,869 segundos |
+| Concorrência HTTP | Um teste em 3,731 segundos |
+| Docker após ajuste de segurança | 287 testes em 180,651 segundos |
+| Manutenção/reserva | Um teste em 1,762 segundo, com três cenários |
 
-Cenários registrados:
+A execução Docker registrada precede o teste adicional de manutenção/reserva.
+
+Respostas de erro previstas, como senha incorreta ou reserva conflitante, não representam falha quando correspondem à expectativa do teste.
+
+### Concorrência
+
+O cenário HTTP verifica duas sessões autenticadas, uma reserva aceita, outra tentativa recusada e os registros associados.
+
+O cenário manutenção/reserva verifica SALA, PROFESSOR e MATERIAL no serviço.
+
+A coordenação dos clientes ou threads não garante uma ordem interna específica. Os testes não comprovam ausência de todas as condições de corrida.
+
+### Sonar
+
+Última análise conferida: 02737a6.
+
+- Quality Gate aprovado.
+- Zero novos problemas.
+- Zero Security Hotspots.
+- 83,8% de cobertura no código novo.
+- 0,0% de duplicação no código novo.
+
+Conferir a análise da versão final antes da entrega.
+
+## 12. Segurança
+
+Cenários:
 
 - Autenticação e autorização.
 - CSRF ausente, inválido ou de outra sessão.
 - Renovação de token após login.
 - Tentativas de injeção SQL no login.
 - Escape de HTML em duas páginas.
-- Auditoria das dependências de requirements.lock.
+- Auditoria de requirements.lock.
+- Auditoria de requirements-e2e.lock.
+- Ajuste do container para execução sem root.
 
-O JSON fornecido da auditoria apresentou dez dependências sem vulnerabilidades conhecidas reportadas pela ferramenta no momento da consulta.
+As duas auditorias Python não reportaram vulnerabilidades conhecidas nas versões consultadas.
+
+A auditoria Python não equivale à análise do binário Chromium ou da imagem Docker.
 
 Pendências:
 
-- Ampliar campos e páginas avaliados.
+- Ampliar campos e páginas.
 - Avaliar limitação de tentativas de login.
-- Revisar cookies e HTTPS na implantação.
-- Auditar também as dependências de E2E.
+- Revisar HTTPS e cookies para implantação.
 - Completar revisão de código e configuração.
 
-Consulte SEGURANCA.md. Os cenários não representam teste de invasão completo.
+Detalhes em SEGURANCA.md. Não representa teste de invasão completo.
 
-## 12. Desempenho
+## 13. Desempenho
 
-Os ensaios realizados estão em performance/README.md e nos arquivos JTL.
+Evidências em performance/README.md e nos arquivos JTL.
 
-Foram executados cenários GET /login com dez usuários e duração configurada de 60 segundos, com e sem pausa.
+GET /login com dez usuários, ramp-up de cinco segundos e duração configurada de 60 segundos.
 
-### Sem pausa
+| Indicador | Sem pausa | Pausa de um segundo |
+| --- | ---: | ---: |
+| Amostras | 17.633 | 570 |
+| HTTP 200 | 16.344 | 570 |
+| Falhas | 1.289 | 0 |
+| Taxa de falhas | 7,31% | 0% |
 
-- 17.633 amostras.
-- 16.344 respostas HTTP 200.
-- 1.289 falhas de conexão.
-- Taxa de falhas de 7,31%.
-- Erro java.net.BindException.
-- Causa não confirmada.
+Com pausa: média 5,49 ms, p95 de 8 ms e máximo de 38 ms.
 
-### Com pausa de um segundo
+Sem pausa: java.net.BindException; causa não confirmada.
 
-- 570 amostras.
-- Todas com HTTP 200.
-- Nenhuma falha registrada.
-- Média de 5,49 ms.
-- Percentil 95 de 8 ms.
-- Máximo de 38 ms.
+A pausa altera a carga oferecida e não comprova correção da causa anterior.
 
-A pausa altera a carga oferecida. O resultado posterior não comprova correção da causa das falhas anteriores.
-
-Esses ensaios foram exploratórios. Não havia critério de aceitação definido previamente.
+Os ensaios foram exploratórios, sem critérios prévios.
 
 Novos ensaios devem:
 
 - Definir metas antes da execução.
-- Preservar os resultados negativos.
 - Registrar ambiente e versão.
 - Repetir em condições controladas.
 - Avaliar fluxos autenticados com dados isolados.
-- Observar recursos e conexões do cliente e servidor.
+- Observar recursos e conexões de cliente e servidor.
+- Preservar resultados negativos.
 
-## 13. Evidências e defeitos
+## 14. Evidências e responsabilidades
 
-Cada evidência deve identificar, quando aplicável:
+Cada evidência deve identificar:
 
 - Cenário e requisito.
-- Versão ou commit.
+- Versão.
 - Ambiente.
-- Resultado esperado.
-- Resultado observado.
-- Data e origem da execução.
+- Resultado esperado e observado.
+- Data e origem.
 
-Defeitos e investigações são registrados em DEFEITOS.md.
-
-Resultados históricos não devem ser apresentados como medições da versão atual. Uma mudança de cenário não comprova correção da causa de uma falha anterior.
-
-## 14. Responsabilidades
-
-A distribuição nominal das atividades deve ser confirmada pelo grupo.
+Defeitos e investigações estão em DEFEITOS.md.
 
 | Atividade | Responsabilidade |
 | --- | --- |
-| Preparar e executar testes | Integrante executor |
+| Preparar e executar | Integrante executor |
 | Registrar evidências | Integrante executor |
-| Corrigir defeitos | Integrante responsável pela alteração |
-| Revisar código, testes e documentação | Outro integrante |
-| Decidir sobre pendências e entrega | Grupo |
+| Corrigir | Integrante responsável pela alteração |
+| Revisar código, testes e documentos | Outro integrante |
+| Decidir sobre entrega | Grupo |
 
-A revisão por pares deve ser efetivamente realizada e registrada; não pode ser substituída pela aprovação automática da CI.
+A distribuição nominal deve ser confirmada pelo grupo.
+
+A revisão por pares está reservada para etapa posterior e precisa ser realizada de fato. A CI não substitui essa revisão.
 
 ## 15. Lacunas conhecidas
 
+- Testcontainers ou alternativa aceita pelo professor.
 - Ampliação dos testes unitários totalmente isolados.
-- Concorrência por HTTP e entre manutenção e reserva.
-- Banco em container ou alternativa aceita.
-- Outros fluxos, navegadores e tamanhos de tela.
+- Cenários explícitos adicionais de sobreposição entre reservas por tipo.
+- Disputa manutenção/reserva por HTTP.
+- Outros fluxos E2E, navegadores e tamanhos de tela.
 - Demais scripts administrativos e migrações.
 - Restauração de backup.
 - Critérios e cenários adicionais de desempenho.
 - Revisão final de segurança.
-- Revisão por pares e decisão final de qualidade.
+- Instalação limpa e conferência dos comandos.
+- Proteção da main e checks obrigatórios.
+- Revisão por pares e decisão de entrega.
+
+Executar SQLite e a suíte em Docker não comprova, por si só, atendimento específico de Testcontainers.
 
 ## 16. Referências
 
 - [README](README.md)
 - [Rastreabilidade](RTM.md)
+- [Relatório de qualidade](RELATORIO_QUALIDADE.md)
 - [Arquitetura](ARQUITETURA.md)
-- [Defeitos e retestes](DEFEITOS.md)
+- [Defeitos](DEFEITOS.md)
 - [Segurança](SEGURANCA.md)
 - [Desempenho](performance/README.md)
+- [GitHub Actions](https://github.com/Arthurmrsilva/organizacao-recursos/actions)
