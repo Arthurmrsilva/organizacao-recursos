@@ -2,97 +2,119 @@
 
 **Data:** 02/11/2026  
 **Integrantes:** Arthur Mendes, Robert Oliveira, Nicolas Ferreira e Murilo Henrique.  
-**Versão de referência:** e97a0a1, branch funcionalidade/login.  
+**Versão de referência dos testes:** 67b3d00, branch funcionalidade/login.  
+**Última análise Sonar conferida:** 02737a6.  
 **Pull Request:** nº 1.
 
 ## 1. Objetivo
 
-Consolidar as evidências de qualidade da versão avaliada, incluindo testes, cobertura, análise estática, segurança, desempenho, defeitos e limitações.
+Consolidar as evidências de testes, cobertura, análise estática, segurança, desempenho e correções.
 
-Este relatório distingue resultados observados de verificações ainda pendentes. Não representa aprovação formal do grupo nem comprova atendimento integral do enunciado.
+Os resultados estão associados às versões efetivamente verificadas. Este relatório não representa aprovação formal do grupo nem atendimento integral do enunciado.
 
 ## 2. Sistema avaliado
 
 Aplicação web em Python e Flask para organizar reservas de salas, professores e materiais.
 
-A implementação inclui autenticação, perfis, cadastro e consulta de recursos, disponibilidade, reservas, aprovação, manutenção, movimentação de materiais, auditoria, notificações internas e relatórios.
+Inclui autenticação, perfis, cadastro e consulta de recursos, disponibilidade, reservas, aprovação, manutenção, movimentação de materiais, auditoria, notificações internas e relatórios.
 
 A persistência utiliza SQLAlchemy Core e SQLite.
 
-A arquitetura está documentada em ARQUITETURA.md. Requisitos e regras críticas estão relacionados aos testes em RTM.md.
+A arquitetura está em ARQUITETURA.md. Os requisitos e as regras críticas estão em RTM.md.
 
-## 3. Evidências da versão de referência
+## 3. Evidências mais recentes
 
 | Evidência | Identificação | Resultado |
 | --- | --- | --- |
-| Integração contínua de push | GitHub Actions #134, commit e97a0a1 | Success |
-| Testes Python e cobertura | Job da execução #134 | Aprovado |
-| Navegador Chromium | Job da execução #134 | Aprovado |
-| Relatórios de cobertura | Execução #134 | Um artefato exibido |
-| Análise Sonar do PR | Check associado ao commit e97a0a1 | Quality Gate passed |
+| Suíte com cobertura na CI | Actions #146, commit 67b3d00 | 288 testes aprovados em 15,349 segundos |
+| Concorrência por HTTP | Actions #146 | Aprovada |
+| Navegador Chromium | Actions #146 | Aprovado |
+| Execução completa do workflow | Actions #146, evento push | Success, duração total de 59 segundos |
+| Relatórios de cobertura | Actions #146 | Um artefato exibido |
+| Análise Sonar do PR | Commit 02737a6 | Quality Gate passed |
+| Suíte em Docker após ajuste de segurança | Execução local apresentada | 287 testes aprovados em 180,651 segundos |
+| Concorrência entre manutenção e reserva | Teste local incluído em 67b3d00 | Um método aprovado em 1,762 segundo, com três cenários |
+| Auditoria das dependências de E2E | JSON registrado em 98d26d5 | Nenhuma vulnerabilidade conhecida reportada |
 
-A execução #134 é de push. A evidência do Sonar foi conferida separadamente nos checks do Pull Request.
+A duração total do workflow inclui preparação e demais etapas. Não equivale à duração isolada da suíte.
 
-O tempo total exibido da execução #134 foi de 1 minuto e 6 segundos. Esse valor inclui etapas de preparação e não equivale à duração isolada da suíte.
+O Sonar foi conferido no commit 02737a6. Seu resultado não é atribuído automaticamente ao commit posterior 67b3d00.
 
 ## 4. Estratégia de testes
 
 Foram utilizadas verificações de:
 
-- Regras de negócio.
-- Integração com SQLite temporário.
+- Regras de negócio e integração com SQLite temporário.
 - Rotas com o cliente Flask.
-- Perfis, propriedade e vínculo com recursos.
-- Valores-limite de períodos.
+- Perfis, propriedade e vínculo.
+- Valores-limite de datas e horários.
 - Transições de estado.
-- Concorrência no serviço.
+- Concorrência no serviço e por HTTP.
+- Concorrência entre manutenção e reserva.
 - Rollback após falhas simuladas.
-- Fluxo de navegador.
+- Fluxo no navegador.
 - Segurança em cenários específicos.
+- Dependências Python.
+- Execução da suíte em container.
 - Desempenho exploratório.
 
-Muitos testes de serviço utilizam persistência real temporária. Por isso, a suíte não deve ser apresentada integralmente como testes unitários isolados.
+Muitos testes utilizam persistência real temporária. A suíte não deve ser apresentada integralmente como testes unitários isolados.
 
 A estratégia e os critérios estão em PLANO_TESTES.md.
 
 ## 5. Resultados funcionais e de regressão
 
-### Execuções locais registradas
+### Resultado da CI
+
+Na execução #146, commit 67b3d00:
+
+- 288 testes aprovados.
+- Duração da suíte: 15,349 segundos.
+- Resultado: OK.
+- Teste de concorrência HTTP aprovado em processo separado.
+- Fluxo de navegador aprovado em job separado.
+
+Os 288 testes não incluem o método HTTP executado separadamente nem o método de navegador.
+
+Alguns métodos utilizam subTest. A contagem de métodos não equivale à quantidade total de variações verificadas.
+
+### Execuções locais anteriores
 
 | Execução | Resultado |
 | --- | --- |
-| test_consulta.py | 24 testes aprovados em 16,051 segundos |
-| test_edicao_http.py | 12 testes aprovados em 3,490 segundos |
-| Suíte após os testes adicionais de login | 286 testes aprovados em 121,250 segundos |
-| Teste de escape de HTML acrescentado posteriormente | Um teste aprovado em 0,382 segundo, com dois cenários |
-| Teste de navegador em 02/11/2026 | Um teste aprovado em 20,869 segundos |
+| test_consulta.py | 24 testes em 16,051 segundos |
+| test_edicao_http.py | 12 testes em 3,490 segundos |
+| Suíte antes do teste adicional de escape de HTML | 286 testes em 121,250 segundos |
+| Escape de HTML | Um teste em 0,382 segundo, com dois cenários |
+| Fluxo no navegador | Um teste em 20,869 segundos |
+| Concorrência por HTTP | Um teste em 3,731 segundos |
+| Suíte inicial em Docker | 287 testes em 186,330 segundos |
+| Suíte em Docker após ajuste de segurança | 287 testes em 180,651 segundos |
+| Concorrência entre manutenção e reserva | Um teste em 1,762 segundo, com três cenários |
 
-A execução completa local de 286 testes precede a inclusão do teste de escape de HTML.
-
-A CI da versão e97a0a1 apresentou aprovação dos testes Python. A tela de resumo conferida não exibe a quantidade de métodos executados; este relatório não atribui uma nova contagem a essa execução.
+Essas execuções pertencem às etapas indicadas. A execução Docker de 287 testes precede a inclusão do teste de concorrência entre manutenção e reserva.
 
 ### Cenários abrangidos
 
 - Login válido, inválido e usuário inativo.
 - Restrições por perfil, propriedade e vínculo.
-- Validação de cadastro e filtros.
+- Cadastro, filtros e disponibilidade.
 - Criação, edição e cancelamento.
-- Bloqueio por sobreposição.
-- Horários consecutivos.
-- Disputa simultânea no serviço.
+- Sobreposição e horários consecutivos.
+- Solicitações concorrentes de reserva.
 - Aprovação e rejeição.
 - Bloqueio por manutenção.
-- Movimentações de materiais.
-- Não comparecimento de materiais.
-- Auditoria e notificações.
+- Disputa entre manutenção e reserva.
+- Movimentações e não comparecimento de materiais.
+- Auditoria, notificações e rollback.
 - Relatórios e conflitos evitados.
 - Migração específica da auditoria.
 
-A cobertura dos cenários não implica verificação de todas as combinações possíveis.
+Essas evidências não demonstram todas as combinações possíveis.
 
 ## 6. Cobertura
 
-### Execução #134 — commit e97a0a1
+### Actions #146 — commit 67b3d00
 
 | Métrica | Resultado | Meta | Avaliação |
 | --- | ---: | ---: | --- |
@@ -108,17 +130,17 @@ Escopo medido:
 - servico_relatorios.py
 - atualizar_auditoria.py
 
-Os resultados pertencem à execução identificada.
+A medição é produzida pela suíte principal. O teste HTTP e o teste de navegador são executados separadamente e não são somados a essa medição.
 
-Medições anteriores apresentaram outros valores, como 95,39% de ramificações. Esses resultados permanecem históricos e não substituem o valor de 95,74% observado na execução #134.
+Os mesmos percentuais foram observados anteriormente na execução #134. Medições históricas com outros valores permanecem associadas às respectivas versões.
 
-A cobertura Python não mede HTML, CSS ou JavaScript. Também não demonstra cobertura integral dos demais scripts administrativos.
+A cobertura Python não mede HTML, CSS ou JavaScript nem todos os scripts administrativos.
 
 Cobertura elevada não comprova ausência de defeitos.
 
 ## 7. Análise estática
 
-### Sonar — commit e97a0a1
+### Sonar — commit 02737a6
 
 | Indicador | Resultado exibido |
 | --- | ---: |
@@ -129,15 +151,27 @@ Cobertura elevada não comprova ausência de defeitos.
 | Cobertura no código novo | 83,8% |
 | Duplicação no código novo | 0,0% |
 
-A cobertura do Sonar utiliza um escopo diferente da cobertura total apresentada pelo coverage.py. Os percentuais não devem ser tratados como medições equivalentes.
+O commit anterior 73a556e apresentou Quality Gate reprovado, com cobertura de código novo abaixo da meta e apontamentos no Dockerfile.
+
+O ajuste posterior:
+
+- Substituiu a cópia de todo o diretório por cópias dos arquivos e diretórios necessários.
+- Definiu usuário sem privilégios de root para executar os testes no container.
+- Classificou teste_concorrencia_http.py como arquivo de teste no Sonar.
+
+A análise conferida após o ajuste apresentou aprovação.
+
+A cobertura de código novo do Sonar e a cobertura dos módulos medida pelo coverage.py possuem escopos diferentes.
 
 Zero novos problemas e zero hotspots não comprovam ausência de vulnerabilidades.
 
-O resultado pertence ao Pull Request e à versão indicada. Não representa uma análise já executada na main após merge.
+Não está registrada aqui uma análise da main após merge.
 
-## 8. Teste de navegador
+## 8. Navegador e HTTP
 
-Ferramenta: Playwright com Chromium.
+### Fluxo no Chromium
+
+Ferramenta: Playwright.
 
 Arquivo: e2e/test_fluxo_reserva.py.
 
@@ -150,23 +184,83 @@ Fluxo verificado:
 5. Tentativa de reserva conflitante.
 6. Cancelamento com confirmação.
 7. Consulta de Ativas e Histórico.
-8. Conferência de registros associados no banco de teste.
+8. Conferência dos registros associados no banco temporário.
 
-O cenário inicia servidor HTTP local e SQLite temporário.
+O job de Chromium da execução #146 foi aprovado.
 
-Resultados:
+A evidência cobre um fluxo principal em um navegador. Aprovação, edição e movimentação de materiais ainda não possuem demonstração E2E equivalente.
 
-- Execução local de 02/11/2026: um teste aprovado em 20,869 segundos.
-- Job de Chromium da execução #134: aprovado.
+### Concorrência por HTTP
 
-Limitações:
+Arquivo: teste_concorrencia_http.py.
 
-- Um fluxo principal automatizado.
-- Somente Chromium na evidência.
-- Aprovação, edição e movimentação de materiais ainda sem demonstração E2E equivalente.
-- Ambiente de produção não avaliado.
+O teste utiliza servidor HTTP local com atendimento em threads, duas sessões autenticadas e SQLite temporário.
 
-## 9. Segurança
+Os clientes coordenam o envio de duas solicitações para o mesmo recurso e período.
+
+Resultado esperado e observado:
+
+- Uma solicitação aceita.
+- Outra recusada por conflito.
+- Uma reserva persistida.
+- Auditoria e notificação da reserva aceita.
+- Registro da tentativa bloqueada.
+
+O teste passou localmente e na CI.
+
+A coordenação dos clientes não garante uma ordem específica de execução interna. Uma execução aprovada não comprova ausência de todas as condições de corrida.
+
+## 9. Concorrência entre manutenção e reserva
+
+Arquivo: tests/test_concorrencia_manutencao.py.
+
+O teste executa duas operações concorrentes no serviço:
+
+- Cadastro de manutenção pelo administrador.
+- Criação de reserva pelo solicitante.
+
+Os cenários utilizam SALA, PROFESSOR e MATERIAL, com o mesmo período em cada disputa.
+
+A verificação exige:
+
+- Exatamente uma operação aceita.
+- Exatamente uma operação recusada.
+- Ausência de reserva e manutenção aceitas simultaneamente para o período.
+- Preservação das datas.
+- Estado inicial correto quando a reserva vence.
+- Auditoria e notificação quando a reserva é aceita.
+
+O método passou localmente e foi incluído na suíte aprovada da execução #146.
+
+Essa evidência verifica concorrência no serviço com SQLite. Não representa um teste HTTP de disputa entre manutenção e reserva.
+
+## 10. Execução em container
+
+Arquivos:
+
+- Dockerfile.testes
+- .dockerignore
+
+A imagem utiliza Python 3.14 slim e instala requirements.lock com verificação de hashes.
+
+O container executa a suíte como usuário sem privilégios de root.
+
+O banco local, ambientes virtuais, backups e arquivos de ambiente são excluídos do contexto conforme .dockerignore.
+
+### Comandos
+
+```powershell
+docker build -f Dockerfile.testes -t organizacao-recursos-testes .
+docker run --rm organizacao-recursos-testes
+```
+
+A execução local após o ajuste apresentou 287 testes aprovados em 180,651 segundos.
+
+Essa execução utilizou SQLite dentro do ambiente de testes em container. Não deve ser apresentada como implementação de Testcontainers ou integração com um servidor de banco externo.
+
+A tag da imagem-base não está fixada por digest neste Dockerfile.
+
+## 11. Segurança
 
 ### Controles e testes
 
@@ -175,35 +269,34 @@ Limitações:
 - Verificação de usuário ativo.
 - Isolamento por proprietário e responsável vinculado.
 - Proteção CSRF.
-- Recusa de token pertencente a outra sessão.
-- Renovação de token após login.
+- Recusa de token de outra sessão.
+- Renovação do token após login.
 - Recusa do token anterior no logout.
 - Tentativas de injeção SQL no login.
 - Escape de HTML no nome do recurso em duas páginas.
 
 ### Dependências
 
-O relatório auditoria_dependencias.json fornecido apresentou:
+| Arquivo auditado | Evidência | Resultado |
+| --- | --- | --- |
+| requirements.lock | auditoria_dependencias.json | Nenhuma vulnerabilidade conhecida reportada |
+| requirements-e2e.lock | auditoria_dependencias_e2e.json, commit 98d26d5 | Nenhuma vulnerabilidade conhecida reportada |
 
-- Dez dependências analisadas.
-- Nenhuma vulnerabilidade conhecida reportada.
-- Nenhuma correção indicada.
+A auditoria de E2E também incluiu Playwright 1.64.1 e suas dependências Python listadas no relatório.
 
-A auditoria refere-se a requirements.lock e à base consultada no momento da execução.
-
-Não está demonstrada nesse JSON a auditoria do requirements-e2e.lock.
+Os resultados dependem das versões e da base consultada no momento da execução. A auditoria do lock Python não equivale à auditoria do navegador Chromium nem da imagem Docker.
 
 ### Limitações
 
 - Revisão completa de segurança pendente.
 - Configuração de HTTPS e cookies para implantação pendente.
 - Limitação de tentativas de login pendente de avaliação.
-- Ampliar campos e páginas verificados.
-- Não foi realizado um teste de invasão completo.
+- Ampliação dos campos e páginas verificados.
+- Ausência de teste de invasão completo.
 
 Detalhes em SEGURANCA.md.
 
-## 10. Desempenho
+## 12. Desempenho
 
 Os ensaios utilizaram JMeter 5.6.3 e GET /login, com cliente e servidor na mesma máquina.
 
@@ -213,8 +306,6 @@ Configuração comum:
 - Ramp-up de cinco segundos.
 - Duração configurada de 60 segundos.
 - Verificação de HTTP 200 e texto Acesso ao sistema.
-
-### Comparação das execuções
 
 | Indicador | Sem pausa | Pausa de um segundo |
 | --- | ---: | ---: |
@@ -230,88 +321,85 @@ No cenário com pausa:
 - Percentil 95: 8 ms.
 - Mínimo: 2 ms.
 - Máximo: 38 ms.
-- Taxa aproximada no resumo CLI: 9,5 requisições por segundo.
+- Taxa aproximada: 9,5 requisições por segundo.
 
-No cenário sem pausa, as falhas apresentaram java.net.BindException e a mensagem Address already in use: connect.
-
-A causa permanece não confirmada.
+No cenário sem pausa, as falhas apresentaram java.net.BindException e Address already in use: connect. A causa permanece não confirmada.
 
 A pausa reduziu a carga oferecida. O resultado posterior não comprova correção da causa anterior.
 
-Os ensaios foram exploratórios, sem critério de aceitação definido previamente. Não permitem concluir capacidade de produção ou desempenho de autenticação e reservas.
+Os ensaios foram exploratórios, sem critérios de aceitação definidos previamente. Não permitem concluir capacidade de produção nem desempenho dos fluxos autenticados e de reserva.
 
-Detalhes e arquivos em performance/README.md.
+Detalhes em performance/README.md.
 
-## 11. Defeitos e retestes
+## 13. Defeitos, documentação e pendências
+
+### Problemas registrados
 
 | Registro | Problema | Situação |
 | --- | --- | --- |
 | DEF01 | Material em uso desaparecia de Ativas após o prazo | Corrigido no escopo verificado |
-| DEF02 | Nome do template compartilhado diferente do include | Corrigido no escopo verificado |
-| DEF03 | Conexões abertas impediam limpeza dos testes no Windows | Corrigido no escopo verificado |
-| DEF04 | Sintaxe YAML impedia execução da CI | Corrigido no escopo verificado |
-| DEF05 | Caracteres e formatação corrompidos na documentação | Corrigido nos trechos conferidos |
-| INV01 | Falhas de conexão no ensaio sem pausa | Investigação pendente |
+| DEF02 | Nome do template diferente do include | Corrigido no escopo verificado |
+| DEF03 | Conexões impediam limpeza no Windows | Corrigido no escopo verificado |
+| DEF04 | Sintaxe YAML impedia a CI | Corrigido no escopo verificado |
+| DEF05 | Caracteres e formatação corrompidos | Corrigido nos trechos conferidos |
+| INV01 | Falhas no ensaio sem pausa | Investigação pendente |
 
-O detalhamento de reprodução, correção e evidências está em DEFEITOS.md.
+O detalhamento está em DEFEITOS.md.
 
-Também foi identificada uma alteração local acidental em templates/novo_recurso.html, contendo texto de um comando. O diff foi conferido e o arquivo restaurado à versão do Git antes desta consolidação.
+Também foi restaurada uma alteração local acidental em templates/novo_recurso.html que continha texto de um comando.
 
-O registro não representa uma contagem completa de todos os defeitos possíveis.
+### Documentação
 
-## 12. Documentação consolidada
+- README.md: instalação, execução e fluxos.
+- RTM.md: requisitos, regras e evidências.
+- RTM_historico.md: resultados históricos.
+- ARQUITETURA.md: arquitetura, decisões e riscos.
+- PLANO_TESTES.md: estratégia e critérios.
+- DEFEITOS.md: problemas e retestes.
+- SEGURANCA.md: verificações de segurança.
+- performance/README.md: ensaios de desempenho.
+- Arquivos JSON: auditorias das dependências.
 
-| Documento | Finalidade |
-| --- | --- |
-| README.md | Instalação, execução e fluxos |
-| RTM.md | Requisitos, regras e evidências |
-| RTM_historico.md | Evidências históricas |
-| ARQUITETURA.md | C4, sequências, decisões e riscos |
-| PLANO_TESTES.md | Estratégia e critérios |
-| DEFEITOS.md | Problemas, correções e investigações |
-| SEGURANCA.md | Escopo e resultados de segurança |
-| performance/README.md | Ensaios de desempenho |
-| auditoria_dependencias.json | Resultado da auditoria de dependências |
+A correspondência entre os documentos e a versão de entrega ainda precisa de conferência final.
 
-A existência desses documentos não substitui a revisão de sua correspondência com o enunciado e com a versão entregue.
+### Pendências
 
-## 13. Pendências e riscos residuais
-
-- Revisão por outro integrante ainda sem registro.
-- Revisão final da rastreabilidade de todas as regras críticas.
-- Banco em container ou alternativa aceita ainda não demonstrado.
-- Concorrência por HTTP e entre manutenção e reserva.
+- Revisão por outro integrante, reservada para etapa posterior.
+- Revisão final da rastreabilidade das regras críticas.
+- Atendimento específico de Testcontainers ou alternativa aceita pelo professor.
 - Ampliação dos testes unitários totalmente isolados.
-- Ampliação de fluxos, navegadores e tamanhos de tela.
+- Ampliação de fluxos de navegador e tamanhos de tela.
 - Testes dos demais scripts administrativos e migrações.
 - Restauração de backup.
 - Critérios prévios e novos cenários de desempenho.
 - Investigação das falhas de conexão sem pausa.
-- Revisão adicional de segurança e dependências de E2E.
+- Revisão adicional de segurança.
 - Gestão completa de usuários e recursos pela interface.
-- Conferência de proteção da main e verificações obrigatórias.
+- Conferência da proteção da main e dos checks obrigatórios.
 - Aceitação das substituições de ferramentas conforme a disciplina.
-
-Essas pendências impedem afirmar atendimento integral de todos os critérios do trabalho.
+- Preparação da apresentação e revisão do material de entrega.
 
 ## 14. Parecer técnico
 
-As evidências disponíveis sustentam a demonstração acadêmica dos fluxos implementados e verificados.
+A versão 67b3d00 apresentou 288 testes aprovados na execução #146, metas de cobertura atendidas, concorrência HTTP aprovada e fluxo Chromium aprovado.
 
-A versão e97a0a1 apresentou testes Python e Chromium aprovados na execução #134, metas de cobertura atendidas e Quality Gate do Sonar aprovado.
+A análise Sonar conferida no commit 02737a6 apresentou Quality Gate aprovado.
 
-A recomendação é prosseguir com a revisão por pares e a avaliação dos critérios de entrega, mantendo as limitações explícitas.
+Também existem evidências de execução da suíte em Docker, concorrência entre manutenção e reserva e auditoria das dependências de aplicação e E2E.
 
-Este parecer não declara atendimento integral do enunciado, aprovação formal do grupo ou prontidão para produção.
+Esses resultados sustentam a demonstração acadêmica dos fluxos verificados.
 
-A decisão de entrega deve considerar as pendências registradas e os critérios do professor.
+As pendências permanecem explícitas. Este parecer não declara atendimento integral do enunciado, aprovação formal do grupo ou prontidão para produção.
 
 ## 15. Referências
 
 - [Repositório](https://github.com/Arthurmrsilva/organizacao-recursos)
 - [Pull Request nº 1](https://github.com/Arthurmrsilva/organizacao-recursos/pull/1)
-- [Execução #134](https://github.com/Arthurmrsilva/organizacao-recursos/actions/runs/41486562302)
-- [Sonar do PR nº 1](https://sonarcloud.io/summary/overall?id=Arthurmrsilva_organizacao-recursos&pullRequest=1)
+- [GitHub Actions](https://github.com/Arthurmrsilva/organizacao-recursos/actions)
+- [Versão dos testes](https://github.com/Arthurmrsilva/organizacao-recursos/commit/67b3d00)
+- [Ajuste do Docker e Sonar](https://github.com/Arthurmrsilva/organizacao-recursos/commit/02737a6)
+- [Auditoria de E2E](https://github.com/Arthurmrsilva/organizacao-recursos/commit/98d26d5)
+- [Sonar do PR](https://sonarcloud.io/summary/overall?id=Arthurmrsilva_organizacao-recursos&pullRequest=1)
 - [Plano de testes](PLANO_TESTES.md)
 - [Rastreabilidade](RTM.md)
 - [Arquitetura](ARQUITETURA.md)
