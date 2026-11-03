@@ -2,7 +2,7 @@
 
 **Projeto:** Organização de Recursos  
 **Última atualização:** 29/10/2026  
-**Integrantes:** Arthur Mendes, Robert Oliveira, Nicolas Ferreira e Murilo Henrique.
+**Integrantes:** Arthur Mendes, Robert Oliveira, Nicolas Ferreira.
 
 Esta matriz relaciona requisitos, riscos, testes e evidências.
 

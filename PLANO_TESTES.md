@@ -2,7 +2,7 @@
 
 Atualização: 02/11/2026.
 
-Integrantes: Arthur Mendes, Robert Oliveira, Nicolas Ferreira e Murilo Henrique.
+Integrantes: Arthur Mendes, Robert Oliveira, Nicolas Ferreira.
 
 ## 1. Objetivo
 
