@@ -4,7 +4,7 @@ Projeto: Organização de Recursos.
 
 Atualização: 02/11/2026.
 
-Integrantes: Arthur Mendes, Robert Oliveira, Nicolas Ferreira e Murilo Henrique.
+Integrantes: Arthur Mendes, Nicolas Ferreira e Robert Oliveira.
 
 Referência detalhada dos 292 testes e cobertura: da93d49.
 Referência de checks e Sonar conferidos: 3a76227.
