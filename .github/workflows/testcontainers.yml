@@ -1,0 +1,69 @@
+name: Testes com Testcontainers
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  testcontainers:
+    name: Suite Python via Testcontainers
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Baixar codigo
+        uses: actions/checkout@v7
+
+      - name: Preparar Python
+        uses: actions/setup-python@v7
+        with:
+          python-version: "3.14"
+
+      - name: Instalar Testcontainers
+        run: |
+          python -m pip install --only-binary=:all: testcontainers==4.15.0 docker==7.2.0
+
+      - name: Verificar Docker
+        run: docker info
+
+      - name: Construir imagem dos testes
+        run: docker build -f Dockerfile.testes -t organizacao-recursos-testes .
+
+      - name: Executar suite via Testcontainers
+        run: |
+          set -o pipefail
+          python teste_testcontainers.py 2>&1 | tee resultado-testcontainers.log
+
+      - name: Publicar log da execucao
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: resultado-testcontainers
+          path: resultado-testcontainers.log
+          if-no-files-found: warn
+          retention-days: 30
+
+      - name: Registrar resultado aprovado
+        shell: python
+        run: |
+          import os
+
+          with open(
+              os.environ["GITHUB_STEP_SUMMARY"],
+              "a",
+              encoding="utf-8",
+          ) as resumo:
+              resumo.write("## Testcontainers\n\n")
+              resumo.write("Resultado: aprovado.\n\n")
+              resumo.write(
+                  "292 testes Python executados em um container "
+                  "Linux, com verificacao do codigo de saida "
+                  "e da quantidade esperada de testes.\n\n"
+              )
+              resumo.write(
+                  "Execucao com SQLite dentro do container, "
+                  "sem montar o banco local do computador.\n"
+              )

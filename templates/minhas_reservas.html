@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Minhas reservas</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body class="perfil-{{ g.usuario.perfil|lower if g.usuario else 'visitante' }}">
+    <header>
+        <h1>Organização de Recursos</h1>
+        <p>Consulta e acompanhamento das suas reservas</p>
+    </header>
+
+    <main>
+        <section class="lista-recursos">
+            <h2>Minhas reservas</h2>
+            <p>Acompanhe os horários e a situação das suas reservas.</p>
+
+            {% set mensagem = session.pop("mensagem_reserva", None) %}
+            {% set erro = session.pop("erro_reserva", None) %}
+
+            {% if mensagem %}
+            <div role="status">
+                <p>{{ mensagem }}</p>
+            </div>
+            {% endif %}
+
+            {% if erro %}
+            <div role="alert">
+                <p>{{ erro }}</p>
+            </div>
+            {% endif %}
+
+            <p>
+                <a class="botao" href="{{ url_for('nova_reserva') }}">
+                    + Fazer reserva
+                </a>
+            </p>
+
+            <nav class="filtros" aria-label="Filtrar minhas reservas">
+                {% for valor, rotulo in [
+                    ("ativas", "Ativas"),
+                    ("historico", "Histórico"),
+                    ("todas", "Todas")
+                ] %}
+                <a class="botao{% if filtro_selecionado != valor %} botao-secundario{% endif %}"
+                   href="{{ url_for('minhas_reservas', filtro=valor) }}"
+                   {% if filtro_selecionado == valor %}
+                   aria-current="page"
+                   {% endif %}>
+                    {{ rotulo }}
+                </a>
+                {% endfor %}
+            </nav>
+
+            {% if filtro_selecionado == "ativas" %}
+            <p>
+                Reservas aguardando aprovação ou aprovadas cujo
+                horário de término ainda não passou.
+                Reservas em uso continuam aqui até a devolução,
+                mesmo após o prazo previsto.
+            </p>
+            {% elif filtro_selecionado == "historico" %}
+            <p>
+                Reservas canceladas, rejeitadas, concluídas ou
+                com não comparecimento, além das solicitações
+                e reservas aprovadas cujo período já terminou.
+                Reservas em uso permanecem nas Ativas.
+                O término do período não altera automaticamente a situação.
+            </p>
+            {% else %}
+            <p>Todas as suas reservas, incluindo o histórico.</p>
+            {% endif %}
+
+            {% set situacoes = {
+                "SOLICITADA": "Aguardando aprovação",
+                "APROVADA": "Aprovada",
+                "EM_USO": "Em uso",
+                "CONCLUIDA": "Concluída",
+                "REJEITADA": "Rejeitada",
+                "CANCELADA": "Cancelada",
+                "NAO_COMPARECEU": "Não compareceu"
+            } %}
+
+            <div class="grade-recursos">
+                {% for reserva in reservas %}
+                <article class="recurso">
+                    <h3>{{ reserva.recurso_nome }}</h3>
+
+                    <p>
+                        <strong>Reserva:</strong>
+                        nº {{ reserva.id }}
+                    </p>
+
+                    <p>
+                        <strong>Tipo:</strong>
+                        {{ reserva.recurso_tipo }}
+                    </p>
+
+                    <p>
+                        <strong>Início:</strong>
+                        {{ reserva.inicio.strftime("%d/%m/%Y às %H:%M") }}
+                    </p>
+
+                    <p>
+                        <strong>Término:</strong>
+                        {{ reserva.fim.strftime("%d/%m/%Y às %H:%M") }}
+                    </p>
+
+                    <p>
+                        <strong>Finalidade:</strong>
+                        {{ reserva.finalidade }}
+                    </p>
+
+                    <p>
+                        <strong>Situação:</strong>
+                        {{ situacoes.get(reserva.status, reserva.status) }}
+                    </p>
+
+                    {% if reserva.status == "EM_USO"
+                          and reserva.fim <= agora %}
+                    <div class="aviso">
+                        <p>
+                            <strong>Prazo de utilização encerrado.</strong>
+                            A devolução ainda não foi registrada.
+                            Procure o responsável pelo material
+                            ou o administrador.
+                        </p>
+                    </div>
+                    {% endif %}
+
+                    {% if reserva.status in ("SOLICITADA", "APROVADA")
+                          and reserva.inicio > agora %}
+                    <p>
+                        <a class="botao"
+                           href="{{ url_for(
+                               'editar_minha_reserva',
+                               reserva_id=reserva.id
+                           ) }}">
+                            Editar reserva
+                        </a>
+                    </p>
+
+                    <form method="post"
+                          action="{{ url_for(
+                              'cancelar_minha_reserva',
+                              reserva_id=reserva.id
+                          ) }}"
+                          onsubmit="return confirm('Deseja cancelar esta reserva?');">
+
+                        <input type="hidden"
+                               name="csrf_token"
+                               value="{{ session['csrf_token'] }}">
+
+                        <button class="botao botao-secundario"
+                                type="submit">
+                            Cancelar reserva
+                        </button>
+                    </form>
+                    {% endif %}
+                </article>
+                {% else %}
+                    {% if filtro_selecionado == "ativas" %}
+                    <p>
+                        Nenhuma reserva ativa no momento.
+                        Consulte Histórico ou Todas para ver
+                        os registros anteriores.
+                    </p>
+                    {% elif filtro_selecionado == "historico" %}
+                    <p>Nenhuma reserva no histórico.</p>
+                    {% else %}
+                    <p>Você ainda não possui reservas.</p>
+                    {% endif %}
+                {% endfor %}
+            </div>
+
+            <p>
+                <a class="botao botao-secundario"
+                   href="{{ url_for('inicio') }}">
+                    Voltar ao início
+                </a>
+            </p>
+        </section>
+    </main>
+
+    <footer>
+        <p>Projeto de Qualidade de Software — ADS, 4º semestre</p>
+        <p>
+            Arthur Mendes, Robert Oliveira,
+            Nicolas Ferreira
+        </p>
+    </footer>
+</body>
+</html>

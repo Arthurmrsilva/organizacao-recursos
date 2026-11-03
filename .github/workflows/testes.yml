@@ -1,0 +1,186 @@
+name: Testes automatizados
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  testes:
+    name: Testes Python e cobertura
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Baixar codigo
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - name: Preparar Python
+        uses: actions/setup-python@v7
+        with:
+          python-version: "3.14"
+
+      - name: Instalar dependencias verificando hashes
+        run: |
+          python -m pip install --only-binary=:all: --require-hashes -r requirements.lock
+
+      - name: Executar concorrencia de reservas por HTTP
+        run: python teste_concorrencia_http.py
+
+      - name: Registrar resultado da concorrencia HTTP
+        shell: python
+        run: |
+          import os
+
+          with open(
+              os.environ["GITHUB_STEP_SUMMARY"],
+              "a",
+              encoding="utf-8",
+          ) as resumo:
+              resumo.write("## Concorrencia por HTTP\n\n")
+              resumo.write("Resultado: teste aprovado.\n\n")
+              resumo.write(
+                  "Duas sessoes autenticadas solicitam o mesmo "
+                  "recurso e periodo por HTTP: uma reserva e aceita "
+                  "e a outra tentativa e recusada.\n\n"
+              )
+              resumo.write(
+                  "O teste verifica os registros de reserva, "
+                  "auditoria, notificacao e conflito, "
+                  "utilizando banco SQLite temporario.\n\n"
+              )
+
+      - name: Executar testes com cobertura
+        run: |
+          python -m coverage run --branch --source=app,banco,servico_reservas,servico_materiais,servico_relatorios,atualizar_auditoria,validar_backup -m unittest discover -s tests -v
+
+      - name: Mostrar cobertura
+        run: python -m coverage report -m
+
+      - name: Gerar relatorio JSON
+        run: python -m coverage json -o coverage.json
+
+      - name: Gerar relatorio XML para o Sonar
+        run: python -m coverage xml -o coverage.xml
+
+      - name: Gerar relatorio HTML
+        run: python -m coverage html -d htmlcov
+
+      - name: Publicar relatorios de cobertura
+        uses: actions/upload-artifact@v7
+        with:
+          name: relatorios-cobertura
+          path: |
+            coverage.json
+            coverage.xml
+            htmlcov/
+          retention-days: 30
+          if-no-files-found: error
+
+      - name: Verificar metas de cobertura
+        shell: python
+        run: |
+          import json
+          import os
+          import sys
+
+          with open("coverage.json", encoding="utf-8") as arquivo:
+              totais = json.load(arquivo)["totals"]
+
+          total_linhas = totais["num_statements"]
+          total_ramificacoes = totais["num_branches"]
+
+          if total_linhas == 0 or total_ramificacoes == 0:
+              print("Erro: medicao sem linhas ou ramificacoes.")
+              sys.exit(1)
+
+          linhas = (
+              100 * totais["covered_lines"] / total_linhas
+          )
+          ramificacoes = (
+              100 * totais["covered_branches"]
+              / total_ramificacoes
+          )
+
+          print(f"Cobertura de linhas: {linhas:.2f}%")
+          print(f"Cobertura de ramificacoes: {ramificacoes:.2f}%")
+
+          with open(
+              os.environ["GITHUB_STEP_SUMMARY"],
+              "a",
+              encoding="utf-8",
+          ) as resumo:
+              resumo.write("## Cobertura dos testes\n\n")
+              resumo.write("| Metrica | Resultado | Meta |\n")
+              resumo.write("| --- | --- | --- |\n")
+              resumo.write(
+                  f"| Linhas | {linhas:.2f}% | 80% |\n"
+              )
+              resumo.write(
+                  f"| Ramificacoes | {ramificacoes:.2f}% | 70% |\n"
+              )
+
+          if linhas < 80 or ramificacoes < 70:
+              print("As metas de cobertura nao foram atingidas.")
+              sys.exit(1)
+
+          print("As duas metas de cobertura foram atingidas.")
+
+      - name: Analisar no Sonar e verificar Quality Gate
+        if: github.event_name == 'pull_request' || github.ref == 'refs/heads/main'
+        uses: SonarSource/sonarqube-scan-action@4d1dc0c91ee400dcf8a6dddf2f705ac36542e304 # v8.4.0
+        with:
+          args: >
+            -Dsonar.qualitygate.wait=true
+            -Dsonar.qualitygate.timeout=300
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+
+  navegador:
+    name: Teste de navegador com Chromium
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Baixar codigo
+        uses: actions/checkout@v7
+
+      - name: Preparar Python
+        uses: actions/setup-python@v7
+        with:
+          python-version: "3.14"
+
+      - name: Instalar dependencias do teste de navegador
+        run: |
+          python -m pip install --only-binary=:all: --require-hashes -r requirements-e2e.lock
+
+      - name: Instalar Chromium e dependencias do sistema
+        run: python -m playwright install --with-deps chromium
+
+      - name: Executar fluxo de reservas no navegador
+        run: xvfb-run -a python -m unittest discover -s e2e -v
+
+      - name: Registrar resultado no resumo
+        shell: python
+        run: |
+          import os
+
+          with open(
+              os.environ["GITHUB_STEP_SUMMARY"],
+              "a",
+              encoding="utf-8",
+          ) as resumo:
+              resumo.write("## Teste de navegador\n\n")
+              resumo.write("Resultado: aprovado no Chromium.\n\n")
+              resumo.write(
+                  "Fluxo verificado: login invalido, login valido, "
+                  "criacao de reserva, consulta, conflito de horario, "
+                  "cancelamento e historico.\n\n"
+              )
+              resumo.write(
+                  "Execucao com banco SQLite temporario.\n"
+              )

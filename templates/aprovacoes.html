@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Aprovação de reservas</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body class="perfil-{{ g.usuario.perfil|lower if g.usuario else 'visitante' }}">
+    <header>
+        <h1>Organização de Recursos</h1>
+        <p>Avaliação das solicitações de reserva</p>
+    </header>
+
+    <main>
+        <section class="lista-recursos">
+            <h2>Reservas aguardando aprovação</h2>
+
+            <p>
+                Avalie as solicitações dos recursos
+                pelos quais você é responsável.
+            </p>
+
+            {% if mensagem %}
+            <div role="status">
+                <p>{{ mensagem }}</p>
+            </div>
+            {% endif %}
+
+            {% if erro %}
+            <div role="alert">
+                <p>{{ erro }}</p>
+            </div>
+            {% endif %}
+
+            <div class="grade-recursos">
+                {% for reserva in reservas %}
+                <article class="recurso">
+                    {% with mostrar_tipo=true,
+                            situacao_reserva="Aguardando aprovação" %}
+                        {% include "_dados_reserva.html" %}
+                    {% endwith %}
+
+                    <form method="post"
+                          action="{{ url_for(
+                              'avaliar_minha_solicitacao',
+                              reserva_id=reserva.id
+                          ) }}">
+
+                        <input type="hidden"
+                               name="csrf_token"
+                               value="{{ session['csrf_token'] }}">
+
+                        <p>
+                            <button class="botao"
+                                    type="submit"
+                                    name="decisao"
+                                    value="APROVADA">
+                                Aprovar reserva
+                            </button>
+                        </p>
+
+                        <p>
+                            <button class="botao botao-secundario"
+                                    type="submit"
+                                    name="decisao"
+                                    value="REJEITADA"
+                                    onclick="return confirm('Deseja rejeitar esta reserva?');">
+                                Rejeitar reserva
+                            </button>
+                        </p>
+                    </form>
+                </article>
+                {% else %}
+                <p>
+                    Nenhuma reserva aguardando aprovação
+                    para os seus recursos.
+                </p>
+                {% endfor %}
+            </div>
+
+            <p>
+                <a class="botao botao-secundario"
+                   href="{{ url_for('inicio') }}">
+                    Voltar ao início
+                </a>
+            </p>
+        </section>
+    </main>
+
+    <footer>
+        <p>Projeto de Qualidade de Software — ADS, 4º semestre</p>
+        <p>
+            Arthur Mendes, Nicolas Ferreira,
+            Robert Oliveira.
+        </p>
+    </footer>
+</body>
+</html>

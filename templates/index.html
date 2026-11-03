@@ -6,18 +6,129 @@
 
     <title>Organização de Recursos</title>
 
-    <link
-        rel="stylesheet"
-        href="{{ url_for('static', filename='style.css') }}"
-    >
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='style.css') }}">
 </head>
-<body>
+
+<body class="perfil-{{ g.usuario.perfil|lower if g.usuario else 'visitante' }}">
     <header>
         <h1>Organização de Recursos</h1>
         <p>Reserva de salas, professores e materiais</p>
     </header>
 
     <main>
+        {% if g.usuario %}
+        <section class="painel-usuario" aria-label="Usuário conectado">
+            <div class="identificacao-usuario">
+                <span class="avatar-usuario" aria-hidden="true">
+                    {{ g.usuario.nome[:1]|upper }}
+                </span>
+
+                <div class="dados-usuario">
+                    <span class="saudacao-usuario">Olá,</span>
+                    <h2>{{ g.usuario.nome }}!</h2>
+
+                    <span class="etiqueta-perfil">
+                        {% if g.usuario.perfil == "ADMIN" %}
+                            Administrador
+                        {% elif g.usuario.perfil == "RESPONSAVEL" %}
+                            Responsável
+                        {% else %}
+                            Solicitante
+                        {% endif %}
+                    </span>
+                </div>
+            </div>
+
+            <form method="post" action="{{ url_for('sair') }}">
+                <input type="hidden"
+                       name="csrf_token"
+                       value="{{ session['csrf_token'] }}">
+
+                <button class="botao botao-secundario" type="submit">
+                    Sair
+                </button>
+            </form>
+        </section>
+
+        <nav aria-label="Ações do sistema">
+            <p>
+                <a class="botao botao-secundario"
+                   href="{{ url_for('minhas_reservas') }}">
+                    Minhas reservas
+                </a>
+            </p>
+
+            <p>
+                <a class="botao botao-secundario"
+                   href="{{ url_for('minhas_notificacoes') }}">
+                    Notificações
+                </a>
+            </p>
+
+            {% if g.usuario.perfil == "RESPONSAVEL" %}
+            <p>
+                <a class="botao"
+                   href="{{ url_for('aprovacoes') }}">
+                    Aprovar reservas
+                </a>
+            </p>
+            {% endif %}
+
+            {% if g.usuario.perfil in ("ADMIN", "RESPONSAVEL") %}
+            <p>
+                <a class="botao botao-secundario"
+                   href="{{ url_for('movimentacoes_materiais') }}">
+                    Gestão de materiais
+                </a>
+            </p>
+            {% endif %}
+
+            <p>
+                <a class="botao"
+                   href="{{ url_for('nova_reserva') }}">
+                    + Fazer reserva
+                </a>
+            </p>
+
+            {% if g.usuario.perfil == "ADMIN" %}
+            <p>
+                <a class="botao"
+                   href="{{ url_for('novo_recurso') }}">
+                    + Cadastrar novo recurso
+                </a>
+            </p>
+
+            <p>
+                <a class="botao botao-secundario"
+                   href="{{ url_for('consultar_relatorios') }}">
+                    Relatórios
+                </a>
+            </p>
+
+            <p>
+                <a class="botao botao-secundario"
+                   href="{{ url_for('consultar_auditoria') }}">
+                    Auditoria de reservas
+                </a>
+            </p>
+
+            <p>
+                <a class="botao botao-secundario"
+                   href="{{ url_for('gerenciar_manutencoes') }}">
+                    Manutenção de recursos
+                </a>
+            </p>
+            {% endif %}
+        </nav>
+        {% else %}
+        <p>
+            <a class="botao" href="{{ url_for('login') }}">
+                Entrar no sistema
+            </a>
+        </p>
+        {% endif %}
+
         <section class="apresentacao">
             <h2>Bem-vindo ao sistema</h2>
             <p>
@@ -29,25 +140,22 @@
         <section class="cards" aria-label="Tipos de recursos">
             <article class="card">
                 <h3>Salas</h3>
-                <p>
-                    Consulte espaços, localização, capacidade
-                    e disponibilidade.
-                </p>
+                <p>Consulte espaços, localização e capacidade.</p>
             </article>
 
             <article class="card">
                 <h3>Professores</h3>
                 <p>
-                    Consulte competências e horários disponíveis
-                    dos professores.
+                    Consulte competências e solicite a reserva
+                    de um horário.
                 </p>
             </article>
 
             <article class="card">
                 <h3>Materiais</h3>
                 <p>
-                    Organize reservas, retiradas e devoluções
-                    de equipamentos.
+                    Consulte os equipamentos cadastrados
+                    e solicite sua utilização.
                 </p>
             </article>
         </section>
@@ -55,82 +163,296 @@
         <section class="aviso">
             <h2>Projeto em desenvolvimento</h2>
             <p>
-                Esta é a página inicial. Os cadastros, o login
-                e as reservas serão implementados nas próximas etapas.
+                Login, cadastro e consulta de recursos, pesquisa por
+                disponibilidade, criação, edição, cancelamento
+                e aprovação de reservas estão disponíveis.
+                Consulte suas reservas por situação e acompanhe
+                os avisos de criação, alteração, cancelamento,
+                aprovação e rejeição em Notificações.
+                O administrador pode consultar a auditoria,
+                cadastrar períodos de manutenção e acessar relatórios
+                de reservas e horas previstas por período.
+                Administradores e responsáveis podem registrar
+                retiradas e devoluções de materiais, conforme
+                suas permissões.
             </p>
         </section>
+
         <section class="lista-recursos">
-    <h2>Recursos cadastrados</h2>
-    <form method="get" action="/" class="filtros">
-    <label for="tipo">Tipo de recurso:</label>
+            <h2>Recursos cadastrados</h2>
 
-    <select id="tipo" name="tipo">
-        <option value="">Todos</option>
-
-        <option value="SALA"
-            {% if tipo_selecionado == "SALA" %}selected{% endif %}>
-            Salas
-        </option>
-
-        <option value="PROFESSOR"
-            {% if tipo_selecionado == "PROFESSOR" %}selected{% endif %}>
-            Professores
-        </option>
-
-        <option value="MATERIAL"
-            {% if tipo_selecionado == "MATERIAL" %}selected{% endif %}>
-            Materiais
-        </option>
-    </select>
-
-    <button type="submit">Filtrar</button>
-    <a href="/">Limpar filtro</a>
-</form>
-
-    <div class="grade-recursos">
-        {% for recurso in recursos %}
-        <article class="recurso">
-            <h3>{{ recurso.nome }}</h3>
-
-            <p><strong>Tipo:</strong> {{ recurso.tipo }}</p>
-            <p>
-                <strong>Localização:</strong>
-                {{ recurso.localizacao }}
+            <p id="ajuda-disponibilidade">
+                Para consultar recursos livres em um período,
+                preencha o início e o término.
+                Deixe os dois campos vazios para consultar sem período.
+                A disponibilidade será verificada novamente ao reservar.
             </p>
 
-            {% if recurso.capacidade is not none %}
-            <p>
-                <strong>Capacidade:</strong>
-                {{ recurso.capacidade }} pessoas
-            </p>
+            <form method="get"
+                  action="{{ url_for('inicio') }}"
+                  class="filtros">
+                <div>
+                    <label for="tipo">Tipo</label>
+                    <select id="tipo" name="tipo">
+                        <option value="">Todos</option>
+
+                        <option value="SALA"
+                            {% if tipo_selecionado == "SALA" %}selected{% endif %}>
+                            Salas
+                        </option>
+
+                        <option value="PROFESSOR"
+                            {% if tipo_selecionado == "PROFESSOR" %}selected{% endif %}>
+                            Professores
+                        </option>
+
+                        <option value="MATERIAL"
+                            {% if tipo_selecionado == "MATERIAL" %}selected{% endif %}>
+                            Materiais
+                        </option>
+                    </select>
+                </div>
+
+                <div>
+                    <label for="localizacao">Localização</label>
+                    <input id="localizacao"
+                           name="localizacao"
+                           type="text"
+                           maxlength="120"
+                           value="{{ localizacao }}"
+                           placeholder="Ex.: Bloco B">
+                </div>
+
+                <div>
+                    <label for="capacidade">Capacidade mínima</label>
+                    <input id="capacidade"
+                           name="capacidade"
+                           type="number"
+                           min="1"
+                           max="10000"
+                           step="1"
+                           value="{{ capacidade }}"
+                           placeholder="Ex.: 35">
+                </div>
+
+                <div>
+                    <label for="competencia">Competência</label>
+                    <input id="competencia"
+                           name="competencia"
+                           type="text"
+                           maxlength="150"
+                           value="{{ competencia }}"
+                           placeholder="Ex.: Python">
+                </div>
+
+                <div>
+                    <label for="inicio">Disponível a partir de</label>
+                    <input id="inicio"
+                           name="inicio"
+                           type="datetime-local"
+                           step="60"
+                           value="{{ inicio|default('') }}"
+                           aria-describedby="ajuda-disponibilidade">
+                </div>
+
+                <div>
+                    <label for="fim">Disponível até</label>
+                    <input id="fim"
+                           name="fim"
+                           type="datetime-local"
+                           step="60"
+                           value="{{ fim|default('') }}"
+                           aria-describedby="ajuda-disponibilidade">
+                </div>
+
+                <button class="botao" type="submit">
+                    Filtrar
+                </button>
+
+                <a class="botao botao-secundario"
+                   href="{{ url_for('inicio') }}">
+                    Limpar filtros
+                </a>
+            </form>
+
+            {% if erros %}
+            <div role="alert">
+                <ul>
+                    {% for erro in erros %}
+                    <li>{{ erro }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
             {% endif %}
 
-            {% if recurso.competencia %}
-            <p>
-                <strong>Competência:</strong>
-                {{ recurso.competencia }}
-            </p>
-            {% endif %}
+            <div class="grade-recursos">
+                {% for recurso in recursos %}
+                <article class="recurso">
+                    <h3>{{ recurso.nome }}</h3>
 
-            {% if recurso.restrito %}
-            <p>Reserva mediante aprovação do responsável.</p>
-            {% else %}
-            <p>Recurso sem exigência de aprovação especial.</p>
-            {% endif %}
-        </article>
-        {% else %}
-        <p>Nenhum recurso cadastrado.</p>
-        {% endfor %}
-    </div>
-</section>
+                    <p>
+                        <strong>Tipo:</strong>
+                        {{ recurso.tipo }}
+                    </p>
+
+                    <p>
+                        <strong>Localização:</strong>
+                        {{ recurso.localizacao }}
+                    </p>
+
+                    {% if recurso.capacidade is not none %}
+                    <p>
+                        <strong>Capacidade:</strong>
+                        {{ recurso.capacidade }} pessoas
+                    </p>
+                    {% endif %}
+
+                    {% if recurso.competencia %}
+                    <p>
+                        <strong>Competência:</strong>
+                        {{ recurso.competencia }}
+                    </p>
+                    {% endif %}
+
+                    {% if recurso.restrito or recurso.tipo == "PROFESSOR" %}
+                    <p>Reserva mediante aprovação do responsável.</p>
+                    {% else %}
+                    <p>Recurso sem exigência de aprovação especial.</p>
+                    {% endif %}
+                </article>
+                {% else %}
+                <p>Nenhum recurso encontrado para esta consulta.</p>
+                {% endfor %}
+            </div>
+        </section>
     </main>
 
     <footer>
         <p>Projeto de Qualidade de Software — ADS, 4º semestre</p>
         <p>
             Arthur Mendes, Robert Oliveira,
-            Nicolas Ferreira e Murilo Henrique
+            Nicolas Ferreira
         </p>
     </footer>
+
+    <script>
+        const formularioFiltro = document.querySelector(
+            'form.filtros[method="get"]'
+        );
+
+        if (formularioFiltro) {
+            const botaoFiltrar = formularioFiltro.querySelector(
+                'button[type="submit"]'
+            );
+
+            const limparFiltros = formularioFiltro.querySelector(
+                "a.botao-secundario"
+            );
+
+            let buscando = false;
+
+            async function atualizarRecursos(endereco) {
+                if (buscando) {
+                    return;
+                }
+
+                buscando = true;
+                botaoFiltrar.disabled = true;
+                botaoFiltrar.textContent = "Buscando...";
+
+                try {
+                    const resposta = await fetch(endereco);
+
+                    if (resposta.redirected) {
+                        window.location.href = resposta.url;
+                        return;
+                    }
+
+                    if (!resposta.ok && resposta.status !== 400) {
+                        throw new Error("Erro ao consultar recursos.");
+                    }
+
+                    const html = await resposta.text();
+                    const documento = new DOMParser().parseFromString(
+                        html,
+                        "text/html"
+                    );
+
+                    const listaAtual = document.querySelector(
+                        ".grade-recursos"
+                    );
+                    const listaNova = documento.querySelector(
+                        ".grade-recursos"
+                    );
+
+                    if (!listaAtual || !listaNova) {
+                        throw new Error("Lista de recursos não encontrada.");
+                    }
+
+                    listaAtual.replaceChildren(
+                        ...Array.from(listaNova.childNodes)
+                    );
+
+                    const secao = document.querySelector(".lista-recursos");
+                    const erroAnterior = secao.querySelector('[role="alert"]');
+                    const erroNovo = documento.querySelector(
+                        '.lista-recursos [role="alert"]'
+                    );
+
+                    if (erroAnterior) {
+                        erroAnterior.remove();
+                    }
+
+                    if (erroNovo) {
+                        formularioFiltro.insertAdjacentElement(
+                            "afterend",
+                            erroNovo
+                        );
+                    }
+
+                    window.history.replaceState(null, "", endereco);
+                } catch (erro) {
+                    window.alert(
+                        "Não foi possível atualizar a lista. Tente novamente."
+                    );
+                } finally {
+                    buscando = false;
+                    botaoFiltrar.disabled = false;
+                    botaoFiltrar.textContent = "Filtrar";
+                }
+            }
+
+            formularioFiltro.addEventListener("submit", function (evento) {
+                evento.preventDefault();
+
+                const parametros = new URLSearchParams(
+                    new FormData(formularioFiltro)
+                );
+
+                atualizarRecursos(
+                    formularioFiltro.action + "?" + parametros.toString()
+                );
+            });
+
+            if (limparFiltros) {
+                limparFiltros.addEventListener("click", function (evento) {
+                    evento.preventDefault();
+
+                    if (buscando) {
+                        return;
+                    }
+
+                    formularioFiltro.querySelectorAll("input").forEach(
+                        function (campo) {
+                            campo.value = "";
+                        }
+                    );
+
+                    formularioFiltro.querySelector("select").value = "";
+                    atualizarRecursos(limparFiltros.href);
+                });
+            }
+        }
+    </script>
 </body>
 </html>

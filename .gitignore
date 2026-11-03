@@ -18,3 +18,7 @@ __pycache__/
 .coverage
 htmlcov/
 coverage.xml
+
+.venv-auditoria/
+jmeter.log
+.venv-testcontainers/

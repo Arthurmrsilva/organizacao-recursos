@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Manutenção — Organização de Recursos</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body class="perfil-{{ g.usuario.perfil|lower }}">
+    <header>
+        <h1>Organização de Recursos</h1>
+        <p>Bloqueio de recursos por manutenção</p>
+    </header>
+
+    <main>
+        <section class="recurso">
+            <h2>Cadastrar manutenção</h2>
+
+            <p>
+                Informe um período futuro de indisponibilidade.
+                O bloqueio não pode coincidir com reservas solicitadas,
+                aprovadas ou em uso, nem com outra manutenção ativa.
+            </p>
+
+            {% if mensagem %}
+            <div role="status">
+                <p>{{ mensagem }}</p>
+            </div>
+            {% endif %}
+
+            {% if erros %}
+            <div role="alert">
+                <ul>
+                    {% for erro in erros %}
+                    <li>{{ erro }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+            {% endif %}
+
+            {% if recursos %}
+            <form class="formulario-reserva"
+                  method="post"
+                  action="{{ url_for('gerenciar_manutencoes') }}">
+
+                <input type="hidden"
+                       name="csrf_token"
+                       value="{{ session['csrf_token'] }}">
+
+                <div>
+                    <label for="recurso_id">Recurso</label>
+                    <select id="recurso_id" name="recurso_id" required>
+                        <option value="">Selecione um recurso</option>
+
+                        {% for recurso in recursos %}
+                        <option value="{{ recurso.id }}"
+                            {% if dados.get('recurso_id', '') == recurso.id|string %}
+                                selected
+                            {% endif %}>
+                            {{ recurso.nome }} — {{ recurso.tipo }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div>
+                    <label for="inicio">Data e horário de início</label>
+                    <input id="inicio"
+                           name="inicio"
+                           type="datetime-local"
+                           value="{{ dados.get('inicio', '') }}"
+                           required>
+                </div>
+
+                <div>
+                    <label for="fim">Data e horário de término</label>
+                    <input id="fim"
+                           name="fim"
+                           type="datetime-local"
+                           value="{{ dados.get('fim', '') }}"
+                           required>
+                </div>
+
+                <div>
+                    <label for="motivo">Motivo da manutenção</label>
+                    <textarea id="motivo"
+                              name="motivo"
+                              maxlength="200"
+                              rows="3"
+                              required>{{ dados.get('motivo', '') }}</textarea>
+                </div>
+
+                <button class="botao" type="submit">
+                    Cadastrar manutenção
+                </button>
+            </form>
+            {% else %}
+            <p>Não há recursos ativos cadastrados.</p>
+            {% endif %}
+        </section>
+
+        <section class="lista-recursos">
+            <h2>Manutenções cadastradas</h2>
+
+            <div class="grade-recursos">
+                {% for manutencao in manutencoes %}
+                <article class="recurso">
+                    <h3>{{ manutencao.recurso_nome }}</h3>
+
+                    <p>
+                        <strong>Manutenção:</strong>
+                        nº {{ manutencao.id }}
+                    </p>
+
+                    <p>
+                        <strong>Início:</strong>
+                        {{ manutencao.inicio.strftime("%d/%m/%Y às %H:%M") }}
+                    </p>
+
+                    <p>
+                        <strong>Término:</strong>
+                        {{ manutencao.fim.strftime("%d/%m/%Y às %H:%M") }}
+                    </p>
+
+                    <p>
+                        <strong>Motivo:</strong>
+                        {{ manutencao.motivo }}
+                    </p>
+
+                    <p>
+                        <strong>Cadastrada por:</strong>
+                        {{ manutencao.usuario_nome }}
+                    </p>
+
+                    <p>
+                        <strong>Situação:</strong>
+                        {% if not manutencao.ativo %}
+                            Desativada
+                        {% elif manutencao.fim <= agora %}
+                            Período encerrado
+                        {% elif manutencao.inicio <= agora %}
+                            Em andamento
+                        {% else %}
+                            Agendada
+                        {% endif %}
+                    </p>
+                </article>
+                {% else %}
+                <p>Nenhuma manutenção cadastrada.</p>
+                {% endfor %}
+            </div>
+        </section>
+
+        <p>
+            <a class="botao botao-secundario"
+               href="{{ url_for('inicio') }}">
+                Voltar ao início
+            </a>
+        </p>
+    </main>
+
+    <footer>
+        <p>Projeto de Qualidade de Software — ADS, 4º semestre</p>
+        <p>
+            Arthur Mendes, Robert Oliveira,
+            Nicolas Ferreira
+        </p>
+    </footer>
+</body>
+</html>
