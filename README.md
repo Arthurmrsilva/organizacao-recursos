@@ -8,7 +8,6 @@ sobreposições e controlar aprovação, manutenção e movimentação de materi
 ## Integrantes
 
 - Arthur Mendes
-- Murilo Henrique
 - Nicolas Ferreira
 - Robert Oliveira
 
@@ -47,8 +46,14 @@ pela interface permanecem como limitações.
 | Desempenho | Apache JMeter |
 | Auditoria de dependências | pip-audit |
 
-Python foi informado como permitido pelo professor. A aceitação das
-substituições específicas de Maven e JaCoCo deve ser confirmada.
+Conforme informado pelo grupo, o professor autorizou o uso de qualquer
+linguagem de programação. O projeto utiliza Python.
+
+Neste projeto, unittest executa os testes e Coverage.py mede a cobertura,
+publicando relatórios JSON, XML e HTML pela integração contínua.
+Essas ferramentas cumprem os papéis de testes e cobertura apresentados
+no roteiro com Maven e JaCoCo.
+
 O projeto não executa Maven nem gera relatório JaCoCo.
 
 ## Instalação limpa no Windows
@@ -139,30 +144,69 @@ do prazo e do estado da operação.
 ## Interface HTTP
 
 A aplicação utiliza páginas HTML e formulários, com sessão por cookie.
-Não é apresentada como API REST JSON.
+Não disponibiliza uma API REST JSON.
 
-| Endereço | Método | Finalidade |
+Os identificadores nas rotas são números inteiros. A tabela lista
+as rotas da aplicação; arquivos estáticos são servidos separadamente
+pelo Flask.
+
+| Endereço | Método | Finalidade e acesso |
 | --- | --- | --- |
-| /login | GET e POST | Exibir formulário e autenticar |
-| /sair | POST | Encerrar sessão |
-| / | GET | Consultar recursos e aplicar filtros |
-| /recursos/novo | GET e POST | Cadastrar recurso como administrador |
-| /reservas/nova | GET e POST | Criar reserva |
-| /reservas | GET | Consultar as próprias reservas |
-| /reservas/<id>/cancelar | POST | Cancelar a própria reserva |
-| /aprovacoes | GET | Consultar solicitações vinculadas |
-| /manutencoes | GET e POST | Consultar e cadastrar manutenção |
-| /materiais | GET | Consultar gestão de materiais |
-| /auditoria | GET | Consultar eventos como administrador |
-| /notificacoes | GET | Consultar os próprios avisos |
-| /relatorios | GET | Consultar indicadores como administrador |
+| `/login` | GET e POST | Exibir formulário e autenticar usuário ativo |
+| `/sair` | POST | Encerrar sessão |
+| `/` | GET | Consultar recursos e aplicar filtros como usuário autenticado |
+| `/recursos/novo` | GET e POST | Cadastrar recurso como ADMIN |
+| `/reservas/nova` | GET e POST | Criar reserva como usuário autenticado |
+| `/reservas` | GET | Consultar as próprias reservas |
+| `/reservas/<reserva_id>/editar` | GET e POST | Editar a própria reserva, conforme prazo e situação |
+| `/reservas/<reserva_id>/cancelar` | POST | Cancelar a própria reserva, conforme regras da operação |
+| `/aprovacoes` | GET | Consultar solicitações como RESPONSAVEL vinculado |
+| `/reservas/<reserva_id>/avaliar` | POST | Aprovar ou rejeitar solicitação como RESPONSAVEL vinculado |
+| `/manutencoes` | GET e POST | Consultar e cadastrar manutenção como ADMIN |
+| `/materiais` | GET | Consultar materiais como ADMIN ou RESPONSAVEL, respeitando o vínculo |
+| `/materiais/<reserva_id>/movimentar` | POST | Registrar retirada, devolução ou não comparecimento como ADMIN ou RESPONSAVEL autorizado |
+| `/auditoria` | GET | Consultar os 100 eventos mais recentes como ADMIN |
+| `/notificacoes` | GET | Consultar os próprios avisos |
+| `/notificacoes/<notificacao_id>/ler` | POST | Marcar uma notificação própria como lida |
+| `/relatorios` | GET | Consultar indicadores como ADMIN |
 
-Esta tabela apresenta as principais rotas. Edição, avaliação,
-movimentação e leitura de notificações são acessadas pelos formulários
-das respectivas páginas.
+### Parâmetros e formulários
 
-Os formulários POST exigem token CSRF. As operações protegidas
-verificam autenticação e permissões.
+- Consulta de recursos: `tipo`, `localizacao`, `competencia`, `capacidade`,
+  `inicio` e `fim`.
+- Consulta de reservas: `filtro` com valor `ativas`, `historico` ou `todas`.
+- Consulta de relatórios: `inicio` e `fim`.
+- Login: `login` e `senha`.
+- Cadastro de recurso: `nome`, `tipo`, `localizacao`, `capacidade`,
+  `competencia`, `restrito` e `responsavel_id`.
+- Criação e edição de reserva: `recurso_id`, `inicio`, `fim` e `finalidade`.
+- Avaliação de reserva: `decisao` com valor `APROVADA` ou `REJEITADA`.
+- Cadastro de manutenção: `recurso_id`, `inicio`, `fim` e `motivo`.
+- Movimentação de material: `acao` com valor `RETIRADA`, `DEVOLUCAO`
+  ou `NAO_COMPARECEU`.
+
+Todos os formulários POST exigem `csrf_token` válido da sessão.
+O campo de recurso restrito utiliza o valor `sim` quando selecionado.
+
+As operações também verificam propriedade, vínculo com o recurso,
+período, disponibilidade e situação da reserva, conforme cada fluxo.
+
+### Respostas HTTP
+
+- 200: exibição normal de página.
+- 302: redirecionamento, incluindo acesso sem autenticação às páginas
+  protegidas e conclusão de operações por formulário.
+- 400: token CSRF inválido ou dados inválidos nos fluxos que
+  retornam erro diretamente.
+- 401: login ou senha inválidos.
+- 403: perfil sem permissão.
+- 404: reserva ou notificação não encontrada para o usuário,
+  nos fluxos que fazem essa verificação diretamente.
+
+Cancelamento, avaliação e movimentação de materiais também podem
+redirecionar após uma recusa de negócio. Nesses casos, a página de
+destino apresenta a mensagem de erro; o redirecionamento sozinho
+não significa que a operação foi aprovada.
 
 ## Testes Python
 
@@ -365,7 +409,8 @@ Os ensaios exploratórios anteriores permanecem separados.
 | [Auditoria E2E](auditoria_dependencias_e2e.json) | Resultado pip-audit do navegador |
 
 Documentos históricos podem conter resultados de versões anteriores.
-O checklist e o índice identificam a consolidação pendente.
+O checklist e o índice identificam o estado registrado e as pendências
+de fechamento da entrega.
 
 ## Limitações e fechamento
 
@@ -373,7 +418,6 @@ O checklist e o índice identificam a consolidação pendente.
 - Ampliação dos fluxos de navegador e dos cenários de carga autenticados.
 - Testes adicionais dos scripts administrativos e de migração.
 - Configuração e revisão para implantação em produção.
-- Confirmação das equivalências de ferramentas exigidas pela disciplina.
 - Revisão real por pares e declaração das contribuições.
 - Consolidação documental e validação final em clone limpo.
 - CI verde na main avaliada, tag anotada e decisão de qualidade.
