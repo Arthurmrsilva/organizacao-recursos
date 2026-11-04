@@ -64,12 +64,20 @@ utiliza Python 3.14.6.
 ### 1. Obter o projeto
 
 ```powershell
-git clone --single-branch --branch funcionalidade/login https://github.com/Arthurmrsilva/organizacao-recursos.git
+git clone --single-branch --branch main https://github.com/Arthurmrsilva/organizacao-recursos.git
 cd organizacao-recursos
 ```
 
-A implementação documentada está na branch funcionalidade/login.
-Enquanto o repositório estiver privado, o acesso exige permissão.
+O repositório é público e a implementação foi integrada na main.
+A tag v1.0.0-rc1 ainda está em preparação. Após sua publicação,
+a versão de entrega poderá ser obtida com:
+
+```powershell
+git fetch origin --tags
+git switch --detach v1.0.0-rc1
+```
+
+Use esses dois comandos somente depois que a tag estiver publicada.
 
 ### 2. Preparar o ambiente
 
@@ -216,8 +224,12 @@ Na raiz do projeto:
 .\.venv\Scripts\python.exe -m unittest discover -s tests -v
 ```
 
-A suíte registrada contém 292 testes. No commit da93d49,
-a execução local terminou aprovada em 116,207 segundos.
+A suíte registrada contém 292 testes. Na validação de 03/11/2026,
+no commit b55f1ef87ea97bb5fee3bf076a57cf0555656e74,
+todos passaram em 86,353 segundos, em clone separado e ambiente
+virtual novo no mesmo computador.
+
+Consulte o [registro da validação](docs/entrega/validacao-2026-11-03.md).
 
 Os testes preparados utilizam bancos temporários. Vários testes de rotas
 simulam sessão; outros verificam autenticação real.
@@ -394,6 +406,9 @@ Os ensaios exploratórios anteriores permanecem separados.
 | Documento | Conteúdo |
 | --- | --- |
 | [Checklist](docs/entrega/checklist.md) | Estado da entrega e pendências |
+| [Decisão de qualidade](docs/decisao-qualidade.md) | Proposta de entrega com ressalvas; confirmação coletiva pendente |
+| [Validação de 03/11](docs/entrega/validacao-2026-11-03.md) | Clone limpo, 292 testes e fluxo manual |
+| [Changelog](CHANGELOG.md) | Alterações da versão |
 | [Índice de evidências](docs/evidencias/README.md) | Documentos, testes e resultados |
 | [RTM](RTM.md) | Requisitos e rastreabilidade |
 | [Histórico](RTM_historico.md) | Evidências históricas |
@@ -419,9 +434,15 @@ de fechamento da entrega.
 - Testes adicionais dos scripts administrativos e de migração.
 - Configuração e revisão para implantação em produção.
 - Revisão real por pares e declaração das contribuições.
-- Consolidação documental e validação final em clone limpo.
-- CI verde na main avaliada, tag anotada e decisão de qualidade.
-- Publicação do repositório e envio no formulário da disciplina.
+- Conclusão do fechamento documental.
+- Confirmação da decisão de qualidade e dos responsáveis pelos riscos.
+- Conferência da CI do commit final e publicação da tag anotada.
+- Envio no formulário da disciplina e preservação do comprovante.
+
+O repositório já está público. Após a integração do pull request #1,
+os workflows Testes automatizados #200 e Testes com Testcontainers #38
+passaram na main, no commit f22d2c9.
+A CI do fechamento documental ainda deverá ser conferida.
 
 O banco recursos.db e senhas locais não devem ser enviados ao GitHub.
 

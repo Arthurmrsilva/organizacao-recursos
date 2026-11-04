@@ -2,9 +2,10 @@
 
 Projeto: Organização de Recursos.
 Disciplina: Qualidade de Software.
-Data de preparação: 02/11/2026.
+Atualização: 03/11/2026.
 
-Estado: RASCUNHO — aguardando avaliação final e confirmação do grupo.
+Estado: proposta de liberação para entrega acadêmica com ressalvas.
+Confirmação final do grupo: pendente.
 
 ## 1. Integrantes
 
@@ -12,153 +13,173 @@ Estado: RASCUNHO — aguardando avaliação final e confirmação do grupo.
 - Nicolas Ferreira.
 - Robert Oliveira.
 
-A presença dos nomes neste documento não representa assinatura,
-aprovação ou confirmação de contribuições.
+A inclusão dos nomes identifica os integrantes.
+Não representa aprovação ou participação em atividades não realizadas.
 
-## 2. Versão avaliada
+## 2. Versão verificada
 
-Preencher após a validação final:
+Validação em clone limpo:
 
-- Commit completo da versão avaliada: PENDENTE.
-- Branch de entrega: main.
-- Tag da release candidata: PENDENTE.
-- Link da execução de CI desse commit: PENDENTE.
-- Link da análise Sonar correspondente: PENDENTE.
-- Registro da validação em clone limpo: PENDENTE.
-- Revisão por outro integrante: PENDENTE.
+- Commit: b55f1ef87ea97bb5fee3bf076a57cf0555656e74.
+- Executor: Arthur Mendes Ramos da Silva.
+- Ambiente: clone separado e ambiente virtual novo no mesmo computador.
+- Resultado: 292 testes aprovados em 86,353 segundos.
 
-A futura tag deve apontar para o commit efetivamente avaliado.
-Resultados históricos não substituem a verificação dessa versão.
+[Registro completo da validação](entrega/validacao-2026-11-03.md)
 
-## 3. Decisão
+Integração posterior:
 
-Decisão final do grupo: PENDENTE.
+- Pull request #1 integrado na main.
+- Commit de integração: f22d2c9.
+- Testes automatizados #200: aprovado.
+- Testes com Testcontainers #38: aprovado.
 
-Após avaliar as evidências, registrar uma das opções:
+A comparação entre o commit testado e a integração mostrou somente
+a inclusão do documento de validação, sem alteração no código.
 
-- Liberar para entrega acadêmica.
-- Liberar para entrega acadêmica com ressalvas.
-- Bloquear a entrega até corrigir os problemas identificados.
+O fechamento documental está sendo preparado em fechamento/entrega.
+A tag v1.0.0-rc1 ainda não foi criada.
 
-A versão ainda não está liberada por este documento.
-Não se declara prontidão para produção.
+## 3. Proposta de decisão
+
+Arthur propõe liberar a versão para entrega acadêmica com ressalvas,
+após concluir as verificações finais e identificar a versão pela tag.
+
+A proposta considera:
+
+- Os testes automatizados aprovados.
+- A instalação em clone limpo.
+- O fluxo manual de reserva verificado.
+- Os workflows aprovados após a integração na main.
+- A documentação dos resultados e das limitações.
+
+A proposta não representa decisão unânime do grupo.
+A revisão por outro integrante e as confirmações continuam pendentes.
+
+Também não representa liberação para produção.
+
+Requisitos obrigatórios não atendidos precisam ser corrigidos ou ter
+a mudança de escopo autorizada pelo professor. A existência de testes
+aprovados não elimina essa necessidade.
 
 ## 4. Critérios e evidências
 
-| Critério | Evidência disponível | Estado para a versão final |
+| Critério | Evidência | Situação |
 | --- | --- | --- |
-| Instalação reproduzível seguindo o README | README e validação histórica em clone separado | Repetir e registrar no commit avaliado |
-| Suíte Python aprovada | 292 testes nas execuções registradas | Conferir execução final |
-| Cobertura mínima de 80% de linhas e 70% de ramificações | Relatórios publicados pela CI | Conferir e preservar artefatos finais |
-| Concorrência por HTTP | Teste com duas sessões e SQLite temporário | Conferir execução final |
-| Fluxo de navegador | Teste automatizado com Chromium | Conferir execução final |
-| Execução em container | Workflow de Testcontainers | Conferir execução final |
-| Quality Gate aprovado | Análises históricas aprovadas | Vincular análise do commit avaliado |
-| Teste de carga documentado | Duas execuções planejadas de GET /login | Conferir vínculo com a versão e registrar limites |
-| Backup e restauração verificados | Script e testes automatizados | Conferir execução final |
-| Requisitos rastreáveis e limitações declaradas | RTM, plano de testes e relatório de qualidade | Revisar itens parciais e pendentes |
-| Revisão por pares | Pull request #1 | Revisão real pendente |
-| Pacote de evidências acessível | Índice de evidências | Conferir links e referências finais |
-| Repositório público e tag identificada | GitHub | Conferência final pendente |
+| Instalação em ambiente novo | Validação de 03/11/2026 | Executada no commit b55f1ef |
+| Suíte Python | 292 testes em 86,353 segundos | Aprovada no clone limpo |
+| Fluxo manual de reserva | Criação, conflito, cancelamento e histórico | Verificado por Arthur |
+| Testes automatizados na main | Workflow #200 | Aprovado no commit f22d2c9 |
+| Testcontainers na main | Workflow #38 | Aprovado no commit f22d2c9 |
+| Cobertura mínima | Metas de 80% de linhas e 70% de ramificações na CI | Preservar os relatórios finais |
+| Quality Gate | Verificação configurada no workflow principal | Vincular a análise da versão final |
+| Teste de carga | Duas execuções planejadas documentadas | Resultado limitado a GET /login |
+| Backup e restauração | Verificador e testes automatizados | Evidências disponíveis |
+| Rastreabilidade | RTM e documentos vinculados | Conferência final pendente |
+| Repositório público | Visibilidade conferida no GitHub | Concluído |
+| Revisão por outro integrante | Ainda não realizada | Pendente |
+| Tag da entrega | v1.0.0-rc1 | Ainda não criada |
 
-### Documentos de apoio
+## 5. Documentos de apoio
 
-- [README](../README.md).
-- [Checklist da entrega](entrega/checklist.md).
+- [Instalação e execução](../README.md).
+- [Checklist](entrega/checklist.md).
 - [Índice de evidências](evidencias/README.md).
-- [Matriz de rastreabilidade](rtm.md).
+- [Rastreabilidade](rtm.md).
 - [Relatório de qualidade](relatorio-qualidade.md).
-- [Registro de defeitos](defeitos/README.md).
+- [Defeitos](defeitos/README.md).
 - [Plano de testes](../PLANO_TESTES.md).
-- [Arquitetura](../ARQUITETURA.md).
+- [Arquitetura e diagramas](../ARQUITETURA.md).
 - [Segurança](../SEGURANCA.md).
-- [Resultado do teste de carga](performance/resultado-01.md).
-- [Validação histórica da instalação](../VALIDACAO_INSTALACAO.md).
+- [Desempenho](performance/resultado-01.md).
+- [Changelog](../CHANGELOG.md).
 
-## 5. Resultados históricos de referência
+## 6. Resultados históricos
 
-Os resultados abaixo pertencem às execuções documentadas,
-não constituindo aprovação automática da versão final:
+Os resultados abaixo pertencem às versões indicadas:
 
-- 292 testes Python nas execuções registradas.
-- Cobertura no commit da93d49: 97,46% de linhas e
-  94,83% de ramificações, no escopo de sete módulos.
-- Quality Gate aprovado no commit 3a76227, com 84,1%
-  de cobertura sobre código novo.
-- Duas execuções planejadas de GET /login com 565 amostras
-  em cada, zero erros e p95 de 23 ms e 19 ms.
-- Instalação em clone separado validada no commit c84dac2.
-- Verificação de backup e restauração SQLite em diretório temporário.
+- Commit da93d49: cobertura de 97,46% de linhas e 94,83%
+  de ramificações, considerando sete módulos.
+- Commit 3a76227: Quality Gate aprovado e cobertura sobre
+  código novo de 84,1%.
+- Carga registrada no commit 49f9268: duas execuções com
+  565 amostras cada, zero erros e p95 de 23 ms e 19 ms.
 
-Consultar os documentos vinculados para ambiente, procedimentos,
-versões, critérios e limitações.
+As métricas do Coverage.py e do Sonar medem escopos diferentes.
+Esses valores não devem ser apresentados como novas medições
+da futura tag.
 
-## 6. Riscos e limitações para avaliação
+## 7. Riscos e limitações
 
-Os itens abaixo são propostas de avaliação.
-Nenhum risco está declarado como aceito pelo grupo neste rascunho.
+Nenhum aceite coletivo dos riscos está registrado neste documento.
+Os responsáveis pelo acompanhamento ainda precisam ser confirmados.
 
-| Risco ou limitação | Impacto | Justificativa proposta para eventual aceitação acadêmica | Responsável | Aceite |
-| --- | --- | --- | --- | --- |
-| Gestão de usuários e edição/desativação de recursos incompletas na interface | Parte da administração depende de procedimentos externos à interface | Somente aceitar se compatível com o escopo exigido; caso contrário, corrigir antes da entrega | A definir pelo grupo | Pendente |
-| Carga restrita a GET /login no mesmo computador | Não comprova desempenho de autenticação, reservas ou ambiente de produção | Evidência limitada ao cenário documentado, sem extrapolar capacidade | A definir pelo grupo | Pendente |
-| Servidor de desenvolvimento e configuração local | Não oferece evidência de implantação adequada para produção | Entrega restrita à demonstração acadêmica local | A definir pelo grupo | Pendente |
-| Cobertura medida em sete módulos Python | Percentuais não abrangem todos os scripts e arquivos da aplicação | Escopo de medição explicitamente identificado nos relatórios | A definir pelo grupo | Pendente |
-| Testcontainers com SQLite dentro do container | Não verifica integração com um servidor de banco separado | Cenário corresponde ao banco utilizado pela aplicação; conferir exigências do trabalho | A definir pelo grupo | Pendente |
-| Dependências externas do Testcontainers sem lock completo com hashes | Reprodutibilidade inferior à instalação principal com lock | Versões diretas fixadas e limitação documentada | A definir pelo grupo | Pendente |
-| Restauração verificada em diretório temporário | Não demonstra recuperação operacional completa após desastre | Ensaio verifica integridade e equivalência dos dados dentro do escopo descrito | A definir pelo grupo | Pendente |
+| Limitação | Impacto | Tratamento proposto | Responsável e aceite |
+| --- | --- | --- | --- |
+| Gestão de usuários e edição/desativação de recursos incompletas na interface | Parte da administração depende de procedimentos externos | Conferir os requisitos; corrigir se obrigatório | Pendente |
+| Carga limitada a GET /login no mesmo computador | Não mede desempenho dos fluxos autenticados | Apresentar o resultado somente para o cenário testado | Pendente |
+| Execução local com servidor de desenvolvimento | Não comprova implantação adequada para produção | Restringir a demonstração ao contexto acadêmico | Pendente |
+| Cobertura calculada em sete módulos | Percentuais não abrangem todos os arquivos | Informar o escopo junto dos resultados | Pendente |
+| SQLite dentro do container | Não verifica um servidor de banco separado | Explicar a configuração e conferir as exigências do trabalho | Pendente |
+| Ambiente Testcontainers sem lock completo com hashes | Reprodutibilidade inferior à instalação principal | Documentar a limitação e preservar o log da execução | Pendente |
+| Restauração em diretório temporário | Não demonstra recuperação operacional completa | Apresentar como verificação de integridade e restauração no escopo testado | Pendente |
 
-Antes do aceite final, cada risco aceito deve ter responsável nominal,
-impacto e justificativa confirmados.
-
-Requisitos obrigatórios não atendidos devem ser tratados como
-bloqueadores, salvo alteração de escopo autorizada pelo professor.
-
-## 7. Bloqueadores de fechamento
-
-- Revisão real por outro integrante ainda não registrada.
-- Validação final em clone limpo ainda não registrada.
-- CI e análise Sonar do commit final ainda não vinculadas.
-- Conferência da visibilidade pública ainda pendente.
-- Contribuições individuais ainda não confirmadas.
-- Decisão e responsáveis pelos riscos ainda não confirmados.
-- Tag final e índice de evidências ainda não finalizados.
-
-Atualizar esta lista conforme as verificações forem concluídas.
+Para aceitar um risco, registrar responsável nominal, impacto,
+justificativa e confirmação. Uma ressalva não substitui o atendimento
+de um requisito obrigatório.
 
 ## 8. Contribuições individuais
 
-Cada integrante deve declarar somente atividades que efetivamente realizou.
+Registro baseado nas informações fornecidas por Arthur em 03/11/2026.
 
-| Integrante | Atividades realizadas | Evidências | Confirmação |
-| --- | --- | --- | --- |
-| Arthur Mendes Ramos da Silva | A preencher pelo integrante | Commits, documentos ou verificações correspondentes | Pendente |
-| Nicolas Ferreira | A preencher pelo integrante | Commits, documentos ou verificações correspondentes | Pendente |
-| Robert Oliveira | A preencher pelo integrante | Commits, documentos ou verificações correspondentes | Pendente |
+| Integrante | Participação neste projeto | Evidência ou situação |
+| --- | --- | --- |
+| Arthur Mendes Ramos da Silva | Implementação, ajustes, testes, documentação e integração no GitHub | Histórico de commits, documentos e registros de validação |
+| Nicolas Ferreira | Nenhuma atividade realizada até este registro, conforme informado por Arthur | Participação e confirmação próprias pendentes |
+| Robert Oliveira | Nenhuma atividade realizada até este registro, conforme informado por Arthur | Participação e confirmação próprias pendentes |
 
-## 9. Confirmação da decisão
+Atividades posteriores devem ser acrescentadas somente depois
+de realizadas. A participação em outras disciplinas não é contabilizada
+como contribuição neste projeto.
 
-Preencher após a leitura do pacote de evidências e a avaliação dos riscos.
+## 9. Revisão e confirmação
 
-| Integrante | Concordância com a decisão e os riscos | Data | Registro da confirmação |
-| --- | --- | --- | --- |
-| Arthur Mendes Ramos da Silva | Pendente | Pendente | Pendente |
-| Nicolas Ferreira | Pendente | Pendente | Pendente |
-| Robert Oliveira | Pendente | Pendente | Pendente |
+A integração do pull request não substitui revisão por outro integrante.
 
-Uma confirmação deve ser registrada pelo próprio integrante,
-por exemplo em revisão ou comentário identificado no pull request.
+| Integrante | Situação |
+| --- | --- |
+| Arthur Mendes Ramos da Silva | Concordou com o registro desta proposta de liberação acadêmica com ressalvas |
+| Nicolas Ferreira | Revisão e confirmação pendentes |
+| Robert Oliveira | Revisão e confirmação pendentes |
 
-## 10. Envio
+As confirmações de Nicolas e Robert devem ser feitas pelos próprios
+integrantes, após lerem os documentos e verificarem o sistema.
 
-- Integrante responsável pelo envio: PENDENTE.
-- Link público do repositório: https://github.com/Arthurmrsilva/organizacao-recursos
-- Tag avaliada: PENDENTE.
-- Data do envio: PENDENTE.
-- Comprovante do formulário: PENDENTE.
+Este registro não atribui a eles aprovação antecipada.
 
-O endereço acima identifica o repositório; não comprova sua
-visibilidade pública.
+## 10. Pendências de fechamento
 
-Um único integrante deve realizar o envio pelo grupo e guardar
-o comprovante.
+- Conferir os documentos e os links finais.
+- Conferir o atendimento dos requisitos obrigatórios.
+- Registrar revisão por outro integrante.
+- Obter as confirmações reais do grupo.
+- Definir responsáveis e registrar o aceite dos riscos.
+- Integrar o fechamento documental.
+- Conferir a CI do commit escolhido.
+- Preservar os relatórios finais.
+- Criar a tag anotada v1.0.0-rc1.
+- Registrar o SHA completo e os links das execuções finais.
+- Realizar o envio e guardar o comprovante.
+
+## 11. Envio
+
+Repositório público:
+
+https://github.com/Arthurmrsilva/organizacao-recursos
+
+- Responsável pelo envio: a definir.
+- Tag: pendente.
+- Data do envio: pendente.
+- Comprovante: pendente.
+
+Um único integrante deve enviar o trabalho pelo grupo.
