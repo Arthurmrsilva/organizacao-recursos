@@ -1,5 +1,31 @@
 # Changelog
 
+## Preparacao da candidata v1.0.0-rc3
+
+Atualizacao: 08/11/2026.
+
+A rc3 reunira a documentacao consolidada pelos PRs #4 e #5.
+A publicacao depende da integracao desta preparacao, CI aprovada
+no commit escolhido, criacao da tag anotada e preservacao dos
+relatorios correspondentes.
+
+A identidade definitiva do commit, os links das execucoes e os
+anexos serao registrados nas notas da release rc3:
+[Release rc3](https://github.com/Arthurmrsilva/organizacao-recursos/releases/tag/v1.0.0-rc3).
+Esse endereco somente estara disponivel depois da publicacao.
+
+Os resultados da rc2 abaixo continuam associados a rc2.
+Nao sao apresentados como novas medicoes da rc3.
+Os testes parciais dos integrantes continuam com versao presumida;
+a revisao do codigo, a confirmacao coletiva e o aceite dos riscos
+permanecem pendentes.
+
+## Registro anterior a preparacao da rc3
+
+O conteudo abaixo preserva o estado anterior. As referencias a
+"candidata publicada", a rc2 e as pendencias de consolidacao
+representam esse registro historico.
+
 ## Estado da entrega — 08/11/2026
 
 Candidata publicada: **v1.0.0-rc2**, commit
