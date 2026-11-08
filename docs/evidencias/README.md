@@ -180,3 +180,9 @@ Ela não representa um plano completo de recuperação de produção.
 - Realizar o envio pelo grupo e guardar o comprovante.
 
 Nenhuma revisão, contribuição ou aprovação deve ser presumida.
+## Testes funcionais parciais dos integrantes
+
+[Registro do relato recebido por Arthur em 08/11/2026](../entrega/validacao-parcial-integrantes.md).
+
+Inclui os cenários informados como testados por Nicolas e Robert,
+os resultados relatados e as confirmações ainda pendentes.
