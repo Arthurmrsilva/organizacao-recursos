@@ -1,14 +1,27 @@
 # Organização de Recursos
 
-## Atualização do fechamento — 07/11/2026
+## Estado da entrega — 08/11/2026
 
-A candidata v1.0.0-rc1 foi publicada no commit 3a1ef85, com os relatórios anexados e os workflows da main e da tag aprovados.
+Candidata publicada: **v1.0.0-rc2**, commit
+`12fae657686f2179da3feae561031ff3622c937e`.
 
-Consulte o [registro de fechamento](docs/entrega/fechamento.md) para o SHA completo, links das execuções, relatórios e pendências.
+- [Release e relatórios da rc2](https://github.com/Arthurmrsilva/organizacao-recursos/releases/tag/v1.0.0-rc2).
+- [Índice de evidências](docs/evidencias/README.md).
+- [Checklist atual](docs/entrega/checklist.md).
+- [Decisão de qualidade](docs/decisao-qualidade.md).
+- [Testes parciais relatados pelos integrantes](docs/entrega/validacao-parcial-integrantes.md).
 
-A revisão por outro integrante, a confirmação coletiva e o aceite nominal dos riscos continuam pendentes. O envio ainda não foi confirmado.
+A CI da rc2 foi aprovada nas execuções #208 e #46.
+Os relatórios de cobertura e Testcontainers estão anexados à release.
 
-As seções anteriores a esta atualização mantêm o estado registrado em suas respectivas datas; menções à tag ainda em preparação referem-se ao período anterior à publicação.
+O PR #4 acrescentou somente documentação na main, no commit
+`d937c1e9a8c7f90d38b240b728a8d24515414dad`, com CI #211 e #49 aprovada.
+Esse complemento e esta consolidação não fazem parte da tag rc2.
+
+Continuam pendentes a revisão do código, a confirmação coletiva,
+o aceite nominal dos riscos, a conferência dos requisitos obrigatórios
+e a confirmação do envio. Os testes manuais parciais estão registrados
+como relato, com versão presumida e limitações explícitas.
 
 Projeto da disciplina de Qualidade de Software — ADS, 4º semestre.
 
@@ -17,7 +30,7 @@ sobreposições e controlar aprovação, manutenção e movimentação de materi
 
 ## Integrantes
 
-- Arthur Mendes
+- Arthur Mendes Ramos da Silva
 - Nicolas Ferreira
 - Robert Oliveira
 
@@ -73,21 +86,20 @@ utiliza Python 3.14.6.
 
 ### 1. Obter o projeto
 
+Para instalar a candidata publicada v1.0.0-rc2:
+
 ```powershell
-git clone --single-branch --branch main https://github.com/Arthurmrsilva/organizacao-recursos.git
+git clone --branch v1.0.0-rc2 --single-branch https://github.com/Arthurmrsilva/organizacao-recursos.git
 cd organizacao-recursos
+git rev-parse HEAD
 ```
 
-O repositório é público e a implementação foi integrada na main.
-A tag v1.0.0-rc1 ainda está em preparação. Após sua publicação,
-a versão de entrega poderá ser obtida com:
+O commit esperado é:
+12fae657686f2179da3feae561031ff3622c937e.
 
-```powershell
-git fetch origin --tags
-git switch --detach v1.0.0-rc1
-```
-
-Use esses dois comandos somente depois que a tag estiver publicada.
+O aviso de detached HEAD é normal ao clonar uma tag.
+Os documentos complementares posteriores ficam na main e
+não fazem parte do conteúdo original dessa candidata.
 
 ### 2. Preparar o ambiente
 
@@ -443,16 +455,11 @@ de fechamento da entrega.
 - Ampliação dos fluxos de navegador e dos cenários de carga autenticados.
 - Testes adicionais dos scripts administrativos e de migração.
 - Configuração e revisão para implantação em produção.
-- Revisão real por pares e declaração das contribuições.
-- Conclusão do fechamento documental.
-- Confirmação da decisão de qualidade e dos responsáveis pelos riscos.
-- Conferência da CI do commit final e publicação da tag anotada.
-- Envio no formulário da disciplina e preservação do comprovante.
 
-O repositório já está público. Após a integração do pull request #1,
-os workflows Testes automatizados #200 e Testes com Testcontainers #38
-passaram na main, no commit f22d2c9.
-A CI do fechamento documental ainda deverá ser conferida.
+Essas limitações devem ser confrontadas com os requisitos obrigatórios.
+O estado das confirmações e do envio está no
+[checklist](docs/entrega/checklist.md) e na
+[decisão de qualidade](docs/decisao-qualidade.md).
 
 O banco recursos.db e senhas locais não devem ser enviados ao GitHub.
 

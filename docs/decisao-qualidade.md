@@ -1,21 +1,12 @@
 # Decisão de qualidade
 
-## Atualização do fechamento — 07/11/2026
-
-A candidata v1.0.0-rc1 foi publicada no commit 3a1ef85, com os relatórios anexados e os workflows da main e da tag aprovados.
-
-Consulte o [registro de fechamento](entrega/fechamento.md) para o SHA completo, links das execuções, relatórios e pendências.
-
-A revisão por outro integrante, a confirmação coletiva e o aceite nominal dos riscos continuam pendentes. O envio ainda não foi confirmado.
-
-As seções anteriores a esta atualização mantêm o estado registrado em suas respectivas datas; menções à tag ainda em preparação referem-se ao período anterior à publicação.
-
+Atualização: 08/11/2026.
 Projeto: Organização de Recursos.
 Disciplina: Qualidade de Software.
-Atualização: 03/11/2026.
 
-Estado: proposta de liberação para entrega acadêmica com ressalvas.
-Confirmação final do grupo: pendente.
+Estado: proposta de entrega acadêmica com ressalvas.
+Proponente: Arthur Mendes Ramos da Silva.
+Confirmação coletiva: pendente.
 
 ## 1. Integrantes
 
@@ -23,184 +14,173 @@ Confirmação final do grupo: pendente.
 - Nicolas Ferreira.
 - Robert Oliveira.
 
-A inclusão dos nomes identifica os integrantes.
-Não representa aprovação ou participação em atividades não realizadas.
+As contribuições registradas abaixo são distintas da aprovação
+individual da decisão de qualidade.
 
-## 2. Versão verificada
+## 2. Versão candidata e complemento documental
 
-Validação em clone limpo:
+Candidata publicada: v1.0.0-rc2.
 
-- Commit: b55f1ef87ea97bb5fee3bf076a57cf0555656e74.
-- Executor: Arthur Mendes Ramos da Silva.
-- Ambiente: clone separado e ambiente virtual novo no mesmo computador.
-- Resultado: 292 testes aprovados em 86,353 segundos.
+Commit:
+12fae657686f2179da3feae561031ff3622c937e.
 
-[Registro completo da validação](entrega/validacao-2026-11-03.md)
+[Release e relatórios da rc2](https://github.com/Arthurmrsilva/organizacao-recursos/releases/tag/v1.0.0-rc2).
 
-Integração posterior:
+O PR #4 acrescentou o relato de testes funcionais parciais
+dos integrantes, no commit:
 
-- Pull request #1 integrado na main.
-- Commit de integração: f22d2c9.
-- Testes automatizados #200: aprovado.
-- Testes com Testcontainers #38: aprovado.
+d937c1e9a8c7f90d38b240b728a8d24515414dad.
 
-A comparação entre o commit testado e a integração mostrou somente
-a inclusão do documento de validação, sem alteração no código.
+Esse complemento está na main e não integra a tag rc2.
+A comparação entre esses dois commits contém somente documentos,
+sem alteração no código da aplicação.
 
-O fechamento documental está sendo preparado em fechamento/entrega.
-A tag v1.0.0-rc1 ainda não foi criada.
+Esta consolidação documental também é posterior à rc2.
+A tag publicada permanece preservada.
 
 ## 3. Proposta de decisão
 
-Arthur propõe liberar a versão para entrega acadêmica com ressalvas,
-após concluir as verificações finais e identificar a versão pela tag.
+Arthur propõe a entrega acadêmica com ressalvas, considerando:
 
-A proposta considera:
+- As execuções de CI aprovadas para a candidata.
+- Os relatórios de cobertura e do container preservados.
+- A validação histórica em clone separado e ambiente virtual novo.
+- Os testes manuais realizados por Arthur.
+- O relato dos testes funcionais parciais de Nicolas e Robert.
+- A documentação dos limites das verificações.
 
-- Os testes automatizados aprovados.
-- A instalação em clone limpo.
-- O fluxo manual de reserva verificado.
-- Os workflows aprovados após a integração na main.
-- A documentação dos resultados e das limitações.
+A proposta ainda não constitui decisão coletiva assinada pelo grupo.
+A revisão do código e o aceite nominal dos riscos permanecem pendentes.
 
-A proposta não representa decisão unânime do grupo.
-A revisão por outro integrante e as confirmações continuam pendentes.
-
-Também não representa liberação para produção.
-
-Requisitos obrigatórios não atendidos precisam ser corrigidos ou ter
-a mudança de escopo autorizada pelo professor. A existência de testes
-aprovados não elimina essa necessidade.
+Não se declara prontidão para produção nem atendimento integral
+a requisitos cuja conferência ainda está pendente.
 
 ## 4. Critérios e evidências
 
-| Critério | Evidência | Situação |
+| Critério | Evidência | Resultado e limite |
 | --- | --- | --- |
-| Instalação em ambiente novo | Validação de 03/11/2026 | Executada no commit b55f1ef |
-| Suíte Python | 292 testes em 86,353 segundos | Aprovada no clone limpo |
-| Fluxo manual de reserva | Criação, conflito, cancelamento e histórico | Verificado por Arthur |
-| Testes automatizados na main | Workflow #200 | Aprovado no commit f22d2c9 |
-| Testcontainers na main | Workflow #38 | Aprovado no commit f22d2c9 |
-| Cobertura mínima | Metas de 80% de linhas e 70% de ramificações na CI | Preservar os relatórios finais |
-| Quality Gate | Verificação configurada no workflow principal | Vincular a análise da versão final |
-| Teste de carga | Duas execuções planejadas documentadas | Resultado limitado a GET /login |
-| Backup e restauração | Verificador e testes automatizados | Evidências disponíveis |
-| Rastreabilidade | RTM e documentos vinculados | Conferência final pendente |
-| Repositório público | Visibilidade conferida no GitHub | Concluído |
-| Revisão por outro integrante | Ainda não realizada | Pendente |
-| Tag da entrega | v1.0.0-rc1 | Ainda não criada |
+| Instalação em ambiente novo | Validação de 03/11/2026 | Clone separado no computador de Arthur, no commit b55f1ef |
+| Suíte no clone limpo | Registro histórico | 292 testes aprovados em 86,353 segundos |
+| Fluxo manual por Arthur | Registro de validação | Criação, conflito, cancelamento e histórico verificados |
+| CI da candidata | Testes automatizados #208 e Testcontainers #46 | Aprovados no commit da rc2 |
+| Cobertura da candidata | Relatórios anexados à rc2 | 97,46% de linhas e 94,83% de ramificações, em sete módulos |
+| Suíte no container | Log anexado à rc2 | 292 testes aprovados em 19,614 segundos |
+| Concorrência HTTP e Chromium | CI #208 | Cenários automatizados aprovados |
+| Análise estática | Workflow #207 da main no commit da rc2 | Referência da análise Sonar; a execução da tag não a substitui |
+| Complemento documental | CI #211 e #49 | Aprovada no commit d937c1e |
+| Testes dos integrantes | Relato registrado por Arthur | Validação funcional parcial, sem falhas relatadas nos cenários listados |
+| Desempenho | Duas execuções históricas documentadas | Cenário limitado a GET /login no mesmo computador |
+| Recuperação | Verificador e testes de backup | Restauração temporária, sem comprovação de recuperação operacional completa |
+| Requisitos obrigatórios | RTM e especificação da disciplina | Conferência final pendente |
 
-## 5. Documentos de apoio
+[Índice de evidências e links das execuções](evidencias/README.md).
 
-- [Instalação e execução](../README.md).
+[Validação histórica em clone limpo](entrega/validacao-2026-11-03.md).
+
+## 5. Testes funcionais parciais dos integrantes
+
+Conforme relato recebido por Arthur, Nicolas Ferreira e Robert Oliveira
+participaram de testes manuais na sexta-feira anterior à publicação
+da rc2, nos seguintes fluxos:
+
+- Login.
+- Criação de reserva.
+- Aprovação de reserva.
+- Recusa de reserva.
+- Bloqueio de tentativa de reserva conflitante.
+- Consulta ao histórico.
+
+Não foram relatadas falhas nesses cenários.
+
+A versão utilizada é presumida como rc1 pela cronologia,
+ainda sem confirmação da tag ou do commit.
+
+Não há, neste registro, identificação dos cenários executados
+individualmente por cada participante ou evidências de cada execução.
+Por isso, não se atribui percentual de conclusão.
+
+O bloqueio esperado é de sobreposição de horários para o mesmo recurso.
+Reservas no mesmo dia podem ser permitidas quando não houver sobreposição.
+
+[Registro completo e limitações](entrega/validacao-parcial-integrantes.md).
+
+## 6. Riscos e limitações
+
+Os responsáveis e seus aceites ainda não foram confirmados.
+A coluna de tratamento descreve propostas, não aprovações já concedidas.
+
+| Limitação | Impacto | Tratamento proposto e justificativa | Responsável e aceite |
+| --- | --- | --- | --- |
+| Gestão completa de usuários e edição/desativação de recursos incompletas na interface | Parte da administração depende de procedimentos externos | Conferir a especificação e implementar o que for obrigatório; não presumir dispensa | Pendente |
+| Carga limitada a GET /login no mesmo computador | Não mede desempenho dos fluxos autenticados | Restringir as conclusões ao cenário medido e ampliar o ensaio se exigido | Pendente |
+| Execução com servidor de desenvolvimento | Não comprova implantação apropriada para produção | Restringir o uso à demonstração acadêmica | Pendente |
+| Cobertura calculada em sete módulos | Os percentuais não abrangem todos os arquivos | Informar o escopo junto das métricas | Pendente |
+| SQLite dentro do container | Não verifica servidor de banco separado | Explicar a arquitetura e conferir sua adequação à especificação | Pendente |
+| Ambiente externo do Testcontainers sem lock completo com hashes | Menor reprodutibilidade das dependências transitivas | Preservar logs e documentar a configuração utilizada | Pendente |
+| Restauração em diretório temporário | Não demonstra recuperação operacional completa | Apresentar o resultado como verificação de integridade e restauração no escopo testado | Pendente |
+| Testes dos integrantes registrados por relato indireto e versão presumida | Rastreabilidade limitada da validação manual | Obter confirmação dos participantes sobre versão, cenários e resultados | Pendente |
+
+Aceitar um risco exige confirmação do responsável nominal.
+Uma ressalva não substitui o atendimento de requisito obrigatório
+nem a autorização do professor para mudança de escopo.
+
+## 7. Contribuições individuais
+
+| Integrante | Participação registrada | Base do registro |
+| --- | --- | --- |
+| Arthur Mendes Ramos da Silva | Implementação, ajustes, testes, documentação e integração no GitHub | Histórico de commits e registros de validação |
+| Nicolas Ferreira | Participação em testes funcionais parciais | Relato recebido por Arthur; cenários individuais e versão a confirmar |
+| Robert Oliveira | Participação em testes funcionais parciais | Relato recebido por Arthur; cenários individuais e versão a confirmar |
+
+Esta seção atualiza o registro anterior, de 03/11/2026,
+que ainda não incluía a participação funcional posteriormente relatada.
+
+## 8. Revisão e confirmação
+
+| Integrante | Situação |
+| --- | --- |
+| Arthur Mendes Ramos da Silva | Proponente da entrega acadêmica com ressalvas; aceite nominal dos riscos ainda não registrado |
+| Nicolas Ferreira | Testes parciais relatados; revisão do código e confirmação final pendentes |
+| Robert Oliveira | Testes parciais relatados; revisão do código e confirmação final pendentes |
+
+A integração dos pull requests e a aprovação da CI não substituem
+a revisão humana ou a confirmação da decisão pelos integrantes.
+
+## 9. Pendências
+
+- Confirmar a versão utilizada nos testes manuais dos integrantes.
+- Identificar os cenários executados por cada participante.
+- Concluir a revisão do código.
+- Conferir os requisitos obrigatórios ainda apontados como incompletos.
+- Definir responsáveis e obter o aceite dos riscos.
+- Obter a confirmação individual da decisão de qualidade.
+- Integrar esta consolidação e conferir sua CI.
+- Conferir a correspondência entre documentos, versão entregue e evidências.
+- Confirmar o envio no formulário e preservar o comprovante.
+
+## 10. Documentos de apoio
+
+- [README](../README.md).
 - [Checklist](entrega/checklist.md).
 - [Índice de evidências](evidencias/README.md).
-- [Rastreabilidade](rtm.md).
+- [RTM](rtm.md).
 - [Relatório de qualidade](relatorio-qualidade.md).
 - [Defeitos](defeitos/README.md).
 - [Plano de testes](../PLANO_TESTES.md).
-- [Arquitetura e diagramas](../ARQUITETURA.md).
+- [Arquitetura](../ARQUITETURA.md).
 - [Segurança](../SEGURANCA.md).
 - [Desempenho](performance/resultado-01.md).
 - [Changelog](../CHANGELOG.md).
 
-## 6. Resultados históricos
-
-Os resultados abaixo pertencem às versões indicadas:
-
-- Commit da93d49: cobertura de 97,46% de linhas e 94,83%
-  de ramificações, considerando sete módulos.
-- Commit 3a76227: Quality Gate aprovado e cobertura sobre
-  código novo de 84,1%.
-- Carga registrada no commit 49f9268: duas execuções com
-  565 amostras cada, zero erros e p95 de 23 ms e 19 ms.
-
-As métricas do Coverage.py e do Sonar medem escopos diferentes.
-Esses valores não devem ser apresentados como novas medições
-da futura tag.
-
-## 7. Riscos e limitações
-
-Nenhum aceite coletivo dos riscos está registrado neste documento.
-Os responsáveis pelo acompanhamento ainda precisam ser confirmados.
-
-| Limitação | Impacto | Tratamento proposto | Responsável e aceite |
-| --- | --- | --- | --- |
-| Gestão de usuários e edição/desativação de recursos incompletas na interface | Parte da administração depende de procedimentos externos | Conferir os requisitos; corrigir se obrigatório | Pendente |
-| Carga limitada a GET /login no mesmo computador | Não mede desempenho dos fluxos autenticados | Apresentar o resultado somente para o cenário testado | Pendente |
-| Execução local com servidor de desenvolvimento | Não comprova implantação adequada para produção | Restringir a demonstração ao contexto acadêmico | Pendente |
-| Cobertura calculada em sete módulos | Percentuais não abrangem todos os arquivos | Informar o escopo junto dos resultados | Pendente |
-| SQLite dentro do container | Não verifica um servidor de banco separado | Explicar a configuração e conferir as exigências do trabalho | Pendente |
-| Ambiente Testcontainers sem lock completo com hashes | Reprodutibilidade inferior à instalação principal | Documentar a limitação e preservar o log da execução | Pendente |
-| Restauração em diretório temporário | Não demonstra recuperação operacional completa | Apresentar como verificação de integridade e restauração no escopo testado | Pendente |
-
-Para aceitar um risco, registrar responsável nominal, impacto,
-justificativa e confirmação. Uma ressalva não substitui o atendimento
-de um requisito obrigatório.
-
-## 8. Contribuições individuais
-
-Registro baseado nas informações fornecidas por Arthur em 03/11/2026.
-
-| Integrante | Participação neste projeto | Evidência ou situação |
-| --- | --- | --- |
-| Arthur Mendes Ramos da Silva | Implementação, ajustes, testes, documentação e integração no GitHub | Histórico de commits, documentos e registros de validação |
-| Nicolas Ferreira | Nenhuma atividade realizada até este registro, conforme informado por Arthur | Participação e confirmação próprias pendentes |
-| Robert Oliveira | Nenhuma atividade realizada até este registro, conforme informado por Arthur | Participação e confirmação próprias pendentes |
-
-Atividades posteriores devem ser acrescentadas somente depois
-de realizadas. A participação em outras disciplinas não é contabilizada
-como contribuição neste projeto.
-
-## 9. Revisão e confirmação
-
-A integração do pull request não substitui revisão por outro integrante.
-
-| Integrante | Situação |
-| --- | --- |
-| Arthur Mendes Ramos da Silva | Concordou com o registro desta proposta de liberação acadêmica com ressalvas |
-| Nicolas Ferreira | Revisão e confirmação pendentes |
-| Robert Oliveira | Revisão e confirmação pendentes |
-
-As confirmações de Nicolas e Robert devem ser feitas pelos próprios
-integrantes, após lerem os documentos e verificarem o sistema.
-
-Este registro não atribui a eles aprovação antecipada.
-
-## 10. Pendências de fechamento
-
-- Conferir os documentos e os links finais.
-- Conferir o atendimento dos requisitos obrigatórios.
-- Registrar revisão por outro integrante.
-- Obter as confirmações reais do grupo.
-- Definir responsáveis e registrar o aceite dos riscos.
-- Integrar o fechamento documental.
-- Conferir a CI do commit escolhido.
-- Preservar os relatórios finais.
-- Criar a tag anotada v1.0.0-rc1.
-- Registrar o SHA completo e os links das execuções finais.
-- Realizar o envio e guardar o comprovante.
-
 ## 11. Envio
 
-Repositório público:
-
+Repositório:
 https://github.com/Arthurmrsilva/organizacao-recursos
 
-- Responsável pelo envio: a definir.
-- Tag: pendente.
-- Data do envio: pendente.
-- Comprovante: pendente.
+Candidata publicada de referência: v1.0.0-rc2.
+Responsável pelo envio: a confirmar.
+Data de envio: não confirmada.
+Comprovante: não apresentado neste registro.
 
-Um único integrante deve enviar o trabalho pelo grupo.
-## Complemento — testes funcionais parciais relatados em 08/11/2026
-
-Arthur informou que Nicolas Ferreira e Robert Oliveira participaram
-de testes manuais parciais, sem falhas relatadas nos cenários listados.
-A versão é presumida como rc1 pela cronologia, ainda a confirmar.
-
-[Registro dos testes e suas limitações](entrega/validacao-parcial-integrantes.md).
-
-Este complemento atualiza o registro anterior de participação.
-A revisão do código, a confirmação coletiva e o aceite dos riscos
-continuam pendentes.
+Um integrante envia pelo grupo. O envio não deve ser declarado
+concluído antes da confirmação de recebimento do formulário.

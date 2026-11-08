@@ -1,4 +1,17 @@
-# Registro de fechamento da entrega
+# Registro histórico de fechamento da rc1
+
+Este documento preserva o fechamento registrado em 07/11/2026,
+referente à rc1. Seus resultados e pendências representam aquela data.
+
+Para o estado posterior, consulte:
+
+- [Índice de evidências](../evidencias/README.md).
+- [Checklist](checklist.md).
+- [Decisão de qualidade](../decisao-qualidade.md).
+- [Testes parciais relatados](validacao-parcial-integrantes.md).
+- [Release rc2](https://github.com/Arthurmrsilva/organizacao-recursos/releases/tag/v1.0.0-rc2).
+
+---
 
 Data: 07/11/2026.
 Projeto: Organização de Recursos.
