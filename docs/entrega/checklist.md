@@ -1,5 +1,15 @@
 # Checklist da entrega
 
+## Atualização do fechamento — 07/11/2026
+
+A candidata v1.0.0-rc1 foi publicada no commit 3a1ef85, com os relatórios anexados e os workflows da main e da tag aprovados.
+
+Consulte o [registro de fechamento](fechamento.md) para o SHA completo, links das execuções, relatórios e pendências.
+
+A revisão por outro integrante, a confirmação coletiva e o aceite nominal dos riscos continuam pendentes. O envio ainda não foi confirmado.
+
+As seções anteriores a esta atualização mantêm o estado registrado em suas respectivas datas; menções à tag ainda em preparação referem-se ao período anterior à publicação.
+
 Atualização: 03/11/2026.
 Branch de fechamento: fechamento/entrega.
 
