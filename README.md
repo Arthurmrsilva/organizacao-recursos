@@ -1,5 +1,31 @@
 # Organização de Recursos
 
+## Preparacao da candidata v1.0.0-rc3
+
+Atualizacao: 08/11/2026.
+
+A rc3 reunira a documentacao consolidada pelos PRs #4 e #5.
+A publicacao depende da integracao desta preparacao, CI aprovada
+no commit escolhido, criacao da tag anotada e preservacao dos
+relatorios correspondentes.
+
+A identidade definitiva do commit, os links das execucoes e os
+anexos serao registrados nas notas da release rc3:
+[Release rc3](https://github.com/Arthurmrsilva/organizacao-recursos/releases/tag/v1.0.0-rc3).
+Esse endereco somente estara disponivel depois da publicacao.
+
+Os resultados da rc2 abaixo continuam associados a rc2.
+Nao sao apresentados como novas medicoes da rc3.
+Os testes parciais dos integrantes continuam com versao presumida;
+a revisao do codigo, a confirmacao coletiva e o aceite dos riscos
+permanecem pendentes.
+
+## Registro anterior a preparacao da rc3
+
+O conteudo abaixo preserva o estado anterior. As referencias a
+"candidata publicada", a rc2 e as pendencias de consolidacao
+representam esse registro historico.
+
 ## Estado da entrega — 08/11/2026
 
 Candidata publicada: **v1.0.0-rc2**, commit
@@ -86,20 +112,18 @@ utiliza Python 3.14.6.
 
 ### 1. Obter o projeto
 
-Para instalar a candidata publicada v1.0.0-rc2:
+Para obter a rc3, execute somente depois de sua publicacao:
 
 ```powershell
-git clone --branch v1.0.0-rc2 --single-branch https://github.com/Arthurmrsilva/organizacao-recursos.git
+git clone --branch v1.0.0-rc3 --single-branch https://github.com/Arthurmrsilva/organizacao-recursos.git
 cd organizacao-recursos
 git rev-parse HEAD
 ```
 
-O commit esperado é:
-12fae657686f2179da3feae561031ff3622c937e.
-
-O aviso de detached HEAD é normal ao clonar uma tag.
-Os documentos complementares posteriores ficam na main e
-não fazem parte do conteúdo original dessa candidata.
+Confira o SHA obtido com o commit informado nas notas da release rc3.
+O aviso de detached HEAD ao clonar uma tag e esperado.
+Enquanto a rc3 nao estiver publicada, a candidata disponivel e a rc2.
+Para utiliza-la, substitua v1.0.0-rc3 por v1.0.0-rc2 no clone.
 
 ### 2. Preparar o ambiente
 
