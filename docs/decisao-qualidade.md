@@ -193,3 +193,14 @@ https://github.com/Arthurmrsilva/organizacao-recursos
 - Comprovante: pendente.
 
 Um único integrante deve enviar o trabalho pelo grupo.
+## Complemento — testes funcionais parciais relatados em 08/11/2026
+
+Arthur informou que Nicolas Ferreira e Robert Oliveira participaram
+de testes manuais parciais, sem falhas relatadas nos cenários listados.
+A versão é presumida como rc1 pela cronologia, ainda a confirmar.
+
+[Registro dos testes e suas limitações](entrega/validacao-parcial-integrantes.md).
+
+Este complemento atualiza o registro anterior de participação.
+A revisão do código, a confirmação coletiva e o aceite dos riscos
+continuam pendentes.
