@@ -1,16 +1,57 @@
 # Changelog
 
-## Atualização do fechamento — 07/11/2026
+## Estado da entrega — 08/11/2026
 
-A candidata v1.0.0-rc1 foi publicada no commit 3a1ef85, com os relatórios anexados e os workflows da main e da tag aprovados.
+Candidata publicada: **v1.0.0-rc2**, commit
+`12fae657686f2179da3feae561031ff3622c937e`.
 
-Consulte o [registro de fechamento](docs/entrega/fechamento.md) para o SHA completo, links das execuções, relatórios e pendências.
+- [Release e relatórios da rc2](https://github.com/Arthurmrsilva/organizacao-recursos/releases/tag/v1.0.0-rc2).
+- [Índice de evidências](docs/evidencias/README.md).
+- [Checklist atual](docs/entrega/checklist.md).
+- [Decisão de qualidade](docs/decisao-qualidade.md).
+- [Testes parciais relatados pelos integrantes](docs/entrega/validacao-parcial-integrantes.md).
 
-A revisão por outro integrante, a confirmação coletiva e o aceite nominal dos riscos continuam pendentes. O envio ainda não foi confirmado.
+A CI da rc2 foi aprovada nas execuções #208 e #46.
+Os relatórios de cobertura e Testcontainers estão anexados à release.
 
-As seções anteriores a esta atualização mantêm o estado registrado em suas respectivas datas; menções à tag ainda em preparação referem-se ao período anterior à publicação.
+O PR #4 acrescentou somente documentação na main, no commit
+`d937c1e9a8c7f90d38b240b728a8d24515414dad`, com CI #211 e #49 aprovada.
+Esse complemento e esta consolidação não fazem parte da tag rc2.
 
-## Em preparação — v1.0.0-rc1
+Continuam pendentes a revisão do código, a confirmação coletiva,
+o aceite nominal dos riscos, a conferência dos requisitos obrigatórios
+e a confirmação do envio. Os testes manuais parciais estão registrados
+como relato, com versão presumida e limitações explícitas.
+
+## Não publicado — consolidação documental
+
+- Atualiza índice, checklist e decisão de qualidade.
+- Alinha as referências da candidata rc2.
+- Distingue resultados atuais, evidências históricas e pendências.
+- Não altera o código da aplicação.
+- A CI desta consolidação ainda deverá ser conferida.
+
+## Complemento posterior à rc2 — PR #4
+
+- Registra testes funcionais parciais relatados por Nicolas e Robert.
+- Vincula o relato à decisão de qualidade e ao índice de evidências.
+- Commit de integração: d937c1e.
+- CI #211 e #49 aprovada.
+- Alterações somente documentais.
+
+## v1.0.0-rc2 — publicada
+
+- Commit: 12fae65.
+- Acrescenta o registro de fechamento e referências documentais.
+- CI da tag #208 e #46 aprovada.
+- Relatórios preservados na release.
+- Sem alterações no código da aplicação em relação à rc1.
+
+## Histórico de preparação da rc1 — 03/11/2026
+
+O conteúdo abaixo preserva o registro anterior à publicação.
+A rc1 foi posteriormente publicada no commit 3a1ef85.
+As pendências descritas nessa seção representam aquela data.
 
 Atualização: 03/11/2026.
 

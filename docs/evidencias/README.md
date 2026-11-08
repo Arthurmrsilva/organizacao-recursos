@@ -1,143 +1,111 @@
 # Índice de evidências
 
-## Atualização do fechamento — 07/11/2026
+Atualização: 08/11/2026.
 
-A candidata v1.0.0-rc1 foi publicada no commit 3a1ef85, com os relatórios anexados e os workflows da main e da tag aprovados.
+## Versão candidata publicada
 
-Consulte o [registro de fechamento](../entrega/fechamento.md) para o SHA completo, links das execuções, relatórios e pendências.
+- Tag: v1.0.0-rc2.
+- Commit: 12fae657686f2179da3feae561031ff3622c937e.
+- [Código da candidata](https://github.com/Arthurmrsilva/organizacao-recursos/tree/v1.0.0-rc2).
+- [Release e arquivos anexados](https://github.com/Arthurmrsilva/organizacao-recursos/releases/tag/v1.0.0-rc2).
 
-A revisão por outro integrante, a confirmação coletiva e o aceite nominal dos riscos continuam pendentes. O envio ainda não foi confirmado.
+A tag permanece fixa. Documentos acrescentados depois da publicação
+não fazem parte do conteúdo original da rc2.
 
-As seções anteriores a esta atualização mantêm o estado registrado em suas respectivas datas; menções à tag ainda em preparação referem-se ao período anterior à publicação.
+## CI e relatórios da rc2
 
-Atualização: 03/11/2026.
+As execuções abaixo correspondem ao commit da tag:
 
-## Situação da entrega
+| Verificação | Execução | Resultado |
+| --- | --- | --- |
+| Testes automatizados na tag | [#208](https://github.com/Arthurmrsilva/organizacao-recursos/actions/runs/42432889313) | Aprovado |
+| Testcontainers na tag | [#46](https://github.com/Arthurmrsilva/organizacao-recursos/actions/runs/42432889203) | Aprovado |
+| Testes automatizados na main, no mesmo commit | [#207](https://github.com/Arthurmrsilva/organizacao-recursos/actions/runs/42432684085) | Aprovado |
+| Testcontainers na main, no mesmo commit | [#45](https://github.com/Arthurmrsilva/organizacao-recursos/actions/runs/42432684089) | Aprovado |
 
-O repositório está público e o pull request #1 foi integrado na main.
-Os dois workflows da main foram aprovados após a integração.
+Relatórios preservados:
 
-O fechamento documental está sendo preparado na branch fechamento/entrega.
-A tag v1.0.0-rc1 ainda não foi criada.
+- [Cobertura em JSON, XML e HTML](https://github.com/Arthurmrsilva/organizacao-recursos/releases/download/v1.0.0-rc2/relatorios-cobertura.2.zip).
+- [Log do Testcontainers](https://github.com/Arthurmrsilva/organizacao-recursos/releases/download/v1.0.0-rc2/resultado-testcontainers.2.zip).
 
-- [Repositório público](https://github.com/Arthurmrsilva/organizacao-recursos)
-- [Pull request #1 integrado](https://github.com/Arthurmrsilva/organizacao-recursos/pull/1)
-- [Execuções do GitHub Actions](https://github.com/Arthurmrsilva/organizacao-recursos/actions)
+Resultados dos relatórios:
+
+- Cobertura de linhas: 97,46%.
+- Cobertura de ramificações: 94,83%.
+- Escopo: sete módulos Python.
+- Suíte no container: 292 testes aprovados em 19,614 segundos.
+- Teste externo do Testcontainers: aprovado.
+- Concorrência por HTTP e fluxo no Chromium: aprovados na CI.
+
+A cobertura é calculada pelo Coverage.py. Não corresponde à
+cobertura sobre código novo do Sonar nem abrange todos os arquivos.
+
+A análise Sonar é configurada nos pull requests e pushes da main.
+A execução #207 é a referência da main para o commit da rc2;
+a execução da tag não substitui essa análise.
+
+## Complemento documental posterior à rc2
+
+O [PR #4](https://github.com/Arthurmrsilva/organizacao-recursos/pull/4)
+acrescentou o relato de testes funcionais parciais dos integrantes.
+
+Commit de integração:
+d937c1e9a8c7f90d38b240b728a8d24515414dad.
+
+CI desse commit:
+
+- [Testes automatizados #211](https://github.com/Arthurmrsilva/organizacao-recursos/actions/runs/42500698008): aprovado.
+- [Testcontainers #49](https://github.com/Arthurmrsilva/organizacao-recursos/actions/runs/42500698004): aprovado.
+
+A comparação entre rc2 e esse commit contém somente três documentos,
+sem alteração no código da aplicação.
+
+[Registro dos testes parciais relatados](../entrega/validacao-parcial-integrantes.md).
+
+Esse relato está na main e não integra a tag rc2.
+A versão utilizada pelos participantes é presumida como rc1,
+ainda sem confirmação do identificador.
 
 ## Documentação
 
 | Documento | Conteúdo |
 | --- | --- |
 | [README](../../README.md) | Instalação, execução e rotas HTTP |
-| [Matriz de rastreabilidade](../rtm.md) | Ligação entre requisitos, implementação e testes |
-| [Arquitetura](../../ARQUITETURA.md) | Organização do sistema e diagramas |
-| [Plano de testes](../../PLANO_TESTES.md) | Cenários, critérios e estratégia de testes |
-| [Relatório de qualidade](../relatorio-qualidade.md) | Resultados e limites das verificações |
-| [Registro de defeitos](../defeitos/README.md) | Defeitos e correções documentadas |
+| [RTM](../rtm.md) | Rastreabilidade dos requisitos |
+| [Arquitetura](../../ARQUITETURA.md) | Organização e diagramas |
+| [Plano de testes](../../PLANO_TESTES.md) | Estratégia e cenários |
+| [Relatório de qualidade](../relatorio-qualidade.md) | Resultados e limitações |
+| [Defeitos](../defeitos/README.md) | Problemas e correções |
 | [Segurança](../../SEGURANCA.md) | Controles e auditorias |
-| [Checklist](../entrega/checklist.md) | Itens concluídos e pendências |
-| [Decisão de qualidade](../decisao-qualidade.md) | Rascunho; decisão e confirmações ainda pendentes |
+| [Checklist](../entrega/checklist.md) | Estado da entrega |
+| [Decisão de qualidade](../decisao-qualidade.md) | Proposta, riscos e confirmações |
 | [Changelog](../../CHANGELOG.md) | Histórico das alterações |
 
-Os arquivos docs/rtm.md, docs/relatorio-qualidade.md e
-docs/defeitos/README.md direcionam aos documentos completos mantidos
-na raiz do repositório.
+Os links relativos desta seção acompanham a versão do repositório
+em que este índice é consultado. Para consultar o conteúdo original
+da candidata, utilize o link do código da rc2 acima.
 
-## Validação em clone limpo
+## Evidências históricas com escopo identificado
 
-[Registro da validação de 03/11/2026](../entrega/validacao-2026-11-03.md)
+### Instalação e fluxo manual
 
-Responsável pela execução: Arthur Mendes Ramos da Silva.
+[Validação de 03/11/2026](../entrega/validacao-2026-11-03.md).
 
-Commit testado:
-
-b55f1ef87ea97bb5fee3bf076a57cf0555656e74
-
-Resultados:
-
-- Dependências instaladas em ambiente virtual novo.
+- Executor: Arthur Mendes Ramos da Silva.
+- Commit: b55f1ef87ea97bb5fee3bf076a57cf0555656e74.
+- Clone separado e ambiente virtual novo no mesmo computador.
 - 292 testes aprovados em 86,353 segundos.
-- Login e consulta dos recursos funcionando.
-- Criação de reserva funcionando.
-- Tentativa de reserva no mesmo recurso e horário bloqueada.
-- Cancelamento funcionando.
-- Reserva cancelada apresentada no histórico.
+- Login, consulta, criação de reserva, conflito, cancelamento e histórico.
 
-A execução utilizou um clone separado no mesmo computador.
-Não representa revisão por outro integrante nem teste em outro computador.
+Essa execução é histórica e não deve ser apresentada como
+uma nova instalação da rc2 por outro integrante.
 
-[Registro anterior de instalação](../../VALIDACAO_INSTALACAO.md)
+### Desempenho
 
-## Integração na main
-
-Commit de integração do pull request #1: f22d2c9.
-
-| Workflow | Execução | Resultado |
-| --- | --- | --- |
-| Testes automatizados | #200 | Aprovado |
-| Testes com Testcontainers | #38 | Aprovado |
-
-A comparação entre o commit b55f1ef e a main integrada mostrou
-somente a inclusão do documento de validação, sem alterações no código.
-
-Essas execuções comprovam o estado da integração identificada.
-O fechamento documental posterior deverá ter sua própria CI conferida
-antes da criação da tag.
-
-## Código dos testes e pipelines
-
-| Evidência | Caminho |
-| --- | --- |
-| Suíte Python | [tests](../../tests/) |
-| Concorrência por HTTP | [Teste HTTP](../../teste_concorrencia_http.py) |
-| Concorrência entre manutenção e reserva | [Teste de concorrência](../../tests/test_concorrencia_manutencao.py) |
-| Fluxo no navegador Chromium | [Teste de navegador](../../e2e/test_fluxo_reserva.py) |
-| Execução com Testcontainers | [Teste do container](../../teste_testcontainers.py) |
-| Imagem dos testes | [Dockerfile](../../Dockerfile.testes) |
-| Pipeline principal | [Workflow de testes](../../.github/workflows/testes.yml) |
-| Pipeline Testcontainers | [Workflow do container](../../.github/workflows/testcontainers.yml) |
-| Configuração Sonar | [sonar-project.properties](../../sonar-project.properties) |
-
-## Relatórios publicados pela CI
-
-O workflow principal publica o artefato relatorios-cobertura,
-com os relatórios JSON, XML e HTML.
-
-O workflow Testcontainers publica o artefato resultado-testcontainers,
-com o registro da execução.
-
-Para localizar os arquivos:
-
-1. Abrir o GitHub Actions.
-2. Selecionar a execução do commit desejado.
-3. Abrir a seção Artifacts.
-4. Baixar o relatório correspondente.
-
-Os relatórios da versão final ainda precisam ser preservados
-e vinculados à tag de entrega.
-
-## Cobertura e análise estática: referências históricas
-
-| Referência | Resultado registrado |
-| --- | --- |
-| da93d49 | 292 testes aprovados |
-| da93d49 | Cobertura de linhas: 97,46% |
-| da93d49 | Cobertura de ramificações: 94,83% |
-| 3a76227 | Quality Gate aprovado |
-| 3a76227 | Cobertura sobre código novo no Sonar: 84,1% |
-
-A cobertura do Coverage.py considera sete módulos Python.
-A cobertura sobre código novo do Sonar é uma medida diferente.
-
-Esses números são históricos. Não devem ser apresentados como
-novas medições da futura tag.
-
-## Desempenho
-
-- [Relatório das duas execuções planejadas](../performance/resultado-01.md)
-- [Plano JMeter](../../performance/consulta_login_10usuarios_60s.jmx)
-- [Resultado da execução 1](../../performance/login_planejado_20261102-192309_01.jtl)
-- [Resultado da execução 2](../../performance/login_planejado_20261102-192309_02.jtl)
+- [Relatório das duas execuções](../performance/resultado-01.md).
+- [Plano JMeter](../../performance/consulta_login_10usuarios_60s.jmx).
+- [Resultado 1](../../performance/login_planejado_20261102-192309_01.jtl).
+- [Resultado 2](../../performance/login_planejado_20261102-192309_02.jtl).
 
 Resultados registrados no commit 49f9268:
 
@@ -146,43 +114,31 @@ Resultados registrados no commit 49f9268:
 | 1 | 565 | 0 | 9,12 | 23 |
 | 2 | 565 | 0 | 8,11 | 19 |
 
-Cenário: consulta GET da página de login, dez usuários virtuais,
-60 segundos e pausa de um segundo entre requisições.
+Escopo: GET /login, dez usuários virtuais, 60 segundos,
+aplicação e JMeter no mesmo computador.
 
-A aplicação e o JMeter foram executados no mesmo computador.
-O resultado não abrange os fluxos autenticados nem comprova
-capacidade de produção.
+Não são medições novas da rc2 e não abrangem operações autenticadas
+ou capacidade de produção.
 
-## Dependências e recuperação de dados
+### Dependências e recuperação
 
-- [Auditoria das dependências principais](../../auditoria_dependencias.json)
-- [Auditoria das dependências do navegador](../../auditoria_dependencias_e2e.json)
-- [Verificador de backup e restauração](../../validar_backup.py)
-- [Testes do verificador](../../tests/test_validar_backup.py)
+- [Auditoria principal](../../auditoria_dependencias.json).
+- [Auditoria E2E](../../auditoria_dependencias_e2e.json).
+- [Verificador de backup](../../validar_backup.py).
+- [Testes do verificador](../../tests/test_validar_backup.py).
 
-As auditorias representam o momento de cada execução.
-Não abrangem automaticamente o sistema operacional da imagem,
-o binário Chromium ou as dependências do Testcontainers.
+As auditorias representam suas respectivas datas de execução.
+A restauração em diretório temporário não equivale a um plano
+operacional completo de recuperação.
 
-A restauração é verificada em ambiente temporário.
-Ela não representa um plano completo de recuperação de produção.
+## Pendências reais
 
-## Pendências para fechar a entrega
+- Consolidar a documentação para distinguir estado atual e histórico.
+- Confirmar versão e cenários executados por cada integrante.
+- Concluir a revisão do código e as confirmações do grupo.
+- Registrar responsáveis e aceite dos riscos.
+- Conferir o atendimento dos requisitos obrigatórios da especificação.
+- Confirmar o envio no formulário e preservar o comprovante.
 
-- Registrar as contribuições reais dos três integrantes.
-- Registrar revisão por outro integrante.
-- Finalizar a decisão de qualidade e os responsáveis pelos riscos.
-- Atualizar os documentos finais e integrar as alterações.
-- Conferir a CI do commit escolhido para entrega.
-- Preservar os relatórios dessa execução.
-- Publicar a tag anotada v1.0.0-rc1.
-- Registrar o SHA completo e os links das execuções finais.
-- Realizar o envio pelo grupo e guardar o comprovante.
-
-Nenhuma revisão, contribuição ou aprovação deve ser presumida.
-## Testes funcionais parciais dos integrantes
-
-[Registro do relato recebido por Arthur em 08/11/2026](../entrega/validacao-parcial-integrantes.md).
-
-Inclui os cenários informados como testados por Nicolas e Robert,
-os resultados relatados e as confirmações ainda pendentes.
+O relato de testes parciais não representa aprovação coletiva.
+CI aprovada não comprova, isoladamente, atendimento integral à especificação.
