@@ -210,3 +210,43 @@ Comprovante: não apresentado neste registro.
 
 Um integrante envia pelo grupo. O envio não deve ser declarado
 concluído antes da confirmação de recebimento do formulário.
+
+## Confirmacao individual de Arthur - 08/11/2026
+
+Arthur Mendes Ramos da Silva confirmou expressamente a aprovacao
+da entrega academica com ressalvas da candidata v1.0.0-rc3,
+commit b2949306587d37801be304101d36bf6974bcb6f0.
+
+Arthur aceita os riscos tecnicos descritos na secao de riscos
+e limitacoes deste documento e assume a responsabilidade pelo
+acompanhamento dos tratamentos propostos:
+
+- Conferencia das limitacoes administrativas com a especificacao.
+- Limites dos testes de carga e do servidor de desenvolvimento.
+- Escopo da cobertura de sete modulos Python.
+- Uso de SQLite dentro do container.
+- Reprodutibilidade das dependencias externas do Testcontainers.
+- Limites da verificacao de backup e restauracao.
+- Obtencao das confirmacoes de versao, cenarios e resultados dos
+  testes parciais relatados pelos integrantes.
+
+O aceite considera a finalidade de demonstracao e entrega academica
+e as evidencias publicadas na release rc3. As limitacoes e seus
+impactos permanecem reconhecidos; o acompanhamento nao significa
+que as correcoes propostas ja foram realizadas.
+
+Requisitos obrigatorios eventualmente nao atendidos precisam ser
+corrigidos ou ter a alteracao de escopo autorizada pelo professor.
+Este aceite nao declara prontidao para producao.
+
+Este registro atualiza, para Arthur, as indicacoes anteriores de
+aceite nominal pendente. A responsabilidade de acompanhamento dos
+riscos passa a ser de Arthur Mendes Ramos da Silva.
+
+A confirmacao coletiva e a revisao do codigo por outro integrante
+continuam pendentes. Nenhuma aprovacao e atribuida a Nicolas Ferreira
+ou Robert Oliveira por este registro.
+
+Este complemento e posterior a publicacao da rc3 e nao modifica
+o conteudo da tag. O envio no formulario continua sem comprovacao
+neste documento.
