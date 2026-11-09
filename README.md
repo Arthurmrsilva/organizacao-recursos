@@ -1,5 +1,29 @@
 # Organização de Recursos
 
+## Complemento documental - testes de Nicolas - 09/11/2026
+
+Nicolas Ferreira relatou a execucao de 21 cenarios manuais:
+15 do perfil ADMIN e 6 do perfil RESPONSAVEL, em 09/11/2026.
+Segundo o executor, nenhum problema foi encontrado nos passos
+descritos. O trecho de terminal apresentado nao contem erros 500
+nem traceback.
+
+Consulte o [relato funcional de Nicolas](docs/entrega/revisao-nicolas.md) para os resultados,
+a identificacao informada e as pendencias de rastreabilidade.
+O commit informado como testado e f3f2061; sua correspondencia
+com o ambiente executado ainda precisa de confirmacao.
+
+O registro nao inclui validacao completa de aprovacao e rejeicao,
+retirada, devolucao ou nao comparecimento de materiais.
+A revisao integral do codigo e a confirmacao coletiva permanecem
+pendentes. A participacao de Robert nao e atestada por este relato.
+
+Este complemento e posterior a rc3 e nao modifica sua tag.
+As indicacoes anteriores de pendencia devem ser lidas considerando
+este novo relato, dentro do escopo e dos limites aqui registrados.
+O envio ao professor deve ser confirmado pelo comprovante do formulario.
+
+
 ## Preparacao da candidata v1.0.0-rc3
 
 Atualizacao: 08/11/2026.
