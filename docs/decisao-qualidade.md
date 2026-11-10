@@ -101,7 +101,9 @@ Arthur propõe a entrega acadêmica com ressalvas, considerando:
 - A documentação dos limites das verificações.
 
 A proposta ainda não constitui decisão coletiva assinada pelo grupo.
-A revisão do código e o aceite nominal dos riscos permanecem pendentes.
+As revisões realizadas por Nicolas e Robert estão registradas nas seções 7 e 8.
+O aceite de Arthur e a confirmação de Nicolas estão registrados ao final;
+a decisão individual de Robert permanece pendente.
 
 Não se declara prontidão para produção nem atendimento integral
 a requisitos cuja conferência ainda está pendente.
@@ -159,7 +161,8 @@ Reservas no mesmo dia podem ser permitidas quando não houver sobreposição.
 
 Arthur Mendes Ramos da Silva registrou seu aceite individual
 em 08/11/2026 e assumiu o acompanhamento dos tratamentos abaixo.
-As confirmacoes individuais de Nicolas e Robert permanecem pendentes.
+A confirmação de Nicolas está registrada ao final deste documento.
+A decisão individual de Robert permanece pendente.
 A coluna de tratamento descreve propostas, não aprovações já concedidas.
 
 | Limitação | Impacto | Tratamento proposto e justificativa | Responsável e aceite |
@@ -182,21 +185,21 @@ nem a autorização do professor para mudança de escopo.
 | Integrante | Participação registrada | Base do registro |
 | --- | --- | --- |
 | Arthur Mendes Ramos da Silva | Implementação, ajustes, testes, documentação e integração no GitHub | Histórico de commits e registros de validação |
-| Nicolas Ferreira | Validacao funcional manual de 21 cenarios dos perfis ADMIN e RESPONSAVEL | [Relato do executor](entrega/revisao-nicolas.md), integrado pelo PR #9; versao informada f3f2061, correspondencia com o ambiente a confirmar |
-| Robert Oliveira | Participação em testes funcionais parciais | Relato recebido por Arthur; cenários individuais e versão a confirmar |
+| Nicolas Ferreira | Colaborou com ideias para a programação e com a definição visual da interface, incluindo as cores do CSS. Executou e documentou 21 cenários de testes funcionais dos perfis ADMIN e RESPONSAVEL, publicou o relatório por commit e pull request e participou da revisão do código. | Contribuições informadas por Arthur em 10/11/2026; [relato funcional](entrega/revisao-nicolas.md) integrado pelo PR #9 e confirmação registrada pelo PR #12 |
+| Robert Oliveira | Colaborou na elaboração dos diagramas e participou da revisão do projeto e do código. Participação em testes funcionais parciais anteriormente relatada. | Contribuições informadas por Arthur em 10/11/2026; [registro dos testes parciais](entrega/validacao-parcial-integrantes.md) |
 
-Esta seção atualiza o registro anterior, de 03/11/2026,
-que ainda não incluía a participação funcional posteriormente relatada.
+Esta seção consolida as contribuições adicionais informadas por Arthur em
+10/11/2026 e atualiza os registros anteriores de participação dos integrantes.
 
 ## 8. Revisao e confirmacao
 
-Situacao atualizada em 09/11/2026.
+Situacao atualizada em 10/11/2026.
 
 | Integrante | Situacao |
 | --- | --- |
 | Arthur Mendes Ramos da Silva | Aprova a entrega academica com ressalvas da rc3. Aceite individual dos riscos e responsabilidade de acompanhamento registrados em 08/11/2026, conforme confirmacao ao final deste documento. |
 | Nicolas Ferreira | Relato de 21 cenarios integrado pelo PR #9. Arthur informou em 10/11/2026 que Nicolas confirmou os dados do relato, a revisao realizada e a concordancia com a entrega academica com ressalvas. Ver registro de confirmacao ao final. |
-| Robert Oliveira | Testes parciais anteriormente relatados por Arthur. Versao e cenarios individuais a confirmar; revisao do codigo e decisao individual final pendentes. |
+| Robert Oliveira | Colaboração nos diagramas e participação na revisão do projeto e do código informadas por Arthur em 10/11/2026. Testes parciais anteriormente relatados; versão e cenários individuais a confirmar. Decisão individual final sobre a entrega e as ressalvas pendente. |
 
 O [relato de Nicolas](entrega/revisao-nicolas.md) registra resultados
 e limites da validacao funcional. Os testes manuais nao equivalem
@@ -208,6 +211,9 @@ a revisao humana ou a confirmacao da decisao pelos integrantes.
 ## 9. Pendencias e acompanhamento
 
 Concluido:
+- Registro das contribuições de Nicolas em ideias para programação, cores do CSS e revisão.
+- Registro da colaboração de Robert nos diagramas e na revisão do projeto e do código.
+- Confirmação de Nicolas integrada pelo PR #12.
 - Integracao do relato de Nicolas e dos resumos documentais pelo PR #9.
 - CI da main apos o PR #9: testes automatizados #225 e Testcontainers #63 aprovados.
 - Registro do aceite individual de Arthur e de sua responsabilidade
@@ -219,10 +225,9 @@ Pendente:
 - Completar a identificacao do recurso vinculado ao responsavel
   e esclarecer os horarios e o ambiente descritos no relato.
 - Confirmar a versao e os cenarios individuais de Robert.
-- Concluir e registrar a revisao do codigo por outro integrante.
 - Conferir o atendimento dos requisitos obrigatorios da especificacao.
-- Obter as decisoes individuais de Nicolas e Robert sobre a entrega
-  e as ressalvas, para registrar a confirmacao coletiva.
+- Obter a decisão individual de Robert sobre a entrega
+  e as ressalvas, para registrar a confirmação coletiva.
 - Conferir a correspondencia entre a candidata publicada,
   os complementos posteriores e as evidencias.
 - Confirmar o envio no formulario e preservar o comprovante.
