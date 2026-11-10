@@ -1,63 +1,23 @@
 # Decisão de qualidade
 
-## Complemento documental - testes de Nicolas - 09/11/2026
+## Estado da entrega — 10/11/2026
 
-Nicolas Ferreira relatou a execucao de 21 cenarios manuais:
-15 do perfil ADMIN e 6 do perfil RESPONSAVEL, em 09/11/2026.
-Segundo o executor, nenhum problema foi encontrado nos passos
-descritos. O trecho de terminal apresentado nao contem erros 500
-nem traceback.
+Decisão do grupo: **entrega acadêmica com ressalvas**.
+Arthur registrou seu aceite; Nicolas e Robert confirmaram a concordância
+com a entrega e as ressalvas, conforme comunicação de Arthur em 10/11/2026.
 
-Consulte o [relato funcional de Nicolas](entrega/revisao-nicolas.md) para os resultados,
-a identificacao informada e as pendencias de rastreabilidade.
-O commit informado como testado e f3f2061; sua correspondencia
-com o ambiente executado ainda precisa de confirmacao.
+A última candidata publicada é a **v1.0.0-rc4**, commit
+`ca08ea6132c462fec7228d22892f50ad8ae82926`.
+Sua CI e seus relatórios estão na [release rc4](https://github.com/Arthurmrsilva/organizacao-recursos/releases/tag/v1.0.0-rc4).
 
-O registro nao inclui validacao completa de aprovacao e rejeicao,
-retirada, devolucao ou nao comparecimento de materiais.
-Este relato funcional não constitui revisão integral do código.
-As contribuições e as confirmações de Nicolas e Robert foram atualizadas
-em 10/11/2026 na decisão de qualidade.
+Esta consolidação corrige referências documentais posteriores à rc4 e
+prepara a **rc5**. A rc5 somente estará publicada após integração,
+CI aprovada, criação da nova tag anotada e publicação da release.
+As tags anteriores permanecem fixas.
 
-Este complemento e posterior a rc3 e nao modifica sua tag.
-As indicacoes anteriores de pendencia devem ser lidas considerando
-este novo relato, dentro do escopo e dos limites aqui registrados.
-O envio ao professor deve ser confirmado pelo comprovante do formulario.
-
-
-## Preparacao da candidata v1.0.0-rc3
-
-Atualizacao: 08/11/2026.
-
-A rc3 reunira a documentacao consolidada pelos PRs #4 e #5.
-A publicacao depende da integracao desta preparacao, CI aprovada
-no commit escolhido, criacao da tag anotada e preservacao dos
-relatorios correspondentes.
-
-A identidade definitiva do commit, os links das execucoes e os
-anexos serao registrados nas notas da release rc3:
-[Release rc3](https://github.com/Arthurmrsilva/organizacao-recursos/releases/tag/v1.0.0-rc3).
-Esse endereco somente estara disponivel depois da publicacao.
-
-Os resultados da rc2 abaixo continuam associados a rc2.
-Nao sao apresentados como novas medicoes da rc3.
-Os testes parciais dos integrantes continuam com versao presumida;
-a revisao do codigo, a confirmacao coletiva e o aceite dos riscos
-permanecem pendentes.
-
-## Registro anterior a preparacao da rc3
-
-O conteudo abaixo preserva o estado anterior. As referencias a
-"candidata publicada", a rc2 e as pendencias de consolidacao
-representam esse registro historico.
-
-Atualização: 08/11/2026.
-Projeto: Organização de Recursos.
-Disciplina: Qualidade de Software.
-
-Estado: entrega acadêmica com ressalvas, com concordância dos três integrantes registrada.
-Consolidação: Arthur Mendes Ramos da Silva.
-Confirmação coletiva: registrada; confirmações de Nicolas e Robert comunicadas por Arthur em 10/11/2026.
+Para avaliar uma candidata, use o commit e as execuções identificados
+nas notas da respectiva release. Resultados anteriores mantêm sua versão
+de origem. O envio pelo formulário ainda não tem comprovante neste registro.
 
 ## 1. Integrantes
 
@@ -68,27 +28,15 @@ Confirmação coletiva: registrada; confirmações de Nicolas e Robert comunicad
 As contribuições registradas abaixo são distintas da aprovação
 individual da decisão de qualidade.
 
-## 2. Versao candidata e complementos documentais
+## 2. Versão candidata e rastreabilidade
 
-Candidata publicada de referencia: v1.0.0-rc3.
+A rc4 publicada é a referência automatizada identificada no estado acima.
+A rc5 será sua sucessora documental; a release da rc5 deverá registrar o
+commit efetivamente marcado e suas próprias execuções aprovadas.
 
-Commit da tag:
-b2949306587d37801be304101d36bf6974bcb6f0.
-
-[Release rc3 e relatorios](https://github.com/Arthurmrsilva/organizacao-recursos/releases/tag/v1.0.0-rc3).
-
-A release identifica as execucoes automatizadas da candidata
-e os relatorios correspondentes.
-
-Os resultados da rc2 na secao 4 sao historicos e permanecem
-associados ao commit 12fae657686f2179da3feae561031ff3622c937e.
-Nao representam novas medicoes da rc3.
-
-O aceite individual de Arthur e o relato funcional de Nicolas
-sao complementos posteriores a publicacao da rc3.
-O relato de Nicolas e seus resumos foram integrados pelo PR #9;
-a situacao dos integrantes foi atualizada pelo PR #10.
-Esses complementos nao modificam o conteudo da tag publicada.
+A concordância com a entrega e os riscos documentados permanece registrada.
+Esta consolidação atualiza a apresentação das evidências e das pendências,
+sem ampliar o escopo das revisões ou dos testes manuais.
 
 ## 3. Proposta de decisão
 
@@ -113,23 +61,21 @@ a requisitos cuja conferência ainda está pendente.
 
 | Critério | Evidência | Resultado e limite |
 | --- | --- | --- |
-| Instalação em ambiente novo | Validação de 03/11/2026 | Clone separado no computador de Arthur, no commit b55f1ef |
-| Suíte no clone limpo | Registro histórico | 292 testes aprovados em 86,353 segundos |
-| Fluxo manual por Arthur | Registro de validação | Criação, conflito, cancelamento e histórico verificados |
-| CI da candidata | Testes automatizados #208 e Testcontainers #46 | Aprovados no commit da rc2 |
-| Cobertura da candidata | Relatórios anexados à rc2 | 97,46% de linhas e 94,83% de ramificações, em sete módulos |
-| Suíte no container | Log anexado à rc2 | 292 testes aprovados em 19,614 segundos |
-| Concorrência HTTP e Chromium | CI #208 | Cenários automatizados aprovados |
-| Análise estática | Workflow #207 da main no commit da rc2 | Referência da análise Sonar; a execução da tag não a substitui |
-| Complemento documental | CI #211 e #49 | Aprovada no commit d937c1e |
-| Testes dos integrantes | Relato registrado por Arthur | Validação funcional parcial, sem falhas relatadas nos cenários listados |
-| Desempenho | Duas execuções históricas documentadas | Cenário limitado a GET /login no mesmo computador |
-| Recuperação | Verificador e testes de backup | Restauração temporária, sem comprovação de recuperação operacional completa |
-| Requisitos obrigatórios | RTM e especificação da disciplina | Conferência final pendente |
+| Reprodutibilidade | [Validação de 03/11](entrega/validacao-2026-11-03.md) | Clone separado e ambiente novo no computador de Arthur, commit b55f1ef; histórico |
+| Testes da rc4 | [CI #245](https://github.com/Arthurmrsilva/organizacao-recursos/actions/runs/42920846716) | Aprovada; suíte Python, concorrência HTTP e Chromium |
+| Container da rc4 | [CI #83](https://github.com/Arthurmrsilva/organizacao-recursos/actions/runs/42920846792) | Aprovada; suíte de 292 testes em container Linux com SQLite |
+| Cobertura da rc4 | [Relatórios](https://github.com/Arthurmrsilva/organizacao-recursos/releases/download/v1.0.0-rc4/relatorios-cobertura.3.zip) | 97,46% de linhas e 94,83% de ramificações, sete módulos |
+| Sonar no commit da rc4 | [CI da main #244](https://github.com/Arthurmrsilva/organizacao-recursos/actions/runs/42919624873) | Aprovada no mesmo commit ca08ea6; a execução da tag não executa Sonar |
+| Testes de Nicolas | [Relato funcional](entrega/revisao-nicolas.md) | 21 cenários descritos; nenhum problema relatado nesse escopo |
+| Revisões e concordância | Seções 7 e 8 e confirmações ao final | Participação registrada; não equivale a revisão integral de todo o código |
+| Carga | [Relatório](performance/resultado-01.md) | Duas medições históricas de GET /login, no mesmo computador |
+| Recuperação | Verificador e testes de backup | Restauração temporária, sem recuperação operacional completa |
+| Requisitos obrigatórios | [RTM](rtm.md) e especificação | Limitações conhecidas ainda exigem conferência; ressalvas não dispensam requisitos |
 
-[Índice de evidências e links das execuções](evidencias/README.md).
-
-[Validação histórica em clone limpo](entrega/validacao-2026-11-03.md).
+As execuções acima pertencem à rc4. Para a rc5, conferir a CI do commit
+efetivamente marcado e registrar os links nas notas da nova release.
+O [índice de evidências](evidencias/README.md) separa essas referências
+dos ensaios históricos.
 
 ## 5. Testes funcionais parciais dos integrantes
 
@@ -212,6 +158,7 @@ a revisao humana ou a confirmacao da decisao pelos integrantes.
 ## 9. Pendencias e acompanhamento
 
 Concluido:
+- Publicação da rc4, CI da tag #245 e #83 aprovada e relatórios preservados.
 - Registro da concordância de Robert com a entrega e as ressalvas, comunicada por Arthur em 10/11/2026; confirmação coletiva registrada.
 - Registro das contribuições de Nicolas em ideias para programação, cores do CSS e revisão.
 - Registro da colaboração de Robert nos diagramas e na revisão do projeto e do código.
@@ -222,8 +169,6 @@ Concluido:
   pelo acompanhamento dos riscos, conforme confirmacao de 08/11/2026.
 
 Pendente:
-- Confirmar a correspondencia entre a versao informada por Nicolas
-  (f3f2061) e o ambiente efetivamente executado.
 - Completar a identificacao do recurso vinculado ao responsavel
   e esclarecer os horarios e o ambiente descritos no relato.
 - Confirmar a versao e os cenarios individuais de Robert.
@@ -251,8 +196,8 @@ Pendente:
 Repositório:
 https://github.com/Arthurmrsilva/organizacao-recursos
 
-Candidata publicada de referencia: v1.0.0-rc3.
-Os complementos documentais posteriores estao na main.
+Candidata publicada de referência: v1.0.0-rc4.
+A consolidação documental seguinte prepara a rc5, conforme o estado no início.
 Responsável pelo envio: a confirmar.
 Data de envio: não confirmada.
 Comprovante: não apresentado neste registro.
