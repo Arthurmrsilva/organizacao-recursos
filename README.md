@@ -84,7 +84,17 @@ sobreposições e controlar aprovação, manutenção e movimentação de materi
 - Nicolas Ferreira
 - Robert Oliveira
 
-As contribuições e a decisão final devem ser confirmadas pelos integrantes.
+## Contribuições individuais — atualização de 10/11/2026
+
+- **Nicolas Ferreira:** Colaborou com ideias para a programação e com a definição visual da interface, incluindo as cores do CSS. Executou e documentou 21 cenários de testes funcionais dos perfis ADMIN e RESPONSAVEL, publicou o relatório por commit e pull request e participou da revisão do código.
+- **Robert Oliveira:** Colaborou na elaboração dos diagramas e participou da revisão do projeto e do código.
+
+As contribuições adicionais foram informadas por Arthur Mendes Ramos da Silva.
+O relato funcional de Nicolas mantém o escopo de 21 cenários.
+A confirmação de Nicolas está registrada na decisão de qualidade; a decisão
+individual final de Robert sobre a entrega permanece pendente.
+Este registro atualiza as indicações anteriores sobre a participação e a
+revisão dos integrantes, preservando os limites dos testes documentados.
 
 ## Funcionalidades
 
