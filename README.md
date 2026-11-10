@@ -15,8 +15,9 @@ com o ambiente executado ainda precisa de confirmacao.
 
 O registro nao inclui validacao completa de aprovacao e rejeicao,
 retirada, devolucao ou nao comparecimento de materiais.
-A revisao integral do codigo e a confirmacao coletiva permanecem
-pendentes. A participacao de Robert nao e atestada por este relato.
+Este relato funcional não constitui revisão integral do código.
+As contribuições e as confirmações de Nicolas e Robert foram atualizadas
+em 10/11/2026 na decisão de qualidade.
 
 Este complemento e posterior a rc3 e nao modifica sua tag.
 As indicacoes anteriores de pendencia devem ser lidas considerando
@@ -91,8 +92,9 @@ sobreposições e controlar aprovação, manutenção e movimentação de materi
 
 As contribuições adicionais foram informadas por Arthur Mendes Ramos da Silva.
 O relato funcional de Nicolas mantém o escopo de 21 cenários.
-A confirmação de Nicolas está registrada na decisão de qualidade; a decisão
-individual final de Robert sobre a entrega permanece pendente.
+As confirmações de Nicolas e Robert sobre a entrega acadêmica com ressalvas,
+comunicadas por Arthur em 10/11/2026, estão registradas na decisão de qualidade.
+A concordância dos três integrantes está registrada.
 Este registro atualiza as indicações anteriores sobre a participação e a
 revisão dos integrantes, preservando os limites dos testes documentados.
 
@@ -486,7 +488,7 @@ Os ensaios exploratórios anteriores permanecem separados.
 | Documento | Conteúdo |
 | --- | --- |
 | [Checklist](docs/entrega/checklist.md) | Estado da entrega e pendências |
-| [Decisão de qualidade](docs/decisao-qualidade.md) | Proposta de entrega com ressalvas; confirmação coletiva pendente |
+| [Decisão de qualidade](docs/decisao-qualidade.md) | Entrega acadêmica com ressalvas; concordância dos três integrantes registrada |
 | [Validação de 03/11](docs/entrega/validacao-2026-11-03.md) | Clone limpo, 292 testes e fluxo manual |
 | [Changelog](CHANGELOG.md) | Alterações da versão |
 | [Índice de evidências](docs/evidencias/README.md) | Documentos, testes e resultados |
