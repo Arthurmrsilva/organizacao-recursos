@@ -195,7 +195,7 @@ Situacao atualizada em 09/11/2026.
 | Integrante | Situacao |
 | --- | --- |
 | Arthur Mendes Ramos da Silva | Aprova a entrega academica com ressalvas da rc3. Aceite individual dos riscos e responsabilidade de acompanhamento registrados em 08/11/2026, conforme confirmacao ao final deste documento. |
-| Nicolas Ferreira | Relato de 21 cenarios funcionais (A1 a A15 e R1 a R6) integrado pelo PR #9. Confirmacao da versao executada, revisao do codigo e decisao individual final pendentes. |
+| Nicolas Ferreira | Relato de 21 cenarios integrado pelo PR #9. Arthur informou em 10/11/2026 que Nicolas confirmou os dados do relato, a revisao realizada e a concordancia com a entrega academica com ressalvas. Ver registro de confirmacao ao final. |
 | Robert Oliveira | Testes parciais anteriormente relatados por Arthur. Versao e cenarios individuais a confirmar; revisao do codigo e decisao individual final pendentes. |
 
 O [relato de Nicolas](entrega/revisao-nicolas.md) registra resultados
@@ -294,3 +294,26 @@ ou Robert Oliveira por este registro.
 Este complemento e posterior a publicacao da rc3 e nao modifica
 o conteudo da tag. O envio no formulario continua sem comprovacao
 neste documento.
+
+## Confirmacao de Nicolas informada por Arthur - 10/11/2026
+
+Arthur Mendes Ramos da Silva informou que Nicolas Ferreira confirmou:
+- Os dados da validacao funcional relatada.
+- A realizacao da revisao do codigo no escopo que examinou.
+- A concordancia com a entrega academica com as ressalvas documentadas.
+
+Fonte deste complemento: confirmacao comunicada por Arthur.
+O relato identifica 21 cenarios: A1 a A15 e R1 a R6.
+Nao se declara cobertura manual integral nem revisao de 100% do codigo.
+
+As indicacoes anteriores de revisao e decisao individual de Nicolas
+pendentes ficam atualizadas por esta confirmacao.
+A confirmacao de Robert permanece sem registro.
+
+O commit informado no relato permanece f3f2061.
+Os detalhes exatos do recurso vinculado, dos horarios corrigidos
+e dos arquivos examinados nao foram transcritos neste complemento.
+Esses detalhes documentais nao sao preenchidos por suposicao.
+
+Este complemento e posterior a rc3 e nao modifica sua tag.
+O envio ao professor continua sujeito ao comprovante do formulario.

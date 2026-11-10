@@ -116,3 +116,26 @@ Esta validação cobre apenas as etapas A1 a A15 e R1 a R6 descritas acima. Não
 Não representa instalação em outro computador, implantação de produção ou teste manual completo de todas as funcionalidades.
 
 O resultado confirma somente as etapas e o fluxo descritos.
+
+## Confirmacao de Nicolas informada por Arthur - 10/11/2026
+
+Arthur Mendes Ramos da Silva informou que Nicolas Ferreira confirmou:
+- Os dados da validacao funcional relatada.
+- A realizacao da revisao do codigo no escopo que examinou.
+- A concordancia com a entrega academica com as ressalvas documentadas.
+
+Fonte deste complemento: confirmacao comunicada por Arthur.
+O relato identifica 21 cenarios: A1 a A15 e R1 a R6.
+Nao se declara cobertura manual integral nem revisao de 100% do codigo.
+
+As indicacoes anteriores de revisao e decisao individual de Nicolas
+pendentes ficam atualizadas por esta confirmacao.
+A confirmacao de Robert permanece sem registro.
+
+O commit informado no relato permanece f3f2061.
+Os detalhes exatos do recurso vinculado, dos horarios corrigidos
+e dos arquivos examinados nao foram transcritos neste complemento.
+Esses detalhes documentais nao sao preenchidos por suposicao.
+
+Este complemento e posterior a rc3 e nao modifica sua tag.
+O envio ao professor continua sujeito ao comprovante do formulario.
