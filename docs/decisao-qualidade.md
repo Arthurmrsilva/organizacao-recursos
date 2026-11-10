@@ -67,26 +67,27 @@ Confirmação coletiva: pendente.
 As contribuições registradas abaixo são distintas da aprovação
 individual da decisão de qualidade.
 
-## 2. Versão candidata e complemento documental
+## 2. Versao candidata e complementos documentais
 
-Candidata publicada: v1.0.0-rc2.
+Candidata publicada de referencia: v1.0.0-rc3.
 
-Commit:
-12fae657686f2179da3feae561031ff3622c937e.
+Commit da tag:
+b2949306587d37801be304101d36bf6974bcb6f0.
 
-[Release e relatórios da rc2](https://github.com/Arthurmrsilva/organizacao-recursos/releases/tag/v1.0.0-rc2).
+[Release rc3 e relatorios](https://github.com/Arthurmrsilva/organizacao-recursos/releases/tag/v1.0.0-rc3).
 
-O PR #4 acrescentou o relato de testes funcionais parciais
-dos integrantes, no commit:
+A release identifica as execucoes automatizadas da candidata
+e os relatorios correspondentes.
 
-d937c1e9a8c7f90d38b240b728a8d24515414dad.
+Os resultados da rc2 na secao 4 sao historicos e permanecem
+associados ao commit 12fae657686f2179da3feae561031ff3622c937e.
+Nao representam novas medicoes da rc3.
 
-Esse complemento está na main e não integra a tag rc2.
-A comparação entre esses dois commits contém somente documentos,
-sem alteração no código da aplicação.
-
-Esta consolidação documental também é posterior à rc2.
-A tag publicada permanece preservada.
+O aceite individual de Arthur e o relato funcional de Nicolas
+sao complementos posteriores a publicacao da rc3.
+O relato de Nicolas e seus resumos foram integrados pelo PR #9;
+a situacao dos integrantes foi atualizada pelo PR #10.
+Esses complementos nao modificam o conteudo da tag publicada.
 
 ## 3. Proposta de decisão
 
@@ -156,19 +157,21 @@ Reservas no mesmo dia podem ser permitidas quando não houver sobreposição.
 
 ## 6. Riscos e limitações
 
-Os responsáveis e seus aceites ainda não foram confirmados.
+Arthur Mendes Ramos da Silva registrou seu aceite individual
+em 08/11/2026 e assumiu o acompanhamento dos tratamentos abaixo.
+As confirmacoes individuais de Nicolas e Robert permanecem pendentes.
 A coluna de tratamento descreve propostas, não aprovações já concedidas.
 
 | Limitação | Impacto | Tratamento proposto e justificativa | Responsável e aceite |
 | --- | --- | --- | --- |
-| Gestão completa de usuários e edição/desativação de recursos incompletas na interface | Parte da administração depende de procedimentos externos | Conferir a especificação e implementar o que for obrigatório; não presumir dispensa | Pendente |
-| Carga limitada a GET /login no mesmo computador | Não mede desempenho dos fluxos autenticados | Restringir as conclusões ao cenário medido e ampliar o ensaio se exigido | Pendente |
-| Execução com servidor de desenvolvimento | Não comprova implantação apropriada para produção | Restringir o uso à demonstração acadêmica | Pendente |
-| Cobertura calculada em sete módulos | Os percentuais não abrangem todos os arquivos | Informar o escopo junto das métricas | Pendente |
-| SQLite dentro do container | Não verifica servidor de banco separado | Explicar a arquitetura e conferir sua adequação à especificação | Pendente |
-| Ambiente externo do Testcontainers sem lock completo com hashes | Menor reprodutibilidade das dependências transitivas | Preservar logs e documentar a configuração utilizada | Pendente |
-| Restauração em diretório temporário | Não demonstra recuperação operacional completa | Apresentar o resultado como verificação de integridade e restauração no escopo testado | Pendente |
-| Testes dos integrantes registrados por relato indireto e versão presumida | Rastreabilidade limitada da validação manual | Obter confirmação dos participantes sobre versão, cenários e resultados | Pendente |
+| Gestão completa de usuários e edição/desativação de recursos incompletas na interface | Parte da administração depende de procedimentos externos | Conferir a especificação e implementar o que for obrigatório; não presumir dispensa | Arthur Mendes Ramos da Silva; aceite individual em 08/11/2026; acompanhamento assumido |
+| Carga limitada a GET /login no mesmo computador | Não mede desempenho dos fluxos autenticados | Restringir as conclusões ao cenário medido e ampliar o ensaio se exigido | Arthur Mendes Ramos da Silva; aceite individual em 08/11/2026; acompanhamento assumido |
+| Execução com servidor de desenvolvimento | Não comprova implantação apropriada para produção | Restringir o uso à demonstração acadêmica | Arthur Mendes Ramos da Silva; aceite individual em 08/11/2026; acompanhamento assumido |
+| Cobertura calculada em sete módulos | Os percentuais não abrangem todos os arquivos | Informar o escopo junto das métricas | Arthur Mendes Ramos da Silva; aceite individual em 08/11/2026; acompanhamento assumido |
+| SQLite dentro do container | Não verifica servidor de banco separado | Explicar a arquitetura e conferir sua adequação à especificação | Arthur Mendes Ramos da Silva; aceite individual em 08/11/2026; acompanhamento assumido |
+| Ambiente externo do Testcontainers sem lock completo com hashes | Menor reprodutibilidade das dependências transitivas | Preservar logs e documentar a configuração utilizada | Arthur Mendes Ramos da Silva; aceite individual em 08/11/2026; acompanhamento assumido |
+| Restauração em diretório temporário | Não demonstra recuperação operacional completa | Apresentar o resultado como verificação de integridade e restauração no escopo testado | Arthur Mendes Ramos da Silva; aceite individual em 08/11/2026; acompanhamento assumido |
+| Testes dos integrantes registrados por relato indireto e versão presumida | Rastreabilidade limitada da validação manual | Obter confirmação dos participantes sobre versão, cenários e resultados | Arthur Mendes Ramos da Silva; aceite individual em 08/11/2026; acompanhamento assumido |
 
 Aceitar um risco exige confirmação do responsável nominal.
 Uma ressalva não substitui o atendimento de requisito obrigatório
@@ -179,7 +182,7 @@ nem a autorização do professor para mudança de escopo.
 | Integrante | Participação registrada | Base do registro |
 | --- | --- | --- |
 | Arthur Mendes Ramos da Silva | Implementação, ajustes, testes, documentação e integração no GitHub | Histórico de commits e registros de validação |
-| Nicolas Ferreira | Participação em testes funcionais parciais | Relato recebido por Arthur; cenários individuais e versão a confirmar |
+| Nicolas Ferreira | Validacao funcional manual de 21 cenarios dos perfis ADMIN e RESPONSAVEL | [Relato do executor](entrega/revisao-nicolas.md), integrado pelo PR #9; versao informada f3f2061, correspondencia com o ambiente a confirmar |
 | Robert Oliveira | Participação em testes funcionais parciais | Relato recebido por Arthur; cenários individuais e versão a confirmar |
 
 Esta seção atualiza o registro anterior, de 03/11/2026,
@@ -243,7 +246,8 @@ Pendente:
 Repositório:
 https://github.com/Arthurmrsilva/organizacao-recursos
 
-Candidata publicada de referência: v1.0.0-rc2.
+Candidata publicada de referencia: v1.0.0-rc3.
+Os complementos documentais posteriores estao na main.
 Responsável pelo envio: a confirmar.
 Data de envio: não confirmada.
 Comprovante: não apresentado neste registro.
