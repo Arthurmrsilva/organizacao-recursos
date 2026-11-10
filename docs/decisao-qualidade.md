@@ -185,28 +185,44 @@ nem a autorização do professor para mudança de escopo.
 Esta seção atualiza o registro anterior, de 03/11/2026,
 que ainda não incluía a participação funcional posteriormente relatada.
 
-## 8. Revisão e confirmação
+## 8. Revisao e confirmacao
 
-| Integrante | Situação |
+Situacao atualizada em 09/11/2026.
+
+| Integrante | Situacao |
 | --- | --- |
-| Arthur Mendes Ramos da Silva | Proponente da entrega acadêmica com ressalvas; aceite nominal dos riscos ainda não registrado |
-| Nicolas Ferreira | Testes parciais relatados; revisão do código e confirmação final pendentes |
-| Robert Oliveira | Testes parciais relatados; revisão do código e confirmação final pendentes |
+| Arthur Mendes Ramos da Silva | Aprova a entrega academica com ressalvas da rc3. Aceite individual dos riscos e responsabilidade de acompanhamento registrados em 08/11/2026, conforme confirmacao ao final deste documento. |
+| Nicolas Ferreira | Relato de 21 cenarios funcionais (A1 a A15 e R1 a R6) integrado pelo PR #9. Confirmacao da versao executada, revisao do codigo e decisao individual final pendentes. |
+| Robert Oliveira | Testes parciais anteriormente relatados por Arthur. Versao e cenarios individuais a confirmar; revisao do codigo e decisao individual final pendentes. |
 
-A integração dos pull requests e a aprovação da CI não substituem
-a revisão humana ou a confirmação da decisão pelos integrantes.
+O [relato de Nicolas](entrega/revisao-nicolas.md) registra resultados
+e limites da validacao funcional. Os testes manuais nao equivalem
+a revisao integral do codigo.
 
-## 9. Pendências
+A integracao dos pull requests e a aprovacao da CI nao substituem
+a revisao humana ou a confirmacao da decisao pelos integrantes.
 
-- Confirmar a versão utilizada nos testes manuais dos integrantes.
-- Identificar os cenários executados por cada participante.
-- Concluir a revisão do código.
-- Conferir os requisitos obrigatórios ainda apontados como incompletos.
-- Definir responsáveis e obter o aceite dos riscos.
-- Obter a confirmação individual da decisão de qualidade.
-- Integrar esta consolidação e conferir sua CI.
-- Conferir a correspondência entre documentos, versão entregue e evidências.
-- Confirmar o envio no formulário e preservar o comprovante.
+## 9. Pendencias e acompanhamento
+
+Concluido:
+- Integracao do relato de Nicolas e dos resumos documentais pelo PR #9.
+- CI da main apos o PR #9: testes automatizados #225 e Testcontainers #63 aprovados.
+- Registro do aceite individual de Arthur e de sua responsabilidade
+  pelo acompanhamento dos riscos, conforme confirmacao de 08/11/2026.
+
+Pendente:
+- Confirmar a correspondencia entre a versao informada por Nicolas
+  (f3f2061) e o ambiente efetivamente executado.
+- Completar a identificacao do recurso vinculado ao responsavel
+  e esclarecer os horarios e o ambiente descritos no relato.
+- Confirmar a versao e os cenarios individuais de Robert.
+- Concluir e registrar a revisao do codigo por outro integrante.
+- Conferir o atendimento dos requisitos obrigatorios da especificacao.
+- Obter as decisoes individuais de Nicolas e Robert sobre a entrega
+  e as ressalvas, para registrar a confirmacao coletiva.
+- Conferir a correspondencia entre a candidata publicada,
+  os complementos posteriores e as evidencias.
+- Confirmar o envio no formulario e preservar o comprovante.
 
 ## 10. Documentos de apoio
 
