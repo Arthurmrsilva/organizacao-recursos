@@ -15,8 +15,9 @@ com o ambiente executado ainda precisa de confirmacao.
 
 O registro nao inclui validacao completa de aprovacao e rejeicao,
 retirada, devolucao ou nao comparecimento de materiais.
-A revisao integral do codigo e a confirmacao coletiva permanecem
-pendentes. A participacao de Robert nao e atestada por este relato.
+Este relato funcional não constitui revisão integral do código.
+As contribuições e as confirmações de Nicolas e Robert foram atualizadas
+em 10/11/2026 na decisão de qualidade.
 
 Este complemento e posterior a rc3 e nao modifica sua tag.
 As indicacoes anteriores de pendencia devem ser lidas considerando
@@ -54,9 +55,9 @@ Atualização: 08/11/2026.
 Projeto: Organização de Recursos.
 Disciplina: Qualidade de Software.
 
-Estado: proposta de entrega acadêmica com ressalvas.
-Proponente: Arthur Mendes Ramos da Silva.
-Confirmação coletiva: pendente.
+Estado: entrega acadêmica com ressalvas, com concordância dos três integrantes registrada.
+Consolidação: Arthur Mendes Ramos da Silva.
+Confirmação coletiva: registrada; confirmações de Nicolas e Robert comunicadas por Arthur em 10/11/2026.
 
 ## 1. Integrantes
 
@@ -100,10 +101,10 @@ Arthur propõe a entrega acadêmica com ressalvas, considerando:
 - O relato dos testes funcionais parciais de Nicolas e Robert.
 - A documentação dos limites das verificações.
 
-A proposta ainda não constitui decisão coletiva assinada pelo grupo.
-As revisões realizadas por Nicolas e Robert estão registradas nas seções 7 e 8.
-O aceite de Arthur e a confirmação de Nicolas estão registrados ao final;
-a decisão individual de Robert permanece pendente.
+A concordância dos três integrantes com a entrega acadêmica com ressalvas
+está registrada neste documento. As confirmações de Nicolas e Robert foram
+comunicadas por Arthur em 10/11/2026. As revisões estão nas seções 7 e 8;
+os registros individuais estão ao final.
 
 Não se declara prontidão para produção nem atendimento integral
 a requisitos cuja conferência ainda está pendente.
@@ -161,8 +162,8 @@ Reservas no mesmo dia podem ser permitidas quando não houver sobreposição.
 
 Arthur Mendes Ramos da Silva registrou seu aceite individual
 em 08/11/2026 e assumiu o acompanhamento dos tratamentos abaixo.
-A confirmação de Nicolas está registrada ao final deste documento.
-A decisão individual de Robert permanece pendente.
+As confirmações de Nicolas e Robert sobre a entrega com ressalvas
+estão registradas ao final deste documento.
 A coluna de tratamento descreve propostas, não aprovações já concedidas.
 
 | Limitação | Impacto | Tratamento proposto e justificativa | Responsável e aceite |
@@ -199,7 +200,7 @@ Situacao atualizada em 10/11/2026.
 | --- | --- |
 | Arthur Mendes Ramos da Silva | Aprova a entrega academica com ressalvas da rc3. Aceite individual dos riscos e responsabilidade de acompanhamento registrados em 08/11/2026, conforme confirmacao ao final deste documento. |
 | Nicolas Ferreira | Relato de 21 cenarios integrado pelo PR #9. Arthur informou em 10/11/2026 que Nicolas confirmou os dados do relato, a revisao realizada e a concordancia com a entrega academica com ressalvas. Ver registro de confirmacao ao final. |
-| Robert Oliveira | Colaboração nos diagramas e participação na revisão do projeto e do código informadas por Arthur em 10/11/2026. Testes parciais anteriormente relatados; versão e cenários individuais a confirmar. Decisão individual final sobre a entrega e as ressalvas pendente. |
+| Robert Oliveira | Colaboração nos diagramas e participação na revisão do projeto e do código informadas por Arthur em 10/11/2026. Testes parciais anteriormente relatados; versão e cenários individuais a confirmar. Arthur informou em 10/11/2026 que Robert confirmou sua concordância com a entrega acadêmica e as ressalvas documentadas. |
 
 O [relato de Nicolas](entrega/revisao-nicolas.md) registra resultados
 e limites da validacao funcional. Os testes manuais nao equivalem
@@ -211,6 +212,7 @@ a revisao humana ou a confirmacao da decisao pelos integrantes.
 ## 9. Pendencias e acompanhamento
 
 Concluido:
+- Registro da concordância de Robert com a entrega e as ressalvas, comunicada por Arthur em 10/11/2026; confirmação coletiva registrada.
 - Registro das contribuições de Nicolas em ideias para programação, cores do CSS e revisão.
 - Registro da colaboração de Robert nos diagramas e na revisão do projeto e do código.
 - Confirmação de Nicolas integrada pelo PR #12.
@@ -226,8 +228,6 @@ Pendente:
   e esclarecer os horarios e o ambiente descritos no relato.
 - Confirmar a versao e os cenarios individuais de Robert.
 - Conferir o atendimento dos requisitos obrigatorios da especificacao.
-- Obter a decisão individual de Robert sobre a entrega
-  e as ressalvas, para registrar a confirmação coletiva.
 - Conferir a correspondencia entre a candidata publicada,
   os complementos posteriores e as evidencias.
 - Confirmar o envio no formulario e preservar o comprovante.
@@ -292,9 +292,9 @@ Este registro atualiza, para Arthur, as indicacoes anteriores de
 aceite nominal pendente. A responsabilidade de acompanhamento dos
 riscos passa a ser de Arthur Mendes Ramos da Silva.
 
-A confirmacao coletiva e a revisao do codigo por outro integrante
-continuam pendentes. Nenhuma aprovacao e atribuida a Nicolas Ferreira
-ou Robert Oliveira por este registro.
+Na data deste aceite de Arthur, as confirmações dos demais integrantes
+estavam pendentes. Os complementos de 10/11/2026 abaixo atualizam
+esse estado com as confirmações de Nicolas e Robert.
 
 Este complemento e posterior a publicacao da rc3 e nao modifica
 o conteudo da tag. O envio no formulario continua sem comprovacao
@@ -313,7 +313,7 @@ Nao se declara cobertura manual integral nem revisao de 100% do codigo.
 
 As indicacoes anteriores de revisao e decisao individual de Nicolas
 pendentes ficam atualizadas por esta confirmacao.
-A confirmacao de Robert permanece sem registro.
+A confirmação de Robert está registrada no complemento de 10/11/2026 abaixo.
 
 O commit informado no relato permanece f3f2061.
 Os detalhes exatos do recurso vinculado, dos horarios corrigidos
@@ -322,3 +322,18 @@ Esses detalhes documentais nao sao preenchidos por suposicao.
 
 Este complemento e posterior a rc3 e nao modifica sua tag.
 O envio ao professor continua sujeito ao comprovante do formulario.
+
+## Confirmação de Robert informada por Arthur — 10/11/2026
+
+Arthur Mendes Ramos da Silva informou que Robert Oliveira confirmou
+sua concordância com a entrega acadêmica da candidata v1.0.0-rc3,
+com as ressalvas documentadas nesta decisão de qualidade.
+
+A colaboração de Robert nos diagramas e na revisão do projeto e do código
+está registrada nas seções 7 e 8. Esta confirmação atualiza as indicações
+anteriores de decisão individual e confirmação coletiva pendentes.
+
+Com o aceite de Arthur e as confirmações de Nicolas e Robert, fica registrada
+a concordância dos três integrantes com a entrega acadêmica com ressalvas.
+Os limites técnicos e o escopo dos testes permanecem os documentados.
+Este complemento não modifica a tag rc3 nem comprova o envio ao professor.
