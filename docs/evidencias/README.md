@@ -1,139 +1,76 @@
 # Índice de evidências
 
-## Complemento documental - testes de Nicolas - 09/11/2026
+## Estado da entrega — 10/11/2026
 
-Nicolas Ferreira relatou a execucao de 21 cenarios manuais:
-15 do perfil ADMIN e 6 do perfil RESPONSAVEL, em 09/11/2026.
-Segundo o executor, nenhum problema foi encontrado nos passos
-descritos. O trecho de terminal apresentado nao contem erros 500
-nem traceback.
+Decisão do grupo: **entrega acadêmica com ressalvas**.
+Arthur registrou seu aceite; Nicolas e Robert confirmaram a concordância
+com a entrega e as ressalvas, conforme comunicação de Arthur em 10/11/2026.
 
-Consulte o [relato funcional de Nicolas](../entrega/revisao-nicolas.md) para os resultados,
-a identificacao informada e as pendencias de rastreabilidade.
-O commit informado como testado e f3f2061; sua correspondencia
-com o ambiente executado ainda precisa de confirmacao.
+A última candidata publicada é a **v1.0.0-rc4**, commit
+`ca08ea6132c462fec7228d22892f50ad8ae82926`.
+Sua CI e seus relatórios estão na [release rc4](https://github.com/Arthurmrsilva/organizacao-recursos/releases/tag/v1.0.0-rc4).
 
-O registro nao inclui validacao completa de aprovacao e rejeicao,
-retirada, devolucao ou nao comparecimento de materiais.
-A revisao integral do codigo e a confirmacao coletiva permanecem
-pendentes. A participacao de Robert nao e atestada por este relato.
+Esta consolidação corrige referências documentais posteriores à rc4 e
+prepara a **rc5**. A rc5 somente estará publicada após integração,
+CI aprovada, criação da nova tag anotada e publicação da release.
+As tags anteriores permanecem fixas.
 
-Este complemento e posterior a rc3 e nao modifica sua tag.
-As indicacoes anteriores de pendencia devem ser lidas considerando
-este novo relato, dentro do escopo e dos limites aqui registrados.
-O envio ao professor deve ser confirmado pelo comprovante do formulario.
+Para avaliar uma candidata, use o commit e as execuções identificados
+nas notas da respectiva release. Resultados anteriores mantêm sua versão
+de origem. O envio pelo formulário ainda não tem comprovante neste registro.
 
 
-## Preparacao da candidata v1.0.0-rc3
+## Pacote verificado da rc4
 
-Atualizacao: 08/11/2026.
+Todas as referências desta seção pertencem ao commit
+`ca08ea6132c462fec7228d22892f50ad8ae82926`.
 
-A rc3 reunira a documentacao consolidada pelos PRs #4 e #5.
-A publicacao depende da integracao desta preparacao, CI aprovada
-no commit escolhido, criacao da tag anotada e preservacao dos
-relatorios correspondentes.
-
-A identidade definitiva do commit, os links das execucoes e os
-anexos serao registrados nas notas da release rc3:
-[Release rc3](https://github.com/Arthurmrsilva/organizacao-recursos/releases/tag/v1.0.0-rc3).
-Esse endereco somente estara disponivel depois da publicacao.
-
-Os resultados da rc2 abaixo continuam associados a rc2.
-Nao sao apresentados como novas medicoes da rc3.
-Os testes parciais dos integrantes continuam com versao presumida;
-a revisao do codigo, a confirmacao coletiva e o aceite dos riscos
-permanecem pendentes.
-
-## Registro anterior a preparacao da rc3
-
-O conteudo abaixo preserva o estado anterior. As referencias a
-"candidata publicada", a rc2 e as pendencias de consolidacao
-representam esse registro historico.
-
-Atualização: 08/11/2026.
-
-## Versão candidata publicada
-
-- Tag: v1.0.0-rc2.
-- Commit: 12fae657686f2179da3feae561031ff3622c937e.
-- [Código da candidata](https://github.com/Arthurmrsilva/organizacao-recursos/tree/v1.0.0-rc2).
-- [Release e arquivos anexados](https://github.com/Arthurmrsilva/organizacao-recursos/releases/tag/v1.0.0-rc2).
-
-A tag permanece fixa. Documentos acrescentados depois da publicação
-não fazem parte do conteúdo original da rc2.
-
-## CI e relatórios da rc2
-
-As execuções abaixo correspondem ao commit da tag:
-
-| Verificação | Execução | Resultado |
+| Verificação | Evidência | Resultado |
 | --- | --- | --- |
-| Testes automatizados na tag | [#208](https://github.com/Arthurmrsilva/organizacao-recursos/actions/runs/42432889313) | Aprovado |
-| Testcontainers na tag | [#46](https://github.com/Arthurmrsilva/organizacao-recursos/actions/runs/42432889203) | Aprovado |
-| Testes automatizados na main, no mesmo commit | [#207](https://github.com/Arthurmrsilva/organizacao-recursos/actions/runs/42432684085) | Aprovado |
-| Testcontainers na main, no mesmo commit | [#45](https://github.com/Arthurmrsilva/organizacao-recursos/actions/runs/42432684089) | Aprovado |
+| Testes na tag rc4 | [#245](https://github.com/Arthurmrsilva/organizacao-recursos/actions/runs/42920846716) | Aprovado |
+| Testcontainers na tag rc4 | [#83](https://github.com/Arthurmrsilva/organizacao-recursos/actions/runs/42920846792) | Aprovado |
+| Testes e Sonar na main, mesmo commit | [#244](https://github.com/Arthurmrsilva/organizacao-recursos/actions/runs/42919624873) | Aprovado |
+| Testcontainers na main, mesmo commit | [#82](https://github.com/Arthurmrsilva/organizacao-recursos/actions/runs/42919624812) | Aprovado |
+| Cobertura JSON, XML e HTML | [ZIP da rc4](https://github.com/Arthurmrsilva/organizacao-recursos/releases/download/v1.0.0-rc4/relatorios-cobertura.3.zip) | Preservado na release |
+| Log do Testcontainers | [ZIP da rc4](https://github.com/Arthurmrsilva/organizacao-recursos/releases/download/v1.0.0-rc4/resultado-testcontainers.3.zip) | Preservado na release |
 
-Relatórios preservados:
+A CI registra 97,46% de linhas e 94,83% de ramificações em sete módulos,
+292 testes Python no container, concorrência HTTP e fluxo no Chromium.
+A cobertura é do Coverage.py e não abrange todos os arquivos.
+Sonar é executado nos PRs e pushes da main; o workflow da tag não o substitui.
 
-- [Cobertura em JSON, XML e HTML](https://github.com/Arthurmrsilva/organizacao-recursos/releases/download/v1.0.0-rc2/relatorios-cobertura.2.zip).
-- [Log do Testcontainers](https://github.com/Arthurmrsilva/organizacao-recursos/releases/download/v1.0.0-rc2/resultado-testcontainers.2.zip).
+## Consolidação para a rc5
 
-Resultados dos relatórios:
+A rc5 está em preparação e não recebe resultados antecipados.
+Após a integração e a criação da tag, as notas da nova release deverão
+identificar o SHA marcado, os links da CI da tag e da main no mesmo commit,
+a referência ao Quality Gate e os dois relatórios dessa nova execução.
 
-- Cobertura de linhas: 97,46%.
-- Cobertura de ramificações: 94,83%.
-- Escopo: sete módulos Python.
-- Suíte no container: 292 testes aprovados em 19,614 segundos.
-- Teste externo do Testcontainers: aprovado.
-- Concorrência por HTTP e fluxo no Chromium: aprovados na CI.
+A [lista de releases](https://github.com/Arthurmrsilva/organizacao-recursos/releases) permite consultar a candidata
+publicada e seus anexos. Os resultados da rc4 acima permanecem evidências
+da rc4; não são apresentados como uma medição nova da rc5.
 
-A cobertura é calculada pelo Coverage.py. Não corresponde à
-cobertura sobre código novo do Sonar nem abrange todos os arquivos.
-
-A análise Sonar é configurada nos pull requests e pushes da main.
-A execução #207 é a referência da main para o commit da rc2;
-a execução da tag não substitui essa análise.
-
-## Complemento documental posterior à rc2
-
-O [PR #4](https://github.com/Arthurmrsilva/organizacao-recursos/pull/4)
-acrescentou o relato de testes funcionais parciais dos integrantes.
-
-Commit de integração:
-d937c1e9a8c7f90d38b240b728a8d24515414dad.
-
-CI desse commit:
-
-- [Testes automatizados #211](https://github.com/Arthurmrsilva/organizacao-recursos/actions/runs/42500698008): aprovado.
-- [Testcontainers #49](https://github.com/Arthurmrsilva/organizacao-recursos/actions/runs/42500698004): aprovado.
-
-A comparação entre rc2 e esse commit contém somente três documentos,
-sem alteração no código da aplicação.
-
-[Registro dos testes parciais relatados](../entrega/validacao-parcial-integrantes.md).
-
-Esse relato está na main e não integra a tag rc2.
-A versão utilizada pelos participantes é presumida como rc1,
-ainda sem confirmação do identificador.
-
-## Documentação
+## Documentos e revisões
 
 | Documento | Conteúdo |
 | --- | --- |
-| [README](../../README.md) | Instalação, execução e rotas HTTP |
-| [RTM](../rtm.md) | Rastreabilidade dos requisitos |
-| [Arquitetura](../../ARQUITETURA.md) | Organização e diagramas |
+| [README](../../README.md) | Instalação, execução, testes e rotas HTTP |
+| [RTM](../rtm.md) | Requisitos e rastreabilidade |
+| [Arquitetura](../../ARQUITETURA.md) | Diagramas e decisões |
 | [Plano de testes](../../PLANO_TESTES.md) | Estratégia e cenários |
 | [Relatório de qualidade](../relatorio-qualidade.md) | Resultados e limitações |
 | [Defeitos](../defeitos/README.md) | Problemas e correções |
+| [Checklist](../entrega/checklist.md) | Entregáveis, caminhos e fechamento |
+| [Decisão de qualidade](../decisao-qualidade.md) | Riscos, responsáveis, contribuições, revisões e concordância |
+| [Relato de Nicolas](../entrega/revisao-nicolas.md) | 21 cenários manuais ADMIN e RESPONSAVEL |
+| [Testes parciais anteriores](../entrega/validacao-parcial-integrantes.md) | Relato histórico com limites de rastreabilidade |
 | [Segurança](../../SEGURANCA.md) | Controles e auditorias |
-| [Checklist](../entrega/checklist.md) | Estado da entrega |
-| [Decisão de qualidade](../decisao-qualidade.md) | Proposta, riscos e confirmações |
-| [Changelog](../../CHANGELOG.md) | Histórico das alterações |
+| [Changelog](../../CHANGELOG.md) | Histórico das candidatas |
 
-Os links relativos desta seção acompanham a versão do repositório
-em que este índice é consultado. Para consultar o conteúdo original
-da candidata, utilize o link do código da rc2 acima.
+Arthur registrou o aceite dos riscos e o acompanhamento de seus tratamentos.
+As confirmações de Nicolas e Robert foram comunicadas por Arthur em
+10/11/2026. O relato de Nicolas identifica 21 cenários; as revisões não
+são apresentadas como exame integral de todo o código.
 
 ## Evidências históricas com escopo identificado
 
@@ -181,14 +118,11 @@ As auditorias representam suas respectivas datas de execução.
 A restauração em diretório temporário não equivale a um plano
 operacional completo de recuperação.
 
-## Pendências reais
 
-- Consolidar a documentação para distinguir estado atual e histórico.
-- Confirmar versão e cenários executados por cada integrante.
-- Concluir a revisão do código e as confirmações do grupo.
-- Registrar responsáveis e aceite dos riscos.
-- Conferir o atendimento dos requisitos obrigatórios da especificação.
-- Confirmar o envio no formulário e preservar o comprovante.
 
-O relato de testes parciais não representa aprovação coletiva.
-CI aprovada não comprova, isoladamente, atendimento integral à especificação.
+## Limites e envio
+
+Resultados históricos mantêm o commit e o escopo de origem. A existência
+dos documentos e a CI verde não demonstram atendimento integral a todos
+os requisitos. As limitações funcionais e técnicas estão na decisão de qualidade.
+O recebimento pelo formulário do professor ainda depende de comprovante.
