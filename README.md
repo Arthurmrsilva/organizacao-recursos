@@ -27,13 +27,13 @@ sobreposições e controlar aprovação, manutenção e movimentação de materi
 ## Integrantes
 
 - Arthur Mendes Ramos da Silva
-- Nicolas Ferreira
-- Robert Oliveira
+- Nicolas Ferreira Souza
+- Robert Santos de Oliveira
 
 ## Contribuições individuais — atualização de 10/11/2026
 
-- **Nicolas Ferreira:** Colaborou com ideias para a programação e com a definição visual da interface, incluindo as cores do CSS. Executou e documentou 21 cenários de testes funcionais dos perfis ADMIN e RESPONSAVEL, publicou o relatório por commit e pull request e participou da revisão do código.
-- **Robert Oliveira:** Colaborou na elaboração dos diagramas e participou da revisão do projeto e do código.
+- **Nicolas Ferreira Souza:** Colaborou com ideias para a programação e com a definição visual da interface, incluindo as cores do CSS. Executou e documentou 21 cenários de testes funcionais dos perfis ADMIN e RESPONSAVEL, publicou o relatório por commit e pull request e participou da revisão do código.
+- **Robert Santos de Oliveira:** Colaborou na elaboração dos diagramas e participou da revisão do projeto e do código.
 
 As contribuições adicionais foram informadas por Arthur Mendes Ramos da Silva.
 O relato funcional de Nicolas mantém o escopo de 21 cenários.

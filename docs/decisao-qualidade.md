@@ -22,8 +22,8 @@ de origem. O envio pelo formulário ainda não tem comprovante neste registro.
 ## 1. Integrantes
 
 - Arthur Mendes Ramos da Silva.
-- Nicolas Ferreira.
-- Robert Oliveira.
+- Nicolas Ferreira Souza.
+- Robert Santos de Oliveira.
 
 As contribuições registradas abaixo são distintas da aprovação
 individual da decisão de qualidade.
@@ -79,7 +79,7 @@ dos ensaios históricos.
 
 ## 5. Testes funcionais parciais dos integrantes
 
-Conforme relato recebido por Arthur, Nicolas Ferreira e Robert Oliveira
+Conforme relato recebido por Arthur, Nicolas Ferreira Souza e Robert Santos de Oliveira
 participaram de testes manuais na sexta-feira anterior à publicação
 da rc2, nos seguintes fluxos:
 
@@ -132,8 +132,8 @@ nem a autorização do professor para mudança de escopo.
 | Integrante | Participação registrada | Base do registro |
 | --- | --- | --- |
 | Arthur Mendes Ramos da Silva | Implementação, ajustes, testes, documentação e integração no GitHub | Histórico de commits e registros de validação |
-| Nicolas Ferreira | Colaborou com ideias para a programação e com a definição visual da interface, incluindo as cores do CSS. Executou e documentou 21 cenários de testes funcionais dos perfis ADMIN e RESPONSAVEL, publicou o relatório por commit e pull request e participou da revisão do código. | Contribuições informadas por Arthur em 10/11/2026; [relato funcional](entrega/revisao-nicolas.md) integrado pelo PR #9 e confirmação registrada pelo PR #12 |
-| Robert Oliveira | Colaborou na elaboração dos diagramas e participou da revisão do projeto e do código. Participação em testes funcionais parciais anteriormente relatada. | Contribuições informadas por Arthur em 10/11/2026; [registro dos testes parciais](entrega/validacao-parcial-integrantes.md) |
+| Nicolas Ferreira Souza | Colaborou com ideias para a programação e com a definição visual da interface, incluindo as cores do CSS. Executou e documentou 21 cenários de testes funcionais dos perfis ADMIN e RESPONSAVEL, publicou o relatório por commit e pull request e participou da revisão do código. | Contribuições informadas por Arthur em 10/11/2026; [relato funcional](entrega/revisao-nicolas.md) integrado pelo PR #9 e confirmação registrada pelo PR #12 |
+| Robert Santos de Oliveira | Colaborou na elaboração dos diagramas e participou da revisão do projeto e do código. Participação em testes funcionais parciais anteriormente relatada. | Contribuições informadas por Arthur em 10/11/2026; [registro dos testes parciais](entrega/validacao-parcial-integrantes.md) |
 
 Esta seção consolida as contribuições adicionais informadas por Arthur em
 10/11/2026 e atualiza os registros anteriores de participação dos integrantes.
@@ -145,8 +145,8 @@ Situacao atualizada em 10/11/2026.
 | Integrante | Situacao |
 | --- | --- |
 | Arthur Mendes Ramos da Silva | Aprova a entrega academica com ressalvas da rc3. Aceite individual dos riscos e responsabilidade de acompanhamento registrados em 08/11/2026, conforme confirmacao ao final deste documento. |
-| Nicolas Ferreira | Relato de 21 cenarios integrado pelo PR #9. Arthur informou em 10/11/2026 que Nicolas confirmou os dados do relato, a revisao realizada e a concordancia com a entrega academica com ressalvas. Ver registro de confirmacao ao final. |
-| Robert Oliveira | Colaboração nos diagramas e participação na revisão do projeto e do código informadas por Arthur em 10/11/2026. Testes parciais anteriormente relatados; versão e cenários individuais a confirmar. Arthur informou em 10/11/2026 que Robert confirmou sua concordância com a entrega acadêmica e as ressalvas documentadas. |
+| Nicolas Ferreira Souza | Relato de 21 cenarios integrado pelo PR #9. Arthur informou em 10/11/2026 que Nicolas confirmou os dados do relato, a revisao realizada e a concordancia com a entrega academica com ressalvas. Ver registro de confirmacao ao final. |
+| Robert Santos de Oliveira | Colaboração nos diagramas e participação na revisão do projeto e do código informadas por Arthur em 10/11/2026. Testes parciais anteriormente relatados; versão e cenários individuais a confirmar. Arthur informou em 10/11/2026 que Robert confirmou sua concordância com a entrega acadêmica e as ressalvas documentadas. |
 
 O [relato de Nicolas](entrega/revisao-nicolas.md) registra resultados
 e limites da validacao funcional. Os testes manuais nao equivalem
@@ -247,7 +247,7 @@ neste documento.
 
 ## Confirmacao de Nicolas informada por Arthur - 10/11/2026
 
-Arthur Mendes Ramos da Silva informou que Nicolas Ferreira confirmou:
+Arthur Mendes Ramos da Silva informou que Nicolas Ferreira Souza confirmou:
 - Os dados da validacao funcional relatada.
 - A realizacao da revisao do codigo no escopo que examinou.
 - A concordancia com a entrega academica com as ressalvas documentadas.
@@ -270,7 +270,7 @@ O envio ao professor continua sujeito ao comprovante do formulario.
 
 ## Confirmação de Robert informada por Arthur — 10/11/2026
 
-Arthur Mendes Ramos da Silva informou que Robert Oliveira confirmou
+Arthur Mendes Ramos da Silva informou que Robert Santos de Oliveira confirmou
 sua concordância com a entrega acadêmica da candidata v1.0.0-rc3,
 com as ressalvas documentadas nesta decisão de qualidade.
 
